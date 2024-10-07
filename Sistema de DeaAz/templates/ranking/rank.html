@@ -1,0 +1,80 @@
+{% load static %}
+
+<!doctype html>
+<html lang="en">
+
+<head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
+    <link href="https://fonts.googleapis.com/css?family=Roboto:300,400&display=swap" rel="stylesheet">
+
+    <!-- Bootstrap CSS -->
+    <link href="{% static 'estilos/rank2.css' %}" rel="stylesheet" type="text/css">
+
+    <!-- Style -->
+    <link href="{% static 'estilos/rank.css' %}" rel="stylesheet" type="text/css"/>
+
+    <title>Rank</title>
+</head>
+
+<body>
+
+<header>
+    <div class="logo">
+         <h1><a href="{% url 'homeAdmin' %}">Administração</a></h1>
+    </div>
+    
+
+    
+    <div class="header-content">
+        <div class="user-info">
+            <span class="welcome-message">Bem-vindo, {{ usuario_logado.username }}</span>
+            <ul class="user-details">
+                <li class="detail-item">{{ usuario_logado.first_name }} {{ usuario_logado.last_name }}</li>
+                <li class="detail-item">{{ usuario_logado.email }}</li>
+            </ul>
+        </div>
+        <form action="{% url 'logout' %}" method="post" class="logout-form">
+            {% csrf_token %}
+            <button type="submit" class="btn submit">Logout</button>
+        </form>
+    </div>
+   
+</header>
+
+
+<div class="content">
+    <div class="container">
+        <div class="table-responsive">
+            <table class="table table-striped custom-table">
+                <thead>
+                <tr>
+                    <th scope="col">Posição</th>
+                    <th scope="col">Nome</th>
+                    <th scope="col">telefone</th>
+                    <th scope="col">email</th>
+                    <th scope="col">total de venda</th>
+                    <th scope="col"></th>
+                </tr>
+                </thead>
+                <tbody>
+                {% for vendedor in ranked_vendedores %}
+                    <tr>
+                        <td>{{ forloop.counter }}</td>
+                        <td>{{ vendedor.vendedor_first_name }} {{ vendedor.vendedor_last_name }}</td>
+                        <td>{{ vendedor.vendedor__telefone }}</td>
+                        <td>{{ vendedor.vendedor__email }}</td>
+                        <td>{{ vendedor.total_vendas }}</td>
+                    </tr>
+                {% endfor %}
+                </tbody>
+            </table>
+        </div>
+
+
+    </div>
+
+</div>
+
+</body>
+</html>

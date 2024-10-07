@@ -1,0 +1,95 @@
+{% load static %}
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Title</title>
+    <link href="{% static 'estilos/dados_print.css' %}" rel="stylesheet" type="text/css"/>
+</head>
+<body>
+
+
+
+{% for cadastro in object_list %}
+
+      <div class="dados_cliente">
+
+        <h1>Detalhes do Cadastro</h1>
+         <hr/>
+
+
+
+        <div class="apenasp_cliente">
+          <h2>Dados do cliente</h2>
+               <p><strong>Nome: </strong> {{ cadastro.nome }}</p>
+        <p><strong>CPF: </strong> {{ cadastro.cpf }}</p>
+        <p><strong>RG: </strong> {{ cadastro.rg }}</p>
+        <p><strong>Data de Nascimento: </strong> {{ cadastro.data_nascimento }}</p>
+        <p><strong>Idade: </strong> {{ cadastro.idade }}</p>
+        <p><strong>Sexo: </strong> {{ cadastro.get_sexo_display  }}</p>
+        <p><strong>Celular : </strong> {{ cadastro.celular }}</p>
+
+
+       {% if cadastro.num_passaporte %}
+             <p><strong>Passaporte: </strong> {{ cadastro.num_passaporte }}</p>
+        {% endif %}
+
+
+         {% if cadastro.endereco %}
+            <p><strong>Endereco: </strong> {{ cadastro.endereco }}</p>
+         {% endif %}
+
+
+         {% if cadastro.bairro %}
+            <p><strong>Bairro: </strong> {{ cadastro.bairro }}</p>
+         {% endif %}
+
+
+        {% if cadastro.estado %}
+            <p><strong>Estado: </strong> {{ cadastro.estado }}</p>
+        {% endif %}
+
+
+       {% if cadastro.cep %}
+            <p><strong>Cep: </strong> {{ cadastro.cep }}</p>
+       {% endif %}
+
+       {% if cadastro.finished_at %}
+          <p><strong>Finalizado em: </strong> {{ cadastro.finished_at }}</p>
+       {% endif %}
+
+
+
+         <h2>Anexos</h2>
+  {% if cadastro.anexo1 or cadastro.anexo2 or cadastro.anexo3 %}
+
+    {% if cadastro.anexo1 %}
+        <a href="{{ cadastro.anexo1.url }}" target="_blank">{{ cadastro.get_anexo1_nome }}</a>
+    {% endif %}
+
+      <br><br>
+      {% if cadastro.anexo2 %}
+        <a href="{{ cadastro.anexo2.url }}" target="_blank">{{ cadastro.get_anexo2_nome }}</a>
+      {% endif %}
+
+<br><br>
+     {% if cadastro.anexo3 %}
+        <a href="{{ cadastro.anexo3.url }}" target="_blank">{{ cadastro.get_anexo3_nome }}</a>
+    {% endif %}
+  {% else %}
+        <p>Não há anexos disponíveis.</p>
+{% endif %}
+
+
+        </div>
+
+
+
+
+    <button class="btnvoltar"><a href="{% url 'FuncionarioListagemCliente' %}">Voltar</a></button>
+{% endfor %}
+
+
+
+</body>
+</html>

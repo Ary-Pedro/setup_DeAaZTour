@@ -1,0 +1,37 @@
+{% load static %}
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Resultado da Pesquisa</title>
+    <link href="{% static 'estilos/dados_list.css' %}" rel="stylesheet" type="text/css"/>
+
+</head>
+<body>
+
+
+
+<div id="tabelaRep" class="resultado-item">
+    <tbody>
+      <tr>
+                    <th scope="row"><a href="{% url 'dadosCliente' todo.pk %}">  {{ todo.pk }} </a></th>
+                    <th scope="row"><a href="{% url 'dadosCliente' todo.pk %}">  {{ todo.nome }} </a></th>
+                    <th scope="row">{{ todo.cpf }}</th>
+                     <th scope="row">{{ todo.bairro }}</th>
+
+
+                    <td class="botoestb">
+
+                        <a href="{% url 'cliente_atualizar' pk=todo.pk %}" class="btn btn-secondary btn-sm">
+                            <img style="display: inline-block; width: 15px; height: 15px" src="{% static 'imagens/edit.svg' %}" alt="Icone de lupa"> Editar
+                        </a>
+                        <a href="{% url 'cliente_deletar' pk=todo.pk %}" class="btn btn-danger btn-sm">
+                            <img style="display: inline-block; width: 15px; height: 15px;" src="{% static 'imagens/delete.svg' %}" alt="Icone de lupa"> Excluir
+                        </a>
+                    </td>
+                </tr>
+    </tbody>
+</div>
+
+</body>
+</html>

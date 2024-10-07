@@ -1,0 +1,208 @@
+{% load crispy_forms_filters %}
+{% load crispy_forms_tags %}
+<!DOCTYPE html>
+<html lang="en">
+<head>
+   <meta charset="UTF-8">
+   <title>Registro de Cliente</title>
+   <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0-alpha3/dist/css/bootstrap.min.css" rel="stylesheet" integrity="sha384-KK94CHFLLe+nY2dmCWGMq91rCGa5gtU4mk92HdvYe+M/SXH301p5ILy+dN9+nJOZ" crossorigin="anonymous">
+   <script src="https://cdn.jsdelivr.net/npm/axios/dist/axios.min.js"></script> <!-- Biblioteca Axios para requisições HTTP -->
+
+
+
+     <style>
+
+      .hidden {
+          display: none;
+      }
+
+      .mb-3 {
+          margin-bottom: 1rem;
+      }
+
+
+
+   </style>
+
+</head>
+<body>
+<div class="container mt-5">
+   <div class="right-section">
+       <h2>Registro</h2><br>
+
+
+
+   {% if messages %}
+       <div id="message-container">
+           {% for message in messages %}
+               <div class="alert alert-{{ message.tags }}" role="alert">
+                   {{ message }}
+               </div>
+           {% endfor %}
+       </div>
+       {% endif %}
+
+       <form method="POST">
+           {% csrf_token %}
+
+
+          <div class="mb-3">
+    <label for="tipo_servico" class="form-label">Tipo de serviço</label>
+    <input type="text" name="tipo_servico" id="tipo_servico" class="form-control"
+           value="{{ form.initial.tipo_servico|default_if_none:'' }}" placeholder="Digite o tipo de serviço aqui.">
+</div>
+
+       <div class="mb-3">
+    <label>Nacionalidade:</label><br>
+    <input type="radio" id="americano" name="nacionalidade" value="americano" onclick="toggleOtherField()"
+    {% if form.initial.nacionalidade == "americano" %}checked{% endif %}>
+    <label for="americano">Americano</label><br>
+
+    <input type="radio" id="canadense" name="nacionalidade" value="canadense" onclick="toggleOtherField()"
+    {% if form.initial.nacionalidade == "canadense" %}checked{% endif %}>
+    <label for="canadense">Canadense</label><br>
+
+    <input type="radio" id="mexicano" name="nacionalidade" value="mexicano" onclick="toggleOtherField()"
+    {% if form.initial.nacionalidade == "mexicano" %}checked{% endif %}>
+    <label for="mexicano">Mexicano</label><br>
+
+    <input type="radio" id="outros" name="nacionalidade" value="outros" onclick="toggleOtherField()"
+    {% if form.initial.nacionalidade == "outros" %}checked{% endif %}>
+    <label for="outros">Outros</label><br>
+</div>
+
+<div class="mb-3 {% if form.initial.nacionalidade != 'outros' %}hidden{% endif %}" id="outros_field">
+    <label for="nacionalidade_outros" class="form-label">Especifique:</label>
+    <input type="text" name="nacionalidade_outros" id="nacionalidade_outros" class="form-control"
+           value="{{ form.initial.nacionalidade_outros|default_if_none:'' }}">
+</div>
+
+
+           <div class="mb-3">
+               <label for="pk_cliente" class="form-label">ID do Cliente:</label>
+               <input type="text" name="pk_cliente" id="pk_cliente" class="form-control" value="{{ pk_cliente }}">
+               <button type="button" class="btn btn-primary mt-2" onclick="buscarCliente()">Buscar Cliente</button>
+           </div>
+
+
+            <div class="mb-3">
+               <label for="cliente" class="form-label">Nome do Cliente:</label>
+               <input list="clientes" name="cliente" id="cliente" class="form-control" value="{{ cliente }}">
+               <datalist id="clientes">
+                   {% for cliente in clientes %}
+                       <option value="{{ cliente.nome }}">
+                   {% endfor %}
+               </datalist>
+           </div>
+
+           <div class="mb-3">
+               <label for="cpf_cliente" class="form-label">CPF do Cliente:</label>
+               <input type="text" name="cpf_cliente" id="cpf_cliente" class="form-control" value="{{ cpf_cliente }}">
+           </div>
+
+<div class="mb-3">
+   <label for="passaporte_cliente" class="form-label">Passaporte do Cliente:</label>
+   <input type="text" name="passaporte_cliente" id="passaporte_cliente" class="form-control" value="{{ passaporte_cliente }}">
+</div>
+
+
+<div class="mb-3">
+   <label for="data_nascimento_cliente" class="form-label">Data de Nascimento do Cliente:</label>
+   <input type="text" name="data_nascimento_cliente" id="data_nascimento_cliente" class="form-control" value="{{ data_nascimento_cliente }}">
+</div>
+
+
+<div class="mb-3">
+   <label for="endereco_cliente" class="form-label">Endereço do Cliente:</label>
+   <input type="text" name="endereco_cliente" id="endereco_cliente" class="form-control" value="{{ endereco_cliente }}">
+</div>
+
+
+<div class="mb-3">
+   <label for="cep_cliente" class="form-label">CEP do Cliente:</label>
+   <input type="text" name="cep_cliente" id="cep_cliente" class="form-control" value="{{ cep_cliente }}">
+</div>
+
+
+<div class="mb-3">
+   <label for="bairro_cliente" class="form-label">Bairro do Cliente:</label>
+   <input type="text" name="bairro_cliente" id="bairro_cliente" class="form-control" value="{{ bairro_cliente }}">
+</div>
+
+
+<div class="mb-3">
+   <label for="estado_cliente" class="form-label">Estado do Cliente:</label>
+   <input type="text" name="estado_cliente" id="estado_cliente" class="form-control" value="{{ estado_cliente }}">
+</div>
+
+
+
+           {{ form|crispy }}
+
+
+           <button type="submit" class="btn btn-primary">Salvar dados</button>
+       </form>
+
+   <br>
+       <p><a class="btn btn-primary" href="{% url 'homeFuncionario' %}">Voltar</a></p>
+   </div>
+</div>
+
+
+<script>
+   function buscarCliente() {
+    var pk_cliente = document.getElementById('pk_cliente').value.trim();
+    if (!pk_cliente) {
+        alert('Informe o ID do Cliente.');
+        return;
+    }
+
+    axios.get(`/api/cliente/${pk_cliente}/`)
+        .then(function (response) {
+            var cliente = response.data;
+            if (cliente) {
+               document.getElementById('cliente').value = cliente.nome;
+               document.getElementById('cpf_cliente').value = cliente.cpf;
+               document.getElementById('passaporte_cliente').value = cliente.num_passaporte;
+               document.getElementById('data_nascimento_cliente').value = cliente.data_nascimento;
+               document.getElementById('endereco_cliente').value = cliente.endereco;
+               document.getElementById('cep_cliente').value = cliente.cep;
+               document.getElementById('bairro_cliente').value = cliente.bairro;
+               document.getElementById('estado_cliente').value = cliente.estado;
+
+            } else {
+                alert('Cliente não encontrado.');
+            }
+        })
+        .catch(function (error) {
+            console.error('Erro ao buscar cliente:', error);
+            alert('Cliente de id inserido não existe.');
+        });
+}
+  setTimeout(function() {
+        var messageContainer = document.getElementById('message-container');
+        if (messageContainer) {
+            messageContainer.style.display = 'none';
+        }
+    }, 5000);
+</script>
+
+    <script>
+   function toggleOtherField() {
+    var otherField = document.getElementById('outros_field');
+    var selectedOption = document.querySelector('input[name="nacionalidade"]:checked').value;
+
+    if (selectedOption === 'outros') {
+        otherField.classList.remove('hidden');
+    } else {
+        otherField.classList.add('hidden');
+    }
+}
+
+document.addEventListener("DOMContentLoaded", function() {
+    toggleOtherField(); // Inicializa o estado do campo "Outros"
+});
+   </script>
+
+</body>
+</html>

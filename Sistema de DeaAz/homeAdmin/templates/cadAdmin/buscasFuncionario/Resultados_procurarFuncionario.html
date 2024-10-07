@@ -1,0 +1,41 @@
+{% load static %}
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Resultado da Pesquisa</title>
+    <link href="{% static 'estilos/dados_list.css' %}" rel="stylesheet" type="text/css"/>
+
+</head>
+<body>
+
+
+
+<div id="tabelaRep" class="resultado-item">
+    <tbody>
+    <tr>
+                        <th scope="row"><a href="{% url 'dadosFuncionario' cadastro.pk %}"> {{ cadastro.pk }} </a></th>
+                        <th scope="row"><a href="{% url 'dadosFuncionario' cadastro.pk %}"> {{ cadastro.first_name }} {{ cadastro.last_name }} </a></th>
+                        <th scope="row">{{ cadastro.email }}</th>
+                        <th scope="row">{{ cadastro.telefone }}</th>
+                        <th scope="row">{{ cadastro.cargo_atual }}</th>
+                        <th scope="row">{{ todo.comissao }}</th>
+                        <th scope="row">{{ cadastro.situacao_atual_empresa }}</th>
+
+        <td>
+
+
+
+                              <a href="{% url 'funcionario_atualizar' pk=cadastro.pk %}"
+                               class="btn btn-secondary btn-sm {% if cadastro.finished_at %}disabled{% endif %}">
+                            <img style="display: inline-block; width: 15px; height: 15px" src="{% static 'imagens/edit.svg' %}" alt="Icone de lupa">  Editar
+
+                            </a>
+
+                        </td>
+    </tr>
+    </tbody>
+</div>
+
+</body>
+</html>

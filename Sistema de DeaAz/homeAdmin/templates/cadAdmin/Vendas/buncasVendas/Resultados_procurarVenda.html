@@ -1,0 +1,43 @@
+{% load static %}
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Resultado da Pesquisa</title>
+    <link href="{% static 'estilos/dados_list.css' %}" rel="stylesheet" type="text/css"/>
+
+</head>
+<body>
+
+
+
+<div id="tabelaRep" class="resultado-item">
+    <tbody>
+    <tr>
+        <th scope="row"> <a href="{% url 'dadosVenda' cadastro.pk %}">{{ cadastro.pk }}  </a></th>
+                         <th scope="row"><a href="{% url 'dadosVenda' cadastro.pk %}"> {{ cadastro.cliente }} </a></th>
+                         <th scope="row"> {{ cadastro.vendedor }} </th>
+                         <th scope="row"> {{ cadastro.valor }} </th>
+                         <th scope="row"> {{ cadastro.situacaoMensal }} </th>
+                         <th scope="row"> {{ cadastro.finished_at }} </th>
+        <td>
+
+ <a href="{% url 'venda_complete' pk=cadastro.pk %}?page={{ page_obj.number }}" class="btn btn-primary btn-sm {% if cadastro.finished_at %}disabled{% endif %}">
+        <img style="display: inline-block; width: 15px; height: 15px" src="{% static 'imagens/check.svg' %}" alt="Ícone de concluir"> Concluir
+    </a>
+
+                              <a href="{% url 'venda_atualizar' pk=cadastro.pk %}"
+                               class="btn btn-secondary btn-sm">
+                            <img style="display: inline-block; width: 15px; height: 15px" src=" {% static 'imagens/edit.svg' %}" alt="Icone de lupa">  Editar
+
+                            </a>
+
+                            <a href="{% url 'venda_deletar' pk=cadastro.pk %}" class="btn btn-danger btn-sm"><img style="display: inline-block; width: 15px; height: 15px;" src="{% static 'imagens/delete.svg' %}" alt="Icone de lupa"> Excluír</a>
+
+                        </td>
+    </tr>
+    </tbody>
+</div>
+
+</body>
+</html>

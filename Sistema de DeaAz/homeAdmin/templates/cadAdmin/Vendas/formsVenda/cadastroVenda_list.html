@@ -1,0 +1,116 @@
+ {% load static %}
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Title</title>
+    <link href="{% static 'estilos/dados_list.css' %}" rel="stylesheet" type="text/css"/>
+</head>
+<body>
+
+<h1> Listagem de Vendas</h1>
+
+
+
+
+
+    <div class="search-container">
+        <div class="container">
+            <form action="{% url 'procurarVenda' %}" method="GET" class="procurar-form">
+                <label>
+                    <input style="border-radius: 30px 0 0 30px; padding: 2px 0; padding-left: 10px" type="search"
+                           class="procurar-input"
+                           name="q" value=
+                                   "{{ procurar_termo }}"
+                           required>
+                </label>
+                <button type="submit" class="procurar-button">
+                    <img src="{% static 'imagens/lupe.svg' %}" alt="Icone de lupa"></button>
+            </form>
+        </div>
+    </div>
+
+
+
+
+ {% if cadastro_list %}
+        <div id="tabelaRep">
+            <table class="table">
+                <thead>
+                <tr>
+                    <th scope="col">#</th>
+                    <th scope="col">Cliente</th>
+                    <th scope="col">Vendedor</th>
+                    <th scope="col">Valor</th>
+                    <th scope="col">Situação</th>
+                   <th scope="col">Finalizado em</th>
+                    <th scope="col">Ações</th>
+                </tr>
+
+                </thead>
+                <tbody>
+                {% for todo in cadastro_list %}
+                    <tr>
+                        <th scope="row"> <a href="{% url 'dadosVenda' todo.pk %}">{{ todo.pk }}  </a></th>
+                         <th scope="row"><a href="{% url 'dadosVenda' todo.pk %}"> {{ todo.cliente }} </a></th>
+                         <th scope="row"> {{ todo.vendedor }} </th>
+                         <th scope="row"> {{ todo.valor }} </th>
+                         <th scope="row"> {{ todo.situacaoMensal }} </th>
+                         <th scope="row"> {{ todo.finished_at }} </th>
+
+
+                    <td class="botoestb">
+    <a href="{% url 'venda_complete' pk=todo.pk %}?page={{ page_obj.number }}" class="btn btn-primary btn-sm {% if todo.finished_at %}disabled{% endif %}">
+        <img style="display: inline-block; width: 15px; height: 15px" src="{% static 'imagens/check.svg' %}" alt="Ícone de concluir"> Concluir
+    </a>
+    <a href="{% url 'venda_atualizar' pk=todo.pk %}?page={{ page_obj.number }}" class="btn btn-secondary btn-sm">
+        <img style="display: inline-block; width: 15px; height: 15px" src="{% static 'imagens/edit.svg' %}" alt="Ícone de editar"> Editar
+    </a>
+    <a href="{% url 'venda_deletar' pk=todo.pk %}?page={{ page_obj.number }}" class="btn btn-danger btn-sm">
+        <img style="display: inline-block; width: 15px; height: 15px;" src="{% static 'imagens/delete.svg' %}" alt="Ícone de excluir"> Excluir
+    </a>
+</td>
+                    </tr>
+                {% endfor %}
+                </tbody>
+            </table>
+        </div>
+
+    {% else %}
+        <p>Não há vendas cadastradas</p>
+    {% endif %}
+
+
+
+    <div id="pass_pag" class="pagination justify-content-center">
+    {% if page_obj.has_previous %}
+        {% if request.GET.nome %}
+            <a class="page-link" href="?page=1&nome={{ request.GET.nome }}">&laquo; Primeira</a>
+            <a class="page-link" href="?page={{ page_obj.previous_page_number }}&nome={{ request.GET.nome }}">Anterior</a>
+        {% else %}
+            <a class="page-link" href="?page=1">&laquo; Primeira</a>
+            <a class="page-link" href="?page={{ page_obj.previous_page_number }}">Anterior</a>
+        {% endif %}
+    {% endif %}
+
+    <span class="current-page">
+        Página {{ page_obj.number }} de {{ page_obj.paginator.num_pages }}.
+    </span>
+
+    {% if page_obj.has_next %}
+        {% if request.GET.nome %}
+            <a class="page-link" href="?page={{ page_obj.next_page_number }}&nome={{ request.GET.nome }}">Próxima</a>
+            <a class="page-link" href="?page={{ page_obj.paginator.num_pages }}&nome={{ request.GET.nome }}">Última &raquo;</a>
+        {% else %}
+            <a class="page-link" href="?page={{ page_obj.next_page_number }}">Próxima</a>
+            <a class="page-link" href="?page={{ page_obj.paginator.num_pages }}">Última &raquo;</a>
+        {% endif %}
+    {% endif %}
+</div>
+
+
+  <button class="btnvoltar"><a href="{% url 'homeAdmin' %}">Voltar</a></button>
+
+
+</body>
+</html>
