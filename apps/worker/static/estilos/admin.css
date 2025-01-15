@@ -1,0 +1,240 @@
+* {
+    box-sizing: border-box;
+    margin: 0;
+    padding: 0;
+}
+
+body {
+    font-family: Arial, sans-serif;
+    background-color: #f2f2f2;
+}
+
+header {
+    background-color: #201c1c;
+    color: white;
+    padding: 10px 20px;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+}
+
+.logo h1 {
+    font-size: 1.5em;
+    margin: 0;
+}
+
+.header-content {
+    display: flex;
+    align-items: center;
+}
+
+.user-info {
+    text-align: right;
+    margin-right: 20px;
+}
+
+.welcome-message {
+    display: block;
+    font-size: 1.1em;
+    margin-bottom: 5px;
+}
+
+.user-details {
+    list-style: none;
+    padding: 0;
+    margin: 0;
+}
+
+.detail-item {
+    font-size: 0.9em;
+}
+
+.logout-form .btn {
+    background-color: #d9534f;
+    color: white;
+    border: none;
+    padding: 8px 16px;
+    cursor: pointer;
+    border-radius: 5px;
+}
+
+.logout-form .btn:hover {
+    background-color: #c9302c;
+}
+
+main {
+    margin: 50px auto;
+    max-width: 1000px;
+    text-align: center;
+}
+
+main > h2 {
+    color: #000080;
+    font-size: 3em;
+    margin-bottom: 30px;
+}
+
+#cards {
+    display: flex;
+    justify-content: space-between;
+    flex-wrap: wrap;
+    gap: 30px;
+}
+
+.card {
+    flex: 1 1 calc(20% - 20px);
+    text-align: center;
+    padding: 20px;
+    background-color: #ffffff;
+    border: 2px solid #ccc;
+    border-radius: 15px;
+    transition: all 0.3s ease;
+}
+
+.card:hover {
+    transform: translateY(-5px);
+    box-shadow: 0 5px 15px rgba(0, 0, 0, 0.1);
+}
+
+.card h2 {
+    color: #000080;
+    font-size: 1.5em;
+    margin-bottom: 15px;
+}
+
+.card a {
+    text-decoration: none;
+}
+
+.card button {
+    display: block;
+    width: 100%;
+    padding: 12px 20px;
+    background-color: #000080;
+    color: #ffffff;
+    font-size: 1em;
+    border: none;
+    border-radius: 5px;
+    cursor: pointer;
+    transition: background-color 0.3s ease;
+}
+
+.card button:hover {
+    background-color: #191970;
+}
+
+.btn-success {
+    background-color: #000080;
+    color: white;
+    text-decoration: none;
+    padding: 10px 20px;
+    border-radius: 5px;
+    margin-top: 4px;
+    display: inline-block;
+}
+
+.btn-success:hover {
+    background-color: #191970;
+}
+
+@media (max-width: 768px) {
+    .card {
+        flex-basis: calc(50% - 20px);
+    }
+
+    .header-content {
+        flex-direction: column;
+        align-items: flex-start;
+    }
+
+    .user-info {
+        margin-right: 0;
+        margin-bottom: 10px;
+        text-align: left;
+    }
+}
+header {
+    background-color: #201c1c;
+    color: white;
+    padding: 10px 20px;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+}
+
+.header-left {
+    flex: 1;
+    display: flex;
+    justify-content: center;
+}
+
+.header-right {
+    display: flex;
+    align-items: center;
+}
+
+.user-info {
+    text-align: right;
+    margin-right: 20px;
+}
+
+.welcome-message {
+    display: block;
+    font-size: 1.1em;
+    margin-bottom: 5px;
+}
+
+.user-details {
+    list-style: none;
+    padding: 0;
+    margin: 0;
+}
+
+.detail-item {
+    font-size: 0.9em;
+}
+
+.logout-form .btn {
+    background-color: #d9534f;
+    color: white;
+    border: none;
+    padding: 8px 16px;
+    cursor: pointer;
+    border-radius: 5px;
+}
+
+.logout-form .btn:hover {
+    background-color: #c9302c;
+}
+
+.btn-success {
+    background-color: #000080;
+    color: white;
+    text-decoration: none;
+    padding: 15px 25px;
+    border-radius: 5px;
+    margin-top: 4px;
+    font-size: 20px;
+    display: inline-block;
+}
+
+.btn-success:hover {
+    background-color: #191970;
+}
+
+@media (max-width: 768px) {
+    .card {
+        flex-basis: calc(50% - 20px);
+    }
+
+    .header-content {
+        flex-direction: column;
+        align-items: flex-start;
+    }
+
+    .user-info {
+        margin-right: 0;
+        margin-bottom: 10px;
+        text-align: left;
+    }
+}

@@ -1,0 +1,316 @@
+<!DOCTYPE html>
+{% load static %}
+
+<html lang="pt-br">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Administração</title>
+    <link rel="stylesheet" href="{% static 'static/estilos/admin.css' %}">
+    <style>
+    body {
+        margin: 0;
+        font-family: Arial, sans-serif;
+        background-color: #f4f4f9;
+    }
+
+    header {
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        background-color: #eeeef3;
+        color: #9dce63;
+        padding: 10px 20px;
+        box-shadow: 2px 0 5px rgba(0, 0, 0, 0.1);
+    }
+
+    .logo h1 {
+        margin: 0;
+        font-size: 24px;
+        text-align: center;
+    }
+
+    .menu-lateral {
+        position: fixed;
+        top: 0;
+        left: 0;
+        height: 100%;
+        width: 250px;
+        background-color: #fff;
+        display: flex;
+        flex-direction: column;
+        justify-content: space-between;
+        padding: 20px 10px;
+        box-shadow: 2px 0 5px rgba(0, 0, 0, 0.1);
+        overflow-y: auto; /* Adiciona a barra de rolagem vertical */
+        max-height: 100vh; /* Limita a altura ao tamanho da janela */
+    }
+
+    .menu-lateral ul {
+        list-style: none;
+        padding: 0;
+        margin: 0;
+    }
+
+    .menu-lateral ul li {
+        margin: 15px 0;
+    }
+
+    .menu-lateral ul li a {
+        text-decoration: none;
+        color: #000000;
+        font-size: 18px;
+        display: block;
+        padding: 10px;
+        border-radius: 5px;
+        transition: background-color 0.3s;
+    }
+
+    .menu-lateral ul li a:hover {
+        background: linear-gradient(to right, #a8e063, #4cafec);
+        box-shadow: 0px 4px 8px rgba(0, 0, 0, 0.2);
+        color: #fff;
+    }
+
+    .logout-section {
+        margin-top: auto;
+    }
+
+    .logout-section form button {
+        width: 100%;
+        background-color: #d9534f;
+        color: white;
+        font-size: 16px;
+        padding: 10px;
+        border: none;
+        border-radius: 5px;
+        cursor: pointer;
+        transition: background-color 0.3s;
+    }
+
+    .logout-section form button:hover {
+        background-color: #c9302c;
+    }
+
+main {
+    margin-left: 550px;
+    padding: 35px;
+    width: calc(100% - 500px);
+    box-sizing: border-box;
+}
+
+@media (min-width: 1942px) and (max-width: 2166px) {
+    main {
+        margin-left: 600px; 
+        width: calc(100% - 250px); 
+        box-sizing: border-box; 
+    }
+}
+
+@media screen and (min-width: 1562px) and (max-width: 1690px) {
+ 
+    main {
+        margin-left: 400px; 
+        width: calc(100% - 300px); 
+    }
+}
+@media (min-width: 1441px) and (max-width: 1561px) {
+    main {
+        margin-left: 350px; 
+        width: calc(100% - 350px); 
+        padding: 40px; 
+    }
+}
+
+@media (max-width: 1024px) {
+    main {
+        margin-left: 250px;
+        width: calc(100% - 250px);
+    }
+}
+
+@media (min-width: 1025px) and (max-width: 1440px) {
+    main {
+        margin-left: 300px;
+        width: calc(100% - 300px);
+        padding: 40px;
+    }
+}
+
+@media (max-width: 768px) {
+    main {
+        margin-left: 0;
+        width: 100%;
+        padding: 15px;
+    }
+}
+
+@media (max-width: 480px) {
+    main {
+        margin-left: 0;
+        width: 100%;
+        padding: 10px;
+    }
+}
+    .bmv {
+        color: #9dce63;
+        margin-bottom: 20px;
+    }
+
+    .logo-container img {
+        max-width: 500px;
+        height: auto;
+        margin-top: 20px;
+    }
+
+    .dropdown {
+        display: none;
+        list-style: none;
+        padding-left: 20px;
+    }
+
+    .dropdown li a {
+        font-size: 16px;
+    }
+
+    .menu-lateral ul li a.expand {
+        cursor: pointer;
+    }
+
+    .menu-lateral ul li.active .dropdown {
+        display: block;
+    }
+
+    .welcome-message {
+        color: #63833d;
+    }
+
+</style>
+
+    <script>
+        function toggleDropdown(event) {
+            const parent = event.target.parentElement;
+            parent.classList.toggle('active');
+        }
+    </script>
+</head>
+<body>
+<header>
+    <div class="logo">
+        <h1>Bem-vindo, {{ usuario_logado.username }}</h1>
+    </div>
+</header>
+<div class="menu-lateral">
+    <ul>
+        {% if user is not None %}
+            {% if 'Adm' in user.situacao_atual or 'Func' in user.situacao_atual%}
+        <li><a href="{% url 'cadCliente' %}">Cadastrar Cliente</a></li>
+        <li><a href="{% url 'AdminListagemCliente' %}">Gerenciar Clientes</a></li>
+        <li><a href="{% url 'cadVendas' %}">Nova Venda</a></li>
+        <li><a href="{% url 'AdminListagemVenda' %}">Ver Vendas</a></li>
+        {% endif %}
+            {% endif %}
+        {% if user is not None %}
+            {% if 'Adm' in user.situacao_atual %}
+        <li><a href="{% url 'rank' %}">Ranking</a></li>
+        <li><a href="{% url 'AdminListagemFuncionario' %}">Lista Funcionários</a></li>
+            {% endif %}
+        {% endif %}
+        {% if user is not None %}
+            {% if 'Exec' in user.situacao_atual %}
+        <li><a href="{% url 'cadAgencia' %}">Cadastrar Agência</a></li>
+        <li><a href="{% url 'ListagemAgencia' %}">Visualizar Agência</a></li>
+        <li><a href="{% url 'pesquisarRota' %}">Pesquisar Rota</a></li>
+        {% endif %}
+            {% endif %}
+
+
+         {% if user is not None %}
+            {% if 'Adm' in user.situacao_atual or 'Func' in user.situacao_atual%}
+        <li>
+            <a class="expand" onclick="toggleDropdown(event)">Exportações - Vendas</a>
+            <ul class="dropdown">
+                <li><a href="{% url 'salvarVenda' 'hoje' %}">Exportar Hoje</a></li>
+                <li><a href="{% url 'salvarVenda' 'semana' %}">Exportar Semana</a></li>
+                <li><a href="{% url 'salvarVenda' 'mes' %}">Exportar Mês</a></li>
+                <li><a href="{% url 'salvarVenda' 'todos' %}">Exportar Todos</a></li>
+            </ul>
+        </li>
+
+        <li>
+            <a class="expand" onclick="toggleDropdown(event)">Vendas Pix</a>
+            <ul class="dropdown">
+                <li><a href="{% url 'salvarVendaPagamento' 'hoje'  'Pix' %}" class="btn btn-secondary">Hoje</a></li>
+                <li><a href="{% url 'salvarVendaPagamento' 'semana'  'Pix' %}" class="btn btn-secondary">Semana</a></li>
+                <li><a href="{% url 'salvarVendaPagamento' 'mes' 'Pix' %}" class="btn btn-secondary">Mês</a></li>
+                <li><a href="{% url 'salvarVendaPagamento' 'todos'  'Pix'%}" class="btn btn-secondary">Todos</a></li>
+            </ul>
+        </li>
+
+        <li>
+            <a class="expand" onclick="toggleDropdown(event)">Vendas Dinheiro</a>
+            <ul class="dropdown">
+                <li><a href="{% url 'salvarVendaPagamento' 'hoje'  'Dinheiro' %}" class="btn btn-secondary">Hoje</a></li>
+                <li><a href="{% url 'salvarVendaPagamento' 'semana'  'Dinheiro' %}" class="btn btn-secondary">Semana</a></li>
+                <li><a href="{% url 'salvarVendaPagamento' 'mes' 'Dinheiro' %}" class="btn btn-secondary">Mês</a></li>
+                <li><a href="{% url 'salvarVendaPagamento' 'todos' 'Dinheiro'%}" class="btn btn-secondary">Todos</a></li>
+            </ul>
+        </li>
+
+        <li>
+            <a class="expand" onclick="toggleDropdown(event)">Vendas Crédito</a>
+            <ul class="dropdown">
+                <li><a href="{% url 'salvarVendaPagamento' 'hoje'  'Credito' %}" class="btn btn-secondary">Hoje</a></li>
+                <li><a href="{% url 'salvarVendaPagamento' 'semana'  'Credito' %}" class="btn btn-secondary">Semana</a></li>
+                <li><a href="{% url 'salvarVendaPagamento' 'mes' 'Credito' %}" class="btn btn-secondary">Mês</a></li>
+                <li><a href="{% url 'salvarVendaPagamento' 'todos'  'Credito'%}" class="btn btn-secondary">Todos</a></li>
+            </ul>
+        </li>
+
+        <li>
+            <a class="expand" onclick="toggleDropdown(event)">Vendas Débito</a>
+            <ul class="dropdown">
+                <li><a href="{% url 'salvarVendaPagamento' 'hoje'  'Debito' %}" class="btn btn-secondary">Hoje</a></li>
+                <li><a href="{% url 'salvarVendaPagamento' 'semana'  'Debito' %}" class="btn btn-secondary">Semana</a></li>
+                <li><a href="{% url 'salvarVendaPagamento' 'mes' 'Debito' %}" class="btn btn-secondary">Mês</a></li>
+                <li><a href="{% url 'salvarVendaPagamento' 'todos'  'Debito'%}" class="btn btn-secondary">Todos</a></li>
+            </ul>
+        </li>
+
+        <li>
+            <a class="expand" onclick="toggleDropdown(event)">Exportações - Clientes</a>
+            <ul class="dropdown">
+                <li><a href="{% url 'salvarCliente' 'hoje' %}">Exportar Hoje</a></li>
+                <li><a href="{% url 'salvarCliente' 'semana' %}">Exportar Semana</a></li>
+                <li><a href="{% url 'salvarCliente' 'mes' %}">Exportar Mês</a></li>
+                <li><a href="{% url 'salvarCliente' 'todos' %}">Exportar Todos</a></li>
+            </ul>
+        </li>
+          {% endif %}
+            {% endif %}
+
+
+    </ul>
+    <div class="logout-section">
+        <form action="{% url 'logout' %}" method="post">
+            {% csrf_token %}
+            <button type="submit">Logout</button>
+        </form>
+    </div>
+</div>
+<main>
+    {% if user is not None %}
+        {% if 'Adm' in user.situacao_atual %}
+            <h2 class="bmv">Bem-vindo(a) a Área do Administrador</h2>
+        {% elif 'Func' in user.situacao_atual %}
+            <h2 class="bmv">Bem-vindo(a) a Área do Funcionário</h2>
+        {% else %}
+            <h2 class="bmv">Bem-vindo(a) a Área do Executivo</h2>
+        {% endif %}
+    {% endif %}
+    <div class="logo-container">
+        <img src="{% static 'imagens/logo.png' %}" alt="Logo da Empresa">
+    </div>
+</main>
+</body>
+</html>

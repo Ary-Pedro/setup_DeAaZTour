@@ -1,0 +1,92 @@
+<!DOCTYPE html>
+{% load static %}
+
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Title</title>
+    <link href="{% static 'static_global/estilos/dados_print.css' %}" rel="stylesheet" type="text/css"/>
+</head>
+<body>
+
+
+{% for cadastro in object_list %}
+
+    <div class="dados_cliente">
+
+    <h1>Detalhes do Cadastro</h1>
+    <hr/>
+    <div class="apenasp_cliente">
+
+
+        <h2>Dados da venda</h2>
+        <p><strong>Vendedor: </strong> {{ cadastro.vendedor }}</p>
+        <p><strong>Valor da venda: </strong> {{ cadastro.valor }}</p>
+
+        <p><strong>Forma de pagamento: </strong> {{ cadastro.tipo_pagamento }}</p>
+
+       {% if cadastro.tipo_servico == 'Outros' %}
+          <p><strong>Tipo de Serviço: </strong> {{ cadastro.tipo_servico_outros }}</p>
+       {% else %}
+       {% if cadastro.tipo_servico %}
+        <p><strong>Tipo de Serviço: </strong> {{ cadastro.tipo_servico|capfirst }}</p>
+       {% endif %}
+        {% endif %}
+
+{% if cadastro.nacionalidade == 'Outros' %}
+    <p><strong>Nacionalidade: </strong> {{ cadastro.nacionalidade_outros }}</p>
+{% else %}
+    {% if cadastro.nacionalidade %}
+        <p><strong>Nacionalidade: </strong> {{ cadastro.nacionalidade|capfirst }}</p>
+    {% endif %}
+{% endif %}
+
+
+{% if cadastro.tipo_cidadania == 'Outros' %}
+    <p><strong>Tipo de Cidadania: </strong> {{ cadastro.tipo_cidadania_outros }}</p>
+{% else %}
+    {% if cadastro.tipo_cidadania %}
+        <p><strong>Tipo de Cidadania: </strong> {{ cadastro.tipo_cidadania|capfirst }}</p>
+    {% endif %}
+{% endif %}
+
+
+        <p><strong>Situação: </strong> {{ cadastro.situacaoMensal }}</p>
+        {% if cadastro.finished_at %}
+            <p><strong>Finalizado em: </strong> {{ cadastro.finished_at }}</p>
+        {% endif %}
+
+        <h2>Dados do Cliente</h2>
+        <p><strong>ID: </strong> {{ cadastro.cliente.id }}</p>
+        <p><strong>Cliente: </strong> {{ cadastro.cliente }}</p>
+        <p><strong>CPF: </strong> {{ cadastro.cliente.cpf }}</p>
+        <p><strong>Data de nascimento: </strong> {{ cadastro.cliente.data_nascimento }}</p>
+        {% if cadastro.num_passaporte %}
+            <p><strong>Passaporte: </strong> {{ cadastro.num_passaporte }}</p>
+        {% endif %}
+
+
+        {% if cadastro.endereco %}
+            <p><strong>Endereco: </strong> {{ cadastro.endereco }}</p>
+        {% endif %}
+        {% if cadastro.cep %}
+            <p><strong>Cep: </strong> {{ cadastro.cep }}</p>
+        {% endif %}
+        {% if cadastro.bairro %}
+            <p><strong>Bairro: </strong> {{ cadastro.bairro }}</p>
+        {% endif %}
+
+
+        {% if cadastro.estado %}
+            <p><strong>Estado: </strong> {{ cadastro.estado }}</p>
+        {% endif %}
+
+
+    </div>
+
+    <button class="btnvoltar"><a href="{% url 'AdminListagemVenda' %}">Voltar</a></button>
+{% endfor %}
+
+
+</body>
+</html>
