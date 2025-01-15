@@ -1,15 +1,14 @@
+'''
 # INFO: Para uso do Auth e funções nativas de validação
 from django.contrib import messages
 from django.contrib.auth.mixins import LoginRequiredMixin
 
 # INFO: funções uso geral
 from django.db.models import Q
-
 from client.models import CadCliente
 
-
 # INFO: funções de endereçamento
-from django.http import Http404, HttpResponseRedirect
+from django.http import Http404, HttpResponseRedirect, JsonResponse, HttpResponseRedirect
 from django.urls import reverse_lazy, reverse
 
 # INFO: funções de direcionar e configurar
@@ -17,7 +16,7 @@ from django.shortcuts import get_object_or_404
 
 # INFO: funções uso geral
 from django.views.generic import CreateView, DeleteView, ListView, UpdateView, View
-
+from django import forms
 
 from django.shortcuts import render
 
@@ -43,7 +42,7 @@ class cadCliente(LoginRequiredMixin, CreateView):
         'anexo2',
         'anexo3',
     ]
-    template_name = "cadAdmin/Cliente/formsCliente/cadastroCliente_form.html"
+    template_name = "template/client/formsCliente/cadastroCliente_form.html"
     success_url = reverse_lazy("homeAdmin")
 
     def form_valid(self, form):
@@ -58,7 +57,7 @@ class cadCliente(LoginRequiredMixin, CreateView):
 class CadListView(LoginRequiredMixin, ListView):
     model = CadCliente
     paginate_by = 20
-    template_name = "cadAdmin/Cliente/formsCliente/cadastroCliente_list.html"
+    template_name = "template/client/formsCliente/cadastroCliente_list.html"
     context_object_name = "cadastro_list"
     login_url = "log"  # URL para redirecionar para login
 
@@ -101,7 +100,7 @@ class ClienteUpdateView(LoginRequiredMixin, UpdateView):
         'anexo2',
         'anexo3',
     ]
-    template_name = "cadAdmin/Cliente/formsCliente/cadastroCliente_form.html"
+    template_name = "template/client/formsCliente/cadastroCliente_form.html"
     success_url = reverse_lazy("AdminListagemCliente")
 
 
@@ -110,7 +109,7 @@ class ClienteDeleteView(LoginRequiredMixin, DeleteView):
     login_url = "log"  # URL para redirecionar para login
 
     model = CadCliente
-    template_name = "cadAdmin/Cliente/formsCliente/cadastroCliente_confirm_delete.html"
+    template_name = "template/client/formsCliente/cadastroCliente_confirm_delete.html"
 
     def get_success_url(self):
         numero_pagina = self.request.GET.get("page", 1)
@@ -123,7 +122,7 @@ class ProcurarCliente(LoginRequiredMixin, ListView):
     login_url = "log"  # URL para redirecionar para login
 
     model = CadCliente
-    template_name = "cadAdmin/Cliente/buscasCliente/procurarCliente.html"
+    template_name = "template/client/buscasCliente/procurarCliente.html"
     context_object_name = "cadastro_list"
 
     def get_queryset(self):
@@ -160,3 +159,22 @@ class DadosCadastrosCliente(LoginRequiredMixin, ListView):
         context = super().get_context_data(**kwargs)
         context["title"] = "Detalhes do Cadastro"
         return context
+    
+
+
+# NOTE: função para puxar informaçoes de clientes em nova venda pelo id
+def cliente_detail_api(request, pk):
+    cliente = get_object_or_404(CadCliente, pk=pk)
+    data = {
+        "nome": cliente.nome,
+        "cpf": cliente.cpf,
+        "rg": cliente.rg,
+        "num_passaporte": cliente.num_passaporte,
+        "data_nascimento": cliente.data_nascimento,
+        "endereco": cliente.endereco,
+        "cep": cliente.cep,
+        "bairro": cliente.bairro,
+        "estado": cliente.estado,
+    }
+    return JsonResponse(data)
+'''

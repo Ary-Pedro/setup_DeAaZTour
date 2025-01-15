@@ -1,0 +1,56 @@
+<!doctype html>
+{% load static %}
+
+<html lang="en">
+
+<head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
+    <link href="https://fonts.googleapis.com/css?family=Roboto:300,400&display=swap" rel="stylesheet">
+
+    <link href="{% static 'static/estilos/rank2.css' %}" rel="stylesheet" type="text/css">
+
+    <link href="{% static 'static/estilos/rank.css' %}" rel="stylesheet" type="text/css"/>
+
+    <title>Rank</title>
+</head>
+
+<body>
+
+
+<div class="content">
+    <div class="container">
+        <div class="table-responsive">
+            <table class="table table-striped custom-table">
+                <thead>
+                <tr>
+                    <th scope="col">Posição</th>
+                    <th scope="col">Nome</th>
+                    <th scope="col">telefone</th>
+                    <th scope="col">email</th>
+                    <th scope="col">total de venda</th>
+                    <th scope="col"></th>
+                </tr>
+                </thead>
+                <tbody>
+                {% for vendedor in ranked_vendedores %}
+                    <tr>
+                        <td>{{ forloop.counter }}</td>
+                        <td>{{ vendedor.vendedor__first_name }} {{ vendedor.vendedor__last_name }} <br> User: {{ vendedor.vendedor__username }}</td>
+                        <td>{{ vendedor.vendedor__telefone }}</td>
+                        <td>{{ vendedor.vendedor__email }}</td>
+                        <td>{{ vendedor.total_vendas }}</td>
+                    </tr>
+                {% endfor %}
+                </tbody>
+            </table>
+        </div>
+
+
+    </div>
+
+</div>
+<a class="btn btn-primary" href="{% url 'homeAdmin' %}" style="display: block; text-align: center; margin: 0 auto; width: fit-content;">Voltar</a>
+
+</body>
+</html>
