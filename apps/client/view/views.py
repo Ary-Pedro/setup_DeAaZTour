@@ -1,6 +1,28 @@
+# INFO: Para uso do Auth e funções nativas de validação
+from django.contrib import messages
+from django.contrib.auth.mixins import LoginRequiredMixin
+
+# INFO: funções uso geral
+from django.db.models import Q
+
+from client.models import CadCliente
+
+
+# INFO: funções de endereçamento
+from django.http import Http404, HttpResponseRedirect
+from django.urls import reverse_lazy, reverse
+
+# INFO: funções de direcionar e configurar
+from django.shortcuts import get_object_or_404
+
+# INFO: funções uso geral
+from django.views.generic import CreateView, DeleteView, ListView, UpdateView, View
+
+
 from django.shortcuts import render
 
-
+# INFO: Cliente --------------------------------------------------------------------------------------------------------
+# INFO: Cliente - Cadastrar
 class cadCliente(LoginRequiredMixin, CreateView):
     login_url = "log"  # URL para redirecionar para login
 
@@ -32,9 +54,109 @@ class cadCliente(LoginRequiredMixin, CreateView):
         return response
 
 
+# INFO: Cliente - listar
 class CadListView(LoginRequiredMixin, ListView):
     model = CadCliente
     paginate_by = 20
     template_name = "cadAdmin/Cliente/formsCliente/cadastroCliente_list.html"
     context_object_name = "cadastro_list"
     login_url = "log"  # URL para redirecionar para login
+
+
+
+# INFO: Cliente - Validar
+class ValidarCliente(View):
+    login_url = "log"  # URL para redirecionar para login
+
+    @staticmethod
+    def get(request, pk):
+        finalizar = get_object_or_404(CadCliente, pk=pk)
+        finalizar.mark_has_complete()
+
+        numero_pagina = request.GET.get("page", 1)
+
+        url = reverse("AdminListagemCliente")
+        return HttpResponseRedirect(f"{url}?page={numero_pagina}")
+
+
+
+# INFO: Cliente - Atualizar
+class ClienteUpdateView(LoginRequiredMixin, UpdateView):
+    login_url = "log"  # URL para redirecionar para login
+
+    model = CadCliente
+    fields = [
+        "nome",
+        "celular",
+        "cpf",
+        "rg",
+        "sexo",
+        "data_nascimento",
+        "num_passaporte",
+        "endereco",
+        "bairro",
+        "estado",
+        "cep",
+        'anexo1',
+        'anexo2',
+        'anexo3',
+    ]
+    template_name = "cadAdmin/Cliente/formsCliente/cadastroCliente_form.html"
+    success_url = reverse_lazy("AdminListagemCliente")
+
+
+# INFO: Cliente - Deletar
+class ClienteDeleteView(LoginRequiredMixin, DeleteView):
+    login_url = "log"  # URL para redirecionar para login
+
+    model = CadCliente
+    template_name = "cadAdmin/Cliente/formsCliente/cadastroCliente_confirm_delete.html"
+
+    def get_success_url(self):
+        numero_pagina = self.request.GET.get("page", 1)
+        return f"{reverse_lazy('AdminListagemCliente')}?page={numero_pagina}"
+
+
+# INFO: Procurar -------------------------------------------------------------------------------------------------------
+# INFO: Procurar - Cliente
+class ProcurarCliente(LoginRequiredMixin, ListView):
+    login_url = "log"  # URL para redirecionar para login
+
+    model = CadCliente
+    template_name = "cadAdmin/Cliente/buscasCliente/procurarCliente.html"
+    context_object_name = "cadastro_list"
+
+    def get_queryset(self):
+        procurar_termo = self.request.GET.get("q", "").strip()
+        if not procurar_termo:
+            raise Http404()
+
+        return CadCliente.objects.filter(
+            Q(
+                Q(nome__istartswith=procurar_termo) | Q(cpf__icontains=procurar_termo),
+            )
+        ).order_by("-id")
+
+    def get_context_data(self, **kwargs):
+        context = super().get_context_data(**kwargs)
+        procurar_termo = self.request.GET.get("q", "").strip()
+        context["page_title"] = (f'Procurar por "{procurar_termo}" |',)
+        context["procurar_termo"] = procurar_termo
+        context["total_resultados"] = self.get_queryset().count()
+        return context
+
+
+# INFO: Dados - Cliente
+class DadosCadastrosCliente(LoginRequiredMixin, ListView):
+    login_url = "log"  # URL para redirecionar para login
+    model = CadCliente
+    template_name = "cadAdmin/Cliente/buscasCliente/dadosCliente.html"
+
+    def get_queryset(self):
+        dados_id = self.kwargs.get("dados_id")
+        return CadCliente.objects.filter(id=dados_id)
+
+    def get_context_data(self, **kwargs):
+        context = super().get_context_data(**kwargs)
+        context["title"] = "Detalhes do Cadastro"
+        return context

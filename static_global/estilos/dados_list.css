@@ -1,0 +1,120 @@
+/* Define o fundo e o estilo global */
+body {
+    font-family: 'Arial', sans-serif;
+    background-color: #f8f9fa; /* Cor de fundo clara */
+    color: #333; /* Texto escuro para boa legibilidade */
+}
+
+/* Estilo da tabela */
+table {
+    width: 100%;
+    margin-top: 20px;
+    border-collapse: collapse;
+}
+
+th, td {
+    padding: 12px;
+    font-size: 14px;
+}
+
+th {
+    background-color: #9dce63; /* Cor escura para o cabeçalho */
+    color: #fff;
+}
+
+tr:nth-child(even) {
+    background-color: #f2f2f2; /* Linha alternada com fundo mais claro */
+}
+
+tr:hover {
+    background-color: #e9ecef; /* Destaque ao passar o mouse */
+}
+
+/* Links dentro da tabela */
+a {
+    text-decoration: none;
+    color: #007bff;
+    transition: color 0.3s ease;
+}
+
+a:hover {
+    color: #0056b3;
+}
+
+/* Botões de ação */
+.btn {
+    display: inline-flex;
+    align-items: center;
+    padding: 8px 12px;
+    font-size: 14px;
+    border-radius: 5px;
+    transition: background-color 0.3s, transform 0.3s;
+}
+
+.btn-sm {
+    font-size: 12px;
+    padding: 6px 10px;
+}
+
+.btn-secondary {
+    background-color: #6c757d;
+    border: none;
+    color: #fff;
+}
+
+.btn-secondary:hover {
+    background-color: #5a6268;
+    transform: scale(1.05);
+}
+
+.btn-danger {
+    background-color: #dc3545;
+    border: none;
+    color: #fff;
+}
+
+.btn-danger:hover {
+    background-color: #c82333;
+    transform: scale(1.05);
+}
+
+/* Responsividade */
+@media (max-width: 767px) {
+    .table th, .table td {
+        padding: 8px;
+        font-size: 12px;
+    }
+
+
+    .btn-sm {
+        padding: 4px 8px;
+        font-size: 10px;
+    }
+
+    h1 {
+        font-size: 1.5rem;
+    }
+}
+
+@media (max-width: 576px) {
+    .container {
+        padding: 10px;
+    }
+
+    table {
+        font-size: 12px;
+    }
+
+    .pagination {
+        font-size: 12px;
+    }
+
+    .btn-sm {
+        padding: 4px 6px;
+        font-size: 10px;
+    }
+
+    h1 {
+        font-size: 1.2rem;
+    }
+}
