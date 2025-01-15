@@ -42,7 +42,7 @@ class cadCliente(LoginRequiredMixin, CreateView):
         'anexo2',
         'anexo3',
     ]
-    template_name = "template/client/formsCliente/cadastroCliente_form.html"
+    template_name = "templates/client/formsCliente/cadastroCliente_form.html"
     success_url = reverse_lazy("homeAdmin")
 
     def form_valid(self, form):
@@ -57,7 +57,7 @@ class cadCliente(LoginRequiredMixin, CreateView):
 class CadListView(LoginRequiredMixin, ListView):
     model = CadCliente
     paginate_by = 20
-    template_name = "template/client/formsCliente/cadastroCliente_list.html"
+    template_name = "templates/client/formsCliente/cadastroCliente_list.html"
     context_object_name = "cadastro_list"
     login_url = "log"  # URL para redirecionar para login
 
@@ -100,7 +100,7 @@ class ClienteUpdateView(LoginRequiredMixin, UpdateView):
         'anexo2',
         'anexo3',
     ]
-    template_name = "template/client/formsCliente/cadastroCliente_form.html"
+    template_name = "templates/client/formsCliente/cadastroCliente_form.html"
     success_url = reverse_lazy("AdminListagemCliente")
 
 
@@ -109,7 +109,7 @@ class ClienteDeleteView(LoginRequiredMixin, DeleteView):
     login_url = "log"  # URL para redirecionar para login
 
     model = CadCliente
-    template_name = "template/client/formsCliente/cadastroCliente_confirm_delete.html"
+    template_name = "templates/client/formsCliente/cadastroCliente_confirm_delete.html"
 
     def get_success_url(self):
         numero_pagina = self.request.GET.get("page", 1)
@@ -122,7 +122,7 @@ class ProcurarCliente(LoginRequiredMixin, ListView):
     login_url = "log"  # URL para redirecionar para login
 
     model = CadCliente
-    template_name = "template/client/buscasCliente/procurarCliente.html"
+    template_name = "templates/client/buscasCliente/procurarCliente.html"
     context_object_name = "cadastro_list"
 
     def get_queryset(self):
@@ -149,7 +149,7 @@ class ProcurarCliente(LoginRequiredMixin, ListView):
 class DadosCadastrosCliente(LoginRequiredMixin, ListView):
     login_url = "log"  # URL para redirecionar para login
     model = CadCliente
-    template_name = "cadAdmin/Cliente/buscasCliente/dadosCliente.html"
+    template_name = "templates/client/buscasCliente/dadosCliente.html"
 
     def get_queryset(self):
         dados_id = self.kwargs.get("dados_id")

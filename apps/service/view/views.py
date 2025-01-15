@@ -36,7 +36,7 @@ class cadVendas(LoginRequiredMixin, CreateView):
     login_url = "log"  # URL para redirecionar para login
     model = Venda
     fields = ["vendedor", "valor", "tipo_pagamento", "situacaoMensal"]
-    template_name = "template/service/formsVenda/cadastroVendas_form.html"
+    template_name = "templates/service/formsVenda/cadastroVendas_form.html"
     success_url = reverse_lazy("homeAdmin")
 
     def get_initial(self):
@@ -119,7 +119,7 @@ class CadListViewVenda(LoginRequiredMixin, ListView):
     login_url = "log"  # URL para redirecionar para login
     model = Venda
     paginate_by = 20
-    template_name = "template/service/formsVenda/cadastroVenda_list.html"
+    template_name = "templates/service/formsVenda/cadastroVenda_list.html"
     context_object_name = "cadastro_list"
 
 
@@ -128,7 +128,7 @@ class VendaUpdateView(LoginRequiredMixin, UpdateView):
     login_url = "log"  # URL para redirecionar para login
     model = Venda
     fields = ["vendedor", "valor", "tipo_pagamento", "situacaoMensal"]
-    template_name = "template/service/formsVenda/cadastroVendas_form.html"
+    template_name = "templates/service/formsVenda/cadastroVendas_form.html"
     success_url = reverse_lazy("AdminListagemVenda")
 
     def get_initial(self):
@@ -248,7 +248,7 @@ class VendaUpdateView(LoginRequiredMixin, UpdateView):
 class VendaDeleteView(LoginRequiredMixin, DeleteView):
     login_url = "log"  # URL para redirecionar para login
     model = Venda
-    template_name = "template/service/formsVenda/cadastroVenda_confirm_delete.html"
+    template_name = "templates/service/formsVenda/cadastroVenda_confirm_delete.html"
 
     def get_success_url(self):
         numero_pagina = self.request.GET.get("page", 1)
@@ -261,7 +261,7 @@ class VendaDeleteView(LoginRequiredMixin, DeleteView):
 class ProcurarVenda(LoginRequiredMixin, ListView):
     login_url = "log"  # URL para redirecionar para login
     model = Venda
-    template_name = "template/service/buncasVendas/procurarVenda.html"
+    template_name = "templates/service/buncasVendas/procurarVenda.html"
     context_object_name = "cadastro_list"
 
     def get_queryset(self):
@@ -286,7 +286,7 @@ class ProcurarVenda(LoginRequiredMixin, ListView):
 class DadosCadastrosVenda(LoginRequiredMixin, ListView):
     login_url = "log"  # URL para redirecionar para login
     model = Venda
-    template_name = "template/service/buncasVendas/dadosVenda.html"
+    template_name = "templates/service/buncasVendas/dadosVenda.html"
 
     def get_queryset(self):
         dados_id = self.kwargs.get("dados_id")
@@ -317,7 +317,7 @@ class ValidarVendas(LoginRequiredMixin, View):
 # INFO: Rank -----------------------------------------------------------------------------------------------------------
 # INFO: Chamar e definir rank
 class Rank(LoginRequiredMixin, TemplateView):
-    template_name = "template/ranking/rank.html"
+    template_name = "templates/ranking/rank.html"
     login_url = "log"  # URL para redirecionar para login
 
     def get_context_data(self, **kwargs):

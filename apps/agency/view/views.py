@@ -46,7 +46,7 @@ class cadAgencia(LoginRequiredMixin, CreateView):
         "estado",
         "cep",
     ]
-    template_name = "template/agency/formsAgencia/cadastroAgencia_form.html"
+    template_name = "templates/agency/formsAgencia/cadastroAgencia_form.html"
     success_url = reverse_lazy("homeAdmin")
 
 
@@ -54,7 +54,7 @@ class cadAgencia(LoginRequiredMixin, CreateView):
 class CadListViewAgencia(LoginRequiredMixin, ListView):
     model = CadAgencia
     paginate_by = 20
-    template_name = "template/agency/formsAgencia/cadastroAgencia_list.html"
+    template_name = "templates/agency/formsAgencia/cadastroAgencia_list.html"
     context_object_name = "cadastro_list"
     login_url = "log"  # URL para redirecionar para login
 
@@ -63,7 +63,7 @@ class CadListViewAgencia(LoginRequiredMixin, ListView):
 class AgenciaDeleteView(LoginRequiredMixin, DeleteView):
     login_url = "log"  # URL para redirecionar para login
     model = CadAgencia
-    template_name = "template/agency/formsAgencia/cadastroAgencia_confirm_delete.html"
+    template_name = "templates/agency/formsAgencia/cadastroAgencia_confirm_delete.html"
 
     def get_success_url(self):
         numero_pagina = self.request.GET.get("page", 1)
@@ -88,7 +88,7 @@ class AgenciaUpdateView(LoginRequiredMixin, UpdateView):
         "estado",
         "cep",
     ]
-    template_name = "template/agency/formsAgencia/cadastroAgencia_form.html"
+    template_name = "templates/agency/formsAgencia/cadastroAgencia_form.html"
     success_url = reverse_lazy("ListagemAgencia")
 
 
@@ -96,7 +96,7 @@ class AgenciaUpdateView(LoginRequiredMixin, UpdateView):
 class DadosCadastrosAgencia(LoginRequiredMixin, ListView):
     login_url = "log"  # URL para redirecionar para login
     model = CadAgencia
-    template_name = "template/agency/buscasAgencia/dadosAgencia.html"
+    template_name = "templates/agency/buscasAgencia/dadosAgencia.html"
 
     def get_queryset(self):
         dados_id = self.kwargs.get("dados_id")
@@ -112,7 +112,7 @@ class DadosCadastrosAgencia(LoginRequiredMixin, ListView):
 class ProcurarAgencia(LoginRequiredMixin, ListView):
     login_url = "log"  # URL para redirecionar para login
     model = CadAgencia
-    template_name = "template/agency/buscasAgencia/procurarAgencia.html"
+    template_name = "templates/agency/buscasAgencia/procurarAgencia.html"
     context_object_name = "cadastro_list"
 
     def get_queryset(self):
@@ -236,7 +236,7 @@ def pesquisar_rota(request):
             except Exception as e:
                 print(f"Erro ao processar os dados: {e}")
 
-    return render(request, 'template/agency/pesquisarRota.html', {'agencias_com_distancia': agencias_com_distancia})
+    return render(request, 'templates/agency/pesquisarRota.html', {'agencias_com_distancia': agencias_com_distancia})
 
 
 def obter_bairro_por_cep(cep):
