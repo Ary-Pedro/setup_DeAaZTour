@@ -1,11 +1,10 @@
 from django.contrib import admin
 from django.urls import path, include
-from django.apps import *
 #
 urlpatterns = [
     path('admin/', admin.site.urls),
-    path("", include("apps.worker.urls.py")),
-    path("", include("apps.agency.urls.py")),
-    path("", include("apps.client.urls.py")),
-    path("", include("apps.service.urls.py")),
+    path("", include("apps.worker.urls")),
+    #path("agencia/", include("apps.agency.urls")),
+    #path("cliente/", include("apps.client.urls")),
+    #path("venda/", include("apps.service.urls")),
 ]

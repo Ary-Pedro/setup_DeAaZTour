@@ -3,22 +3,10 @@ from math import floor
 from django.db import models
 from django.dispatch import receiver
 from django.db.models.signals import pre_save
-from django.contrib.auth.models import Group, Permission
-from django.contrib.auth.models import (
-    AbstractUser,
-    BaseUserManager,
-    Group,
-    Permission,
-    User,
-)
-
+from django.contrib.auth.models import Group, Permission, AbstractUser, BaseUserManager
 from django.core.exceptions import ValidationError
+from .exceptions import validate_custom_user_funcionario
 
-
-
-# INFO: Dados de funcionário
-#  utilizando o User padrão de Django com auxílio do BaseUserManager e AbstractUser
-# NOTE: atribuir superUser com funcionário
 class CustomUserManager(BaseUserManager):
     def create_user(self, email, password=None, **extra_fields):
         if not email:
@@ -28,34 +16,31 @@ class CustomUserManager(BaseUserManager):
         user.set_password(password)
         user.save(using=self._db)
         return user
-    #um supperUser é um usuário que tem todos os privilégios
+    
     def create_superuser(self, email, password=None, **extra_fields):
         extra_fields.setdefault("is_staff", True)
         extra_fields.setdefault("is_superuser", True)
-        #is_staff, Staff é uma pessoa quem tem acesso a parte administrativa do sistema
         if extra_fields.get("is_staff") is not True:
             raise ValueError("Superuser must have is_staff=True.")
         if extra_fields.get("is_superuser") is not True:
             raise ValueError("Superuser must have is_superuser=True.")
-
         return self.create_user(email, password, **extra_fields)
 
-# NOTE: acrescentar elementos com auxilio do AbstractUser
 class CustomUser_Funcionario(AbstractUser):
     id = models.AutoField(primary_key=True)
-    first_name = models.CharField(max_length=50,verbose_name="primeiro nome") 
+    first_name = models.CharField(max_length=50, verbose_name="primeiro nome")
     last_name = models.CharField(max_length=50, verbose_name="último nome")
-    nome = models.CharField(max_length=101, editable=False,null=True)
+    nome = models.CharField(max_length=101, editable=False, null=True)
     idade = models.IntegerField(null=True, editable=False)
     username = models.CharField(max_length=255, unique=True, verbose_name="apelido")
     email = models.EmailField(unique=True, verbose_name="e-mail")
-    tefone = models.CharField(max_length=15)#formata no Js para (00) 00000-0000 // lembrando que o 9 no começo ainda n é funcional em todo brasil
+    tefone = models.CharField(max_length=15)
     salario = models.FloatField(default=0, verbose_name="salário")
     comissao_acumulada = models.FloatField(default=0, verbose_name="comissão acumulada")
     telefone = models.CharField(max_length=15, blank=True)
     cidade = models.CharField(max_length=255, null=True)
     data_nascimento = models.DateField(verbose_name="Data de nascimento", null=True)
-    token = models.CharField(null=True, unique=True, max_length=8)    
+    token = models.CharField(null=True, unique=True, max_length=8)
     area_departamento = (
         ("Adm", "Administrativo"),
         ("Vend", "Vendedor"),
@@ -64,12 +49,10 @@ class CustomUser_Funcionario(AbstractUser):
     departamento = models.CharField(
         null=True,
         max_length=15,
-        default="Adm", #lembrar de mudar para Funcionario, quando for ativar o sistema.
+        default="Adm",
         choices=area_departamento,
     )
-
-    #usar logica do Djanngo
-    xpto = (("Ativo", "Ativo "), ("Inativo", "Inativo"))# Lógica de inativo é alterar o campo is_active para False
+    xpto = (("Ativo", "Ativo "), ("Inativo", "Inativo"))
     atividade = models.CharField(
         null=True,
         max_length=15,
@@ -77,7 +60,6 @@ class CustomUser_Funcionario(AbstractUser):
         verbose_name="",
         choices=xpto,
     )
-
     situacao_especializada = (
         ("Financeiro", "Financeiro"),
         ("Despachante", "Despachante "),
@@ -85,7 +67,6 @@ class CustomUser_Funcionario(AbstractUser):
         ("Suporte Whatsapp", "Suporte Whatsapp"),
         ("Executivo contas", "Executivo contas"),
     )
-
     especializacao_funcao = models.CharField(
         max_length=100,
         null=True,
@@ -95,7 +76,6 @@ class CustomUser_Funcionario(AbstractUser):
         help_text="A função a qual o empregado exerce é:",
         choices=situacao_especializada,
     )
-  
     groups = models.ManyToManyField(
         Group,
         related_name="customuser_set",
@@ -110,7 +90,7 @@ class CustomUser_Funcionario(AbstractUser):
         help_text="Specific permissions for this user.",
         related_query_name="customuser",
     )
-    
+
     def verificar_email(self):
         func = CustomUser_Funcionario.objects.filter(email=self.email).first()
         if func:
@@ -118,25 +98,26 @@ class CustomUser_Funcionario(AbstractUser):
         else:
             raise ValidationError("E-mail não encontrado.")
 
-
     def save(self, *args, **kwargs):
+        # Validações de exceções
+        validate_custom_user_funcionario(self)
+        
+        # Atualização do nome completo
         self.nome = f"{self.first_name} {self.last_name}"
-        self.idade = idade_Func(self)
-        if self.atividade == "Inativo":
-            self.is_active = False
-        else:
-            self.is_active = True
+        
+        # Cálculo da idade
+        if self.data_nascimento:
+            self.idade = idade_Func(self)
+        
+        # Manipulação do campo is_active de acordo com a atividade
+        self.is_active = self.atividade != "Inativo"
+        
         super().save(*args, **kwargs)
 
     def __str__(self):
         return self.nome
 
     objects = CustomUserManager()
-    
-'''
-service = models.ForeignKey(Service, on_delete=models.CASCADE, related_name='funcionarios')
-agencies = models.ManyToManyField(Agency, related_name='funcionarios')
-'''
 
 @receiver(pre_save, sender=CustomUser_Funcionario)
 def idade_Func(sender, instance, **kwargs):

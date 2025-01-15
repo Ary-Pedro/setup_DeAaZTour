@@ -1,14 +1,21 @@
 from django.shortcuts import render, redirect
 from django.contrib.auth import get_user_model, authenticate, login
-from apps.worker.models import CustomUser_Funcionario  # Add this import
-
+from django.http import JsonResponse
+from django.contrib import messages
+from django.contrib.auth.views import LogoutView
+from django.views.generic import TemplateView
+from django.views import View
+from django.core.mail import send_mail
+import uuid
+from .forms import RegisterForm
+from apps.worker.models import CustomUser_Funcionario 
 from setup_DeAaZTour import settings
 User = get_user_model()
 
 # INFO: Conta ----------------------------------------------------------------------------------------------------
 # INFO: Campo de login da conta
 def log(request):
-    url_redefinir_senha = settings.BASE_URL + "/redefinirSenha/"
+    url_redefinir_senha = settings.BASE_URL + "/redefinirSenha/" #WARNING mudar lógica (em caso de deploy)
 
     if request.method == "POST":
         # Se o campo 'log' estiver presente, é uma tentativa de login
@@ -16,28 +23,10 @@ def log(request):
             log = request.POST.get("log")
             logpass = request.POST.get("logpass")
             user = authenticate(request, username=log, password=logpass)
-            if user is not None:
-                if (
-                    "Adm" in user.situacao_atual
-                    and user.situacao_atual_empresa == "Ativo"
-                ):
-                    login(request, user)
-                    return redirect("homeAdmin")
+            if user is not None:    #NOTE caso exista um usuário
+                return redirect("home")
 
-                elif (
-                    "Func" in user.situacao_atual
-                    and user.situacao_atual_empresa == "Ativo"
-                ):
-                    login(request, user)
-                    return redirect("homeAdmin")
-
-                elif (
-                    "Exec" in user.situacao_atual
-                    and user.situacao_atual_empresa == "Ativo"
-                ):
-                    login(request, user)
-                    return redirect("homeAdmin")
-                else:
+            elif(user.is_active == False): 
                     error_message = "Funcionário inativo"
                     return render(
                         request, "registro/login.html", {"error_message": error_message}
@@ -47,7 +36,7 @@ def log(request):
                 return render(
                     request, "registro/login.html", {"error_message": error_message}
                 )
-
+            
         # Se o campo '' estiver presente, é uma solicitação de recuperação de senha
         elif "email" in request.POST:
             email = request.POST.get("email")
@@ -78,47 +67,40 @@ def log(request):
                     status=500,
                 )
 
-    return render(request, "registro/login.html")
+    return render(request, "login.html")
+
+# INFO: Campo de registro da conta
+
+
 
 
 # INFO: Campo de registro da conta
 class RegisterView(TemplateView):
-    template_name = "registro/registro.html"
+    template_name = "worker/registro.html"
 
     def get(self, request, **kwargs):
-        return render(request, self.template_name)
+        form = RegisterForm()
+        return render(request, self.template_name, {"form": form})
 
-    def post(self, request):
-        log = request.POST.get("log")
-        logpass = request.POST.get("logpass")
-        first_name = request.POST.get("first_name")
-        last_name = request.POST.get("last_name")
-        email = request.POST.get("email")
-        cidade = request.POST.get("cidade")
-        telefone = request.POST.get("telefone")
-
-        if (
-            User.objects.filter(email=email).exists()
-            or User.objects.filter(username=log).exists()
-        ):
-            return render(
-                request,
-                self.template_name,
-                {"error_message": "E-mail ou apelido já foram registrados"},
+    def post(self, request, **kwargs):
+        form = RegisterForm(request.POST)
+        if form.is_valid():
+            # Criar o usuário
+            user = CustomUser_Funcionario.objects.create_user(
+                username=form.cleaned_data["log"],
+                email=form.cleaned_data["email"],
+                password=form.cleaned_data["logpass"],
+                first_name=form.cleaned_data["first_name"],
+                last_name=form.cleaned_data["last_name"],
+                cidade=form.cleaned_data["cidade"],
+                telefone=form.cleaned_data["telefone"],
             )
-
-        user = CustomUser_Funcionario.objects.create_user(
-            username=log,
-            email=email,
-            password=logpass,
-            first_name=first_name,
-            last_name=last_name,
-            cidade=cidade,
-            telefone=telefone,
-        )
-        user.save()
-        return redirect("log")
-
+            user.save()
+            return redirect("log")
+        else:
+            # Mensagem de erro se o formulário for inválido
+            return render(request, self.template_name, {"form": form})
+        
 
 # INFO: Redefinir senha da conta
 def RedefinirSenha(request):

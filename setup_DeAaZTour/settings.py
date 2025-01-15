@@ -1,4 +1,5 @@
 from pathlib import Path
+from django.contrib.messages import constants as messages
 
 # Build paths inside the project like this: BASE_DIR / 'subdir'.
 BASE_DIR = Path(__file__).resolve().parent.parent
@@ -31,7 +32,12 @@ MY_APPS=[
     'apps.service',
     'apps.client',
 ]
-INSTALLED_APPS = BASE_INSTALLED_APPS + MY_APPS
+FUNCIONAIS_APPS=[ 
+       'phonenumber_field',
+]
+
+
+INSTALLED_APPS = BASE_INSTALLED_APPS + MY_APPS + FUNCIONAIS_APPS
 MIDDLEWARE = [
     'django.middleware.security.SecurityMiddleware',
     'django.contrib.sessions.middleware.SessionMiddleware',
@@ -47,7 +53,7 @@ ROOT_URLCONF = 'setup_DeAaZTour.urls'
 TEMPLATES = [
     {
         'BACKEND': 'django.template.backends.django.DjangoTemplates',
-        'DIRS': [BASE_DIR / "templates"],
+        'DIRS': [BASE_DIR / "/templates"],
         'APP_DIRS': True,
         'OPTIONS': {
             'context_processors': [
@@ -116,14 +122,16 @@ DEFAULT_AUTO_FIELD = 'django.db.models.BigAutoField'
 
 #configuração de arquivos estáticos
 STATIC_URL = "/static/"
+
 STATICFILES_DIRS = [
-    BASE_DIR / "static",#desnecessario só iria chama se houvesse um arquivvo static de nome diferente de /static/
+     BASE_DIR / "static_global",
 ]
+
 MEDIA_URL = "/media/"
 MEDIA_ROOT = BASE_DIR / "media"
 STATIC_ROOT = BASE_DIR / "static_root"
 #configuração de autenticação
-AUTH_USER_MODEL = "homeAdmin.CustomUser_Funcionario"
+AUTH_USER_MODEL = "worker.CustomUser_Funcionario"
 
 #configuração de email
 EMAIL_BACKEND = "django.core.mail.backends.smtp.EmailBackend"
