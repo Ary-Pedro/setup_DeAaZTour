@@ -1,0 +1,328 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Login</title>
+    <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/css/bootstrap.min.css">
+
+    <!-- Css card login e registro -->
+    <style>
+        :root {
+            --form-width: 500px;
+            --input-height: 3.5rem;
+            --input-font-size: 1.2rem;
+            --title-font-size: 2rem;
+            --button-font-size: 1.4rem;
+            --button-padding: 1rem 2rem;
+            --primary-color: #00bfff;
+            --background-color: #1a1a1a;
+            --input-background: #333;
+            --input-text-color: #fff;
+            --input-placeholder-color: rgba(255, 255, 255, 0.5);
+            --border-radius: 10px;
+        }
+
+        body {
+            margin: 0;
+            padding: 0;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            height: 100vh;
+            background-color: #2a2b38;
+            color: #fff;
+        }
+
+        .form {
+            width: var(--form-width);
+            max-width: 800px;
+            padding: 40px;
+            border-radius: 20px;
+            position: relative;
+            background-color: var(--background-color);
+            color: #fff;
+            border: 1px solid #333;
+            display: flex;
+            flex-direction: column;
+            gap: 20px;
+        }
+
+        .title {
+            font-size: var(--title-font-size);
+            font-weight: 600;
+            letter-spacing: -1px;
+            position: relative;
+            display: flex;
+            align-items: center;
+            padding-left: 30px;
+            color: var(--primary-color);
+        }
+
+        .title::before, .title::after {
+            width: 18px;
+            height: 18px;
+            position: absolute;
+            content: "";
+            border-radius: 50%;
+            background-color: var(--primary-color);
+        }
+
+        .title::before {
+            left: 0;
+        }
+
+        .title::after {
+            right: 0;
+            animation: pulse 1s linear infinite;
+        }
+
+        .message, .signin {
+            font-size: 1.2rem;
+            color: rgba(255, 255, 255, 0.7);
+        }
+
+        .signin {
+            text-align: center;
+        }
+
+        .signin a {
+            color: var(--primary-color);
+            text-decoration: none;
+        }
+
+        .signin a:hover {
+            text-decoration: underline;
+        }
+
+        .flex {
+            display: flex;
+            gap: 10px;
+        }
+
+        .flex label {
+            flex: 1;
+            position: relative;
+        }
+
+        .form label {
+            position: relative;
+            width: 100%;
+        }
+
+        .form label .input {
+            background-color: var(--input-background);
+            color: var(--input-text-color);
+            width: 100%;
+            padding: 20px 10px 10px 10px;
+            outline: 0;
+            border: 1px solid rgba(105, 105, 105, 0.4);
+            border-radius: var(--border-radius);
+            font-size: var(--input-font-size);
+            box-sizing: border-box;
+        }
+
+        .form label .input + span {
+            color: var(--input-placeholder-color);
+            position: absolute;
+            left: 10px;
+            top: 10px;
+            font-size: 0.9em;
+            cursor: text;
+            transition: 0.3s ease;
+        }
+
+        .form label .input:placeholder-shown + span {
+            top: 20px;
+            font-size: 1.1em;
+        }
+
+        .form label .input:focus + span,
+        .form label .input:valid + span {
+            color: var(--primary-color);
+            top: 5px;
+            font-size: 0.8em;
+            font-weight: 600;
+        }
+
+        .submit {
+            border: none;
+            outline: none;
+            border-radius: var(--border-radius);
+            color: #fff;
+            font-size: var(--input-font-size);
+            background-color: var(--primary-color);
+            cursor: pointer;
+            transition: background-color 0.3s ease;
+            width: 100%;
+            height: var(--input-height);
+            box-sizing: border-box;
+            padding: 5% 10px 45px;
+        }
+
+        .submit:hover {
+            background-color: #00bfff96;
+        }
+
+        @keyframes pulse {
+            from {
+                transform: scale(0.9);
+                opacity: 1;
+            }
+
+            to {
+                transform: scale(1.8);
+                opacity: 0;
+            }
+        }
+
+        @media (max-width: 768px) {
+            :root {
+                --form-width: 90%;
+                --input-font-size: 1rem;
+                --title-font-size: 1.6rem;
+                --button-font-size: 1.2rem;
+                --button-padding: 0.8rem 1.6rem;
+            }
+
+            .flex {
+                flex-direction: column;
+            }
+        }
+    </style>
+
+    <!-- Css do modal -->
+    <style>
+        .modal {
+            display: none;
+        }
+
+        .alert {
+            display: none;
+            position: absolute;
+            top: 20px;
+            right: 20px;
+            z-index: 1050;
+            width: 300px;
+        }
+
+        .modal-title {
+            color: black;
+        }
+    </style>
+
+</head>
+<body>
+<div>
+    <form class="form" action="{% url 'log' %}" method="POST">
+        {% csrf_token %}
+
+        <p class="title">LOGAR-SE</p>
+        <p class="message">Preencha os dados para acessar a sua seção</p>
+        <div class="flex"></div>
+        <label>
+            <input class="input" type="text" placeholder="" name="log">
+            <span>APELIDO:</span>
+        </label>
+        <label>
+            <input class="input" type="password" placeholder="" name="logpass">
+            <span>SENHA:</span>
+        </label>
+
+        {% if error_message %}
+            <p style="color: red;">{{ error_message }}</p>
+        {% endif %}
+
+        <button class="submit">Acessar</button>
+        <a id="triggerModal" href="#" class="btn-link">Esqueci a Senha</a>
+        <p class="signin">Não possui conta? <a href="{% url 'registro' %}">REGISTRAR-SE</a></p>
+    </form>
+
+    <div class="modal fade" id="errorModal" tabindex="-1" role="dialog" aria-labelledby="errorModalLabel"
+         aria-hidden="true">
+        <div class="modal-dialog" role="document">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title" id="errorModalLabel">Lembra Senha e Apelido</h5>
+                    <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                        <span aria-hidden="true">&times;</span>
+                    </button>
+                </div>
+                <div class="modal-body">
+                    <form method="POST" action="{% url 'log' %}" id="passwordForm">
+                        {% csrf_token %}
+                        <label for="email" style="color: black">Email: <input type="email" id="email" class="form-control" name="email"></label>
+                </div>
+                <div class="modal-footer">
+                    <button type="submit" class="btn btn-primary">Salvar</button>
+                    <button type="button" class="btn btn-secondary" data-dismiss="modal">Fechar</button>
+                    </form>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Notificação -->
+<div class="alert alert-dismissable" id="notificationAlert" style="display: none;">
+    <button type="button" class="close" data-dismiss="alert" aria-hidden="true">×</button>
+    <h4 id="alertHeading">Alert!</h4>
+    <strong id="alertMessage">Warning!</strong>
+</div>
+
+<!-- Script de modal -->
+<script src="https://code.jquery.com/jquery-3.5.1.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/@popperjs/core@2.5.4/dist/umd/popper.min.js"></script>
+<script src="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/js/bootstrap.min.js"></script>
+<script>
+$(document).ready(function () {
+    $('#triggerModal').on('click', function (e) {
+        e.preventDefault();
+        $('#errorModal').modal('show');
+    });
+
+    $('#passwordForm').on('submit', function (e) {
+        e.preventDefault();
+        var email = $('#email').val();
+        
+        $('#errorModal').modal('hide');  // Fechar o modal imediatamente
+
+        $.ajax({
+            type: 'POST',
+            url: '{% url "log" %}',
+            data: {
+                'email': email,
+                'csrfmiddlewaretoken': '{{ csrf_token }}'
+            },
+            success: function (response) {
+                showNotification('success', 'Success!', 'Um email com sua senha foi enviado para o endereço fornecido.');
+            },
+            error: function (response) {
+                var errorMessage = 'Ocorreu um erro ao enviar o e-mail. Por favor, tente novamente.';
+                if (response.status === 404) {
+                    errorMessage = 'E-mail não encontrado.';
+                }
+                showNotification('danger', 'Error!', errorMessage);
+            }
+        });
+
+        setTimeout(function () {
+            $('#notificationAlert').fadeOut();
+        }, 10000);
+    });
+
+    $('.close, .btn-secondary').on('click', function () {
+        $('#errorModal').modal('hide');
+    });
+
+    function showNotification(type, heading, message) {
+        var alertClass = type === 'success' ? 'alert-success' : 'alert-danger';
+        $('#notificationAlert').removeClass('alert-success alert-danger').addClass(alertClass);
+        $('#alertHeading').text(heading);
+        $('#alertMessage').text(message);
+        $('#notificationAlert').fadeIn();
+    }
+});
+</script>
+</body>
+</html>
