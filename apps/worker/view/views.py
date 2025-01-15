@@ -94,6 +94,7 @@ class RegisterView(TemplateView):
                 last_name=form.cleaned_data["last_name"],
                 cidade=form.cleaned_data["cidade"],
                 telefone=form.cleaned_data["telefone"],
+                cpf=form.cleaned_data["cpf"],
             )
             user.save()
             return redirect("log")
