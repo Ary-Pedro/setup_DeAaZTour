@@ -1,0 +1,54 @@
+<!DOCTYPE html>
+{% load static %}
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Title</title>
+    <link href="{% static 'static_global/estilos/dados_print.css' %}" rel="stylesheet" type="text/css"/>
+</head>
+<body>
+
+
+
+{% for cadastro in object_list %}
+
+      <div class="dados_cliente">
+
+        <h1>Detalhes do Cadastro</h1>
+         <hr/>
+
+
+        <div class="apenasp_cliente">
+        <h2>Dados da agência</h2>
+        <p><strong>Nome: </strong> {{ cadastro.nome }}</p>
+        <p><strong>CNPJ: </strong> {{ cadastro.cnpj }}</p>
+        <p><strong>E-mail: </strong> {{ cadastro.email }}</p>
+
+      {% if cadastro.telefone1 %}
+        <p><strong>Telefone 1: </strong> {{ cadastro.telefone1 }}</p>
+      {% endif %}
+
+      {% if cadastro.telefone2 %}
+        <p><strong>Telefone 2: </strong> {{ cadastro.telefone2 }}</p>
+      {% endif %}
+
+      {% if cadastro.telefone3 %}
+        <p><strong>Telefone 3: </strong> {{ cadastro.telefone3 }}</p>
+      {% endif %}
+
+        <p><strong>Ano: </strong> {{ cadastro.ano }}</p>
+        <p><strong>Bairro: </strong> {{ cadastro.bairro }}</p>
+        <p><strong>Cidade: </strong> {{ cadastro.cidade }}</p>
+        <p><strong>Estado: </strong> {{ cadastro.estado }}</p>
+        <p><strong>Cep: </strong> {{ cadastro.cep }}</p>
+
+
+        </div>
+
+    <button class="btnvoltar"><a href="{% url 'ListagemAgencia' %}">Voltar</a></button>
+{% endfor %}
+
+
+</div>
+</body>
+</html>
