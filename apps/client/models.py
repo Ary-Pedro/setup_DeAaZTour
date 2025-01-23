@@ -29,6 +29,14 @@ class CadCliente(models.Model):
         help_text="Digite a endereço aqui.",
         blank=True
     )
+
+      cidade = models.CharField(
+        max_length=100,
+        null=True,
+        verbose_name="Cidade ",
+        help_text="Digite a cidade aqui.",
+        blank=True
+    )
     bairro = models.CharField(
         max_length=100,
         null=True,

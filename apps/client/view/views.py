@@ -30,11 +30,11 @@ class cadCliente(LoginRequiredMixin, CreateView):
         "nome",
         "celular",
         "cpf",
-        "rg",
         "sexo",
         "data_nascimento",
         "num_passaporte",
         "endereco",
+        "cidade",
         "bairro",
         "estado",
         "cep",
@@ -47,9 +47,7 @@ class cadCliente(LoginRequiredMixin, CreateView):
 
     def form_valid(self, form):
         response = super().form_valid(form)
-        messages.success(
-            self.request, f"Cliente de id {self.object.id} cadastrado com sucesso!"
-        )
+       
         return response
 
 
@@ -93,6 +91,7 @@ class ClienteUpdateView(LoginRequiredMixin, UpdateView):
         "data_nascimento",
         "num_passaporte",
         "endereco",
+        "cidade",
         "bairro",
         "estado",
         "cep",

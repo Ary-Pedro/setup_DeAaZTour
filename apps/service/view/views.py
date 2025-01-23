@@ -4,7 +4,7 @@ from django.contrib import messages
 from django.contrib.auth.mixins import LoginRequiredMixin
 
 # INFO: funções uso geral
-from django.db.models import Q
+from django.db.models import Q, Sum
 from service.models import Venda
 from client.models import CadCliente
 from worker.models import Funcionario
@@ -101,10 +101,7 @@ class cadVendas(LoginRequiredMixin, CreateView):
                         form.instance.tipo_cidadania_outros = None
 
                 response = super().form_valid(form)
-                messages.success(
-                    self.request,
-                    f'Venda registrada com sucesso! Cliente de ID {self.object.id} cadastrado com sucesso.'
-                )
+              
                 return response
             else:
                 messages.error(self.request, 'Cliente não encontrado ou dados do Cliente inválidos.')
@@ -231,10 +228,7 @@ class VendaUpdateView(LoginRequiredMixin, UpdateView):
                     form.instance.tipo_cidadania_outros = None
 
                 response = super().form_valid(form)
-                messages.success(
-                    self.request,
-                    f'Venda registrada com sucesso! Cliente de ID {self.object.id} cadastrado com sucesso.'
-                )
+               
                 return response
             else:
                 messages.error(self.request, 'Cliente não encontrado ou dados do Cliente inválidos.')
@@ -261,7 +255,7 @@ class VendaDeleteView(LoginRequiredMixin, DeleteView):
 class ProcurarVenda(LoginRequiredMixin, ListView):
     login_url = "log"  # URL para redirecionar para login
     model = Venda
-    template_name = "templates/service/buncasVendas/procurarVenda.html"
+    template_name = "cadAdmin/Vendas/buncasVendas/procurarVenda.html"
     context_object_name = "cadastro_list"
 
     def get_queryset(self):
@@ -269,9 +263,17 @@ class ProcurarVenda(LoginRequiredMixin, ListView):
         if not procurar_termo:
             raise Http404()
 
+        inicio_mes = date.today().replace(day=1)
+        proximo_mes = (inicio_mes + timedelta(days=31)).replace(day=1)
         return Venda.objects.filter(
-            Q(cliente__nome__istartswith=procurar_termo)
+            data_venda__gte=inicio_mes,
+            data_venda__lt=proximo_mes
+        ).filter(
+            Q(cliente__cidade__istartswith=procurar_termo) | Q(cliente__nome__istartswith=procurar_termo)
+            | Q(tipo_servico__icontains=procurar_termo) | Q(tipo_servico_outros__istartswith=procurar_termo)
+            | Q(tipo_pagamento__istartswith=procurar_termo)
         ).order_by("-id")
+
 
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
@@ -279,6 +281,8 @@ class ProcurarVenda(LoginRequiredMixin, ListView):
         context["page_title"] = (f'Procurar por "{procurar_termo}" |',)
         context["procurar_termo"] = procurar_termo
         context["total_resultados"] = self.get_queryset().count()
+        total_geral = Venda.objects.count()
+        context["total_geral"] = total_geral
         return context
 
 
