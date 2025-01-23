@@ -310,10 +310,10 @@ def salvar_csvVenda(request, periodo, forma_pagamento=None):
         vendas = vendas.filter(tipo_pagamento="Pix")
     elif forma_pagamento == "Dinheiro":
         vendas = vendas.filter(tipo_pagamento="Dinheiro")
-    elif forma_pagamento == "Credito":
-        vendas = vendas.filter(tipo_pagamento="Credito")
-    elif forma_pagamento == "Debito":
-        vendas = vendas.filter(tipo_pagamento="Debito")
+    elif forma_pagamento == "Crédito":
+        vendas = vendas.filter(tipo_pagamento="Crédito")
+    elif forma_pagamento == "Débito":
+        vendas = vendas.filter(tipo_pagamento="Débito") 
 
     # Verificar se algum tipo de cidadania ou nacionalidade foi preenchido
     for venda in vendas:

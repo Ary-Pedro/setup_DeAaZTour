@@ -15,7 +15,7 @@
 
     <div class="row justify-content-center mb-4">
         <div class="col-md-8">
-            <form action="{% url 'procurarCliente' %}" method="GET" class="input-group">
+            <form action="{% url 'procurarVenda' %}" method="GET" class="input-group">
                 <input type="search" class="form-control" name="q" placeholder="Procure por clientes..." value="{{ procurar_termo }}" required>
                 <button type="submit" class="btn btn-primary">
                     <img src="{% static 'imagens/lupe.svg' %}" alt="Ícone de lupa" style="height: 20px; width: 20px;">
@@ -32,6 +32,7 @@
                         <th>#</th>
                         <th>Cliente</th>
                         <th>Vendedor</th>
+                        <th>Cidade</th>
                         <th>Valor</th>
                         <th>Situação</th>
                         <th>Finalizado em</th>
@@ -44,6 +45,7 @@
                         <td><a href="{% url 'dadosVenda' todo.pk %}" class="text-decoration-none">{{ todo.pk }}</a></td>
                         <td><a href="{% url 'dadosVenda' todo.pk %}" class="text-decoration-none">{{ todo.cliente }}</a></td>
                         <td>{{ todo.vendedor }}</td>
+                        <td>{{ todo.cliente.cidade }}</td>
                         <td>{{ todo.valor }}</td>
                         <td>{{ todo.situacaoMensal }}</td>
                         <td>{{ todo.finished_at }}</td>

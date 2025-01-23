@@ -17,7 +17,7 @@
 
     <div class="row justify-content-center mb-4">
         <div class="col-md-8">
-            <form action="{% url 'procurarCliente' %}" method="GET" class="input-group">
+            <form action="{% url 'procurarVenda' %}" method="GET" class="input-group">
                 <input type="search" class="form-control" name="q" placeholder="Procure por clientes..." value="{{ procurar_termo }}" required>
                 <button type="submit" class="btn btn-primary">
                     <img src="{% static 'imagens/lupe.svg' %}" alt="Ícone de lupa" style="height: 20px; width: 20px;">
@@ -33,6 +33,7 @@
                     <th>#</th>
                     <th>Cliente</th>
                     <th>Vendedor</th>
+                    <th>Cidade</th>
                     <th>Valor</th>
                     <th>Situação</th>
                     <th>Finalizado em</th>
@@ -45,6 +46,7 @@
                         <td><a href="{% url 'dadosVenda' cadastro.pk %}" class="text-decoration-none">{{ cadastro.pk }}</a></td>
                         <td><a href="{% url 'dadosVenda' cadastro.pk %}" class="text-decoration-none">{{ cadastro.cliente }}</a></td>
                         <td>{{ cadastro.vendedor }}</td>
+                        <td>{{ cadastro.cliente.cidade }}</td>
                         <td>{{ cadastro.valor }}</td>
                         <td>{{ cadastro.situacaoMensal }}</td>
                         <td>{{ cadastro.finished_at }}</td>
@@ -64,7 +66,7 @@
                     </tr>
                 {% empty %}
                     <tr>
-                        <td colspan="7" class="text-center">Sem registros</td>
+                        <td colspan="8" class="text-center">Sem registros</td>
                     </tr>
                 {% endfor %}
             </tbody>

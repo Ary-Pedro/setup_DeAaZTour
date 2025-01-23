@@ -23,7 +23,10 @@
         <h2>Dados do cliente</h2>
         <p><strong>Nome: </strong> {{ cadastro.nome }}</p>
         <p><strong>CPF: </strong> {{ cadastro.cpf }}</p>
+        {% if cadastro.rg %}
         <p><strong>RG: </strong> {{ cadastro.rg }}</p>
+  {% endif %}
+
         <p><strong>Data de Nascimento: </strong> {{ cadastro.data_nascimento }}</p>
         <p><strong>Idade: </strong> {{ cadastro.idade }}</p>
         <p><strong>Sexo: </strong> {{ cadastro.get_sexo_display  }}</p>
@@ -39,7 +42,9 @@
             <p><strong>Endereco: </strong> {{ cadastro.endereco }}</p>
          {% endif %}
 
-
+         {% if cadastro.cidade %}
+         <p><strong>Cidade: </strong> {{ cadastro.cidade }}</p>
+    {% endif %}
          {% if cadastro.bairro %}
             <p><strong>Bairro: </strong> {{ cadastro.bairro }}</p>
          {% endif %}
