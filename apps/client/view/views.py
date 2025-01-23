@@ -1,4 +1,4 @@
-'''
+"""
 # INFO: Para uso do Auth e funções nativas de validação
 from django.contrib import messages
 from django.contrib.auth.mixins import LoginRequiredMixin
@@ -177,4 +177,4 @@ def cliente_detail_api(request, pk):
         "estado": cliente.estado,
     }
     return JsonResponse(data)
-'''
+"""

@@ -1,4 +1,4 @@
-'''
+"""
 # INFO: Para uso do Auth e funções nativas de validação
 from django.contrib import messages
 from django.contrib.auth.mixins import LoginRequiredMixin
@@ -358,4 +358,4 @@ class Rank(LoginRequiredMixin, TemplateView):
             if now() >= venda.situacaoMensal_dataApoio + relativedelta(months=1):
                 venda.situacaoMensal = "Finalizada"
                 venda.save()
-'''
+"""

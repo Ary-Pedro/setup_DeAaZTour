@@ -1,4 +1,4 @@
-'''
+"""
 from django.urls import path
 from .view import cadVendas, CadListViewVenda, VendaUpdateView, VendaDeleteView, ProcurarVenda, DadosCadastrosVenda, ValidarVendas
 
@@ -17,4 +17,4 @@ urlpatterns = [
     # -------------------------------------------------------------------------------------------------------------------
 
 ]
-'''
+"""

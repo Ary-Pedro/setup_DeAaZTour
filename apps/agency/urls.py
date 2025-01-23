@@ -1,4 +1,4 @@
-'''
+"""
 from django.urls import path
 from .view import cadAgencia, CadListViewAgencia, AgenciaUpdateView, AgenciaDeleteView, DadosCadastrosAgencia, ProcurarAgencia, pesquisar_rota
  
@@ -19,4 +19,4 @@ urlpatterns = [
     # -------------------------------------------------------------------------------------------------------------------
 
 ]
-'''
+"""

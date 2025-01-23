@@ -3,6 +3,7 @@ from client.models import CadCliente
 from django.core.exceptions import ValidationError
 import re
 
+
 class CadClienteForm(forms.ModelForm):
     class Meta:
         model = CadCliente
@@ -18,9 +19,9 @@ class CadClienteForm(forms.ModelForm):
             "bairro",
             "estado",
             "cep",
-            'anexo1',
-            'anexo2',
-            'anexo3',
+            "anexo1",
+            "anexo2",
+            "anexo3",
         ]
 
     def clean_nome(self):
@@ -39,5 +40,7 @@ class CadClienteForm(forms.ModelForm):
         celular = self.cleaned_data.get("celular")
         pattern = r"^\d{10,11}$"
         if not re.match(pattern, celular):
-            raise ValidationError("O celular deve conter apenas números com 10 ou 11 dígitos.")
+            raise ValidationError(
+                "O celular deve conter apenas números com 10 ou 11 dígitos."
+            )
         return celular

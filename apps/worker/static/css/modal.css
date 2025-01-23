@@ -1,0 +1,16 @@
+.modal {
+    display: none;
+}
+
+.alert {
+    display: none;
+    position: absolute;
+    top: 20px;
+    right: 20px;
+    z-index: 1050;
+    width: 300px;
+}
+
+.modal-title {
+    color: black;
+}

@@ -3,6 +3,7 @@ from django.core.exceptions import ValidationError
 import re
 from .models import CadAgencia
 
+
 class CadAgenciaForm(forms.ModelForm):
     class Meta:
         model = CadAgencia

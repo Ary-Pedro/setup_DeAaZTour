@@ -8,14 +8,18 @@ from django.views import View
 from django.core.mail import send_mail
 import uuid
 from .forms import RegisterForm
-from apps.worker.models import CustomUser_Funcionario 
+from apps.worker.models import CustomUser_Funcionario
 from setup_DeAaZTour import settings
+
 User = get_user_model()
+
 
 # INFO: Conta ----------------------------------------------------------------------------------------------------
 # INFO: Campo de login da conta
 def log(request):
-    url_redefinir_senha = settings.BASE_URL + "/redefinirSenha/" #WARNING mudar lógica (em caso de deploy)
+    url_redefinir_senha = (
+        settings.BASE_URL + "/redefinirSenha/"
+    )  # WARNING mudar lógica (em caso de deploy)
 
     if request.method == "POST":
         # Se o campo 'log' estiver presente, é uma tentativa de login
@@ -23,20 +27,20 @@ def log(request):
             log = request.POST.get("log")
             logpass = request.POST.get("logpass")
             user = authenticate(request, username=log, password=logpass)
-            if user is not None:    #NOTE caso exista um usuário
+            if user is not None:  # NOTE caso exista um usuário
                 return redirect("home")
 
-            elif(user.is_active == False): 
-                    error_message = "Funcionário inativo"
-                    return render(
-                        request, "registro/login.html", {"error_message": error_message}
-                    )
+            elif user.is_active == False:
+                error_message = "Funcionário inativo"
+                return render(
+                    request, "registro/login.html", {"error_message": error_message}
+                )
             else:
                 error_message = "Apelido ou senha incorretos. Tente novamente."
                 return render(
                     request, "registro/login.html", {"error_message": error_message}
                 )
-            
+
         # Se o campo '' estiver presente, é uma solicitação de recuperação de senha
         elif "email" in request.POST:
             email = request.POST.get("email")
@@ -69,10 +73,6 @@ def log(request):
 
     return render(request, "login.html")
 
-# INFO: Campo de registro da conta
-
-
-
 
 # INFO: Campo de registro da conta
 class RegisterView(TemplateView):
@@ -88,11 +88,10 @@ class RegisterView(TemplateView):
             # Criar o usuário
             user = CustomUser_Funcionario.objects.create_user(
                 username=form.cleaned_data["log"],
-                email=form.cleaned_data["email"],
                 password=form.cleaned_data["logpass"],
+                email=form.cleaned_data["email"],
                 first_name=form.cleaned_data["first_name"],
                 last_name=form.cleaned_data["last_name"],
-                cidade=form.cleaned_data["cidade"],
                 telefone=form.cleaned_data["telefone"],
                 cpf=form.cleaned_data["cpf"],
             )
@@ -101,7 +100,7 @@ class RegisterView(TemplateView):
         else:
             # Mensagem de erro se o formulário for inválido
             return render(request, self.template_name, {"form": form})
-        
+
 
 # INFO: Redefinir senha da conta
 def RedefinirSenha(request):
@@ -154,10 +153,12 @@ def RedefinirSenha(request):
 class LogoutView(LogoutView):
     next_page = "log"
 
+
+### rever e corrigir!!!
 def salvar_csvVenda(request, periodo, forma_pagamento=None):
     response = HttpResponse(content_type="text/csv")
     response["Content-Disposition"] = (
-            "attachment; filename=Vendas_" + str(datetime.datetime.now()) + ".csv"
+        "attachment; filename=Vendas_" + str(datetime.datetime.now()) + ".csv"
     )
 
     writer = csv.writer(response)
@@ -182,11 +183,15 @@ def salvar_csvVenda(request, periodo, forma_pagamento=None):
     elif periodo == "semana":
         inicio_semana = date.today() - timedelta(days=date.today().weekday())
         fim_semana = inicio_semana + timedelta(days=6)
-        vendas = Venda.objects.filter(data_venda__gte=inicio_semana, data_venda__lte=fim_semana)
+        vendas = Venda.objects.filter(
+            data_venda__gte=inicio_semana, data_venda__lte=fim_semana
+        )
     elif periodo == "mes":
         inicio_mes = date.today().replace(day=1)
         proximo_mes = (inicio_mes + timedelta(days=31)).replace(day=1)
-        vendas = Venda.objects.filter(data_venda__gte=inicio_mes, data_venda__lt=proximo_mes)
+        vendas = Venda.objects.filter(
+            data_venda__gte=inicio_mes, data_venda__lt=proximo_mes
+        )
     else:
         vendas = Venda.objects.all()
 
@@ -198,7 +203,6 @@ def salvar_csvVenda(request, periodo, forma_pagamento=None):
         vendas = vendas.filter(tipo_pagamento="Credito")
     elif forma_pagamento == "Debito":
         vendas = vendas.filter(tipo_pagamento="Debito")
-
 
     # Verificar se algum tipo de cidadania ou nacionalidade foi preenchido
     for venda in vendas:
@@ -223,12 +227,16 @@ def salvar_csvVenda(request, periodo, forma_pagamento=None):
             tipo_servico = venda.tipo_servico
 
         if venda.tipo_cidadania == "Outros":
-            tipo_cidadania = venda.tipo_cidadania_outros if venda.tipo_cidadania_outros else "S/D"
+            tipo_cidadania = (
+                venda.tipo_cidadania_outros if venda.tipo_cidadania_outros else "S/D"
+            )
         else:
             tipo_cidadania = venda.tipo_cidadania if venda.tipo_cidadania else "S/D"
 
         if venda.nacionalidade == "Outros":
-            nacionalidade = venda.nacionalidade_outros if venda.nacionalidade_outros else "S/D"
+            nacionalidade = (
+                venda.nacionalidade_outros if venda.nacionalidade_outros else "S/D"
+            )
         else:
             nacionalidade = venda.nacionalidade if venda.nacionalidade else "S/D"
 
@@ -240,10 +248,10 @@ def salvar_csvVenda(request, periodo, forma_pagamento=None):
                 if venda.vendedor
                 else "S/D"
             ),
-            venda.data_venda.strftime('%d/%m/%Y'),
+            venda.data_venda.strftime("%d/%m/%Y"),
             venda.valor,
             venda.situacaoMensal,
-            venda.finished_at.strftime('%d/%m/%Y') if venda.finished_at else "S/D",
+            venda.finished_at.strftime("%d/%m/%Y") if venda.finished_at else "S/D",
             tipo_servico,
             venda.tipo_pagamento,
         ]
@@ -262,7 +270,7 @@ def salvar_csvVenda(request, periodo, forma_pagamento=None):
 def salvar_csvClientes(request, periodo):
     response = HttpResponse(content_type="text/csv")
     response["Content-Disposition"] = (
-            "attachment; filename=dadosClientes_" + str(datetime.datetime.now()) + ".csv"
+        "attachment; filename=dadosClientes_" + str(datetime.datetime.now()) + ".csv"
     )
 
     writer = csv.writer(response)
@@ -298,16 +306,22 @@ def salvar_csvClientes(request, periodo):
         clientes = CadCliente.objects.all()
 
     for cliente in clientes:
-        anexo1_url = request.build_absolute_uri(cliente.anexo1.url) if cliente.anexo1 else "S/D"
-        anexo2_url = request.build_absolute_uri(cliente.anexo2.url) if cliente.anexo2 else "S/D"
-        anexo3_url = request.build_absolute_uri(cliente.anexo3.url) if cliente.anexo3 else "S/D"
+        anexo1_url = (
+            request.build_absolute_uri(cliente.anexo1.url) if cliente.anexo1 else "S/D"
+        )
+        anexo2_url = (
+            request.build_absolute_uri(cliente.anexo2.url) if cliente.anexo2 else "S/D"
+        )
+        anexo3_url = (
+            request.build_absolute_uri(cliente.anexo3.url) if cliente.anexo3 else "S/D"
+        )
 
         writer.writerow(
             [
                 cliente.nome,
                 cliente.celular,
                 cliente.get_sexo_display(),  # Obtém o texto legível para a escolha do sexo
-                cliente.data_nascimento.strftime('%d/%m/%Y'),
+                cliente.data_nascimento.strftime("%d/%m/%Y"),
                 cliente.endereco,
                 cliente.bairro,
                 cliente.estado,
@@ -316,9 +330,21 @@ def salvar_csvClientes(request, periodo):
                 cliente.cpf,
                 cliente.num_passaporte,
                 cliente.idade() if cliente.idade() else "S/D",
-                f'=HYPERLINK("{anexo1_url}", "{os.path.basename(cliente.anexo1.name)}")' if anexo1_url != "S/D" else "S/D",
-                f'=HYPERLINK("{anexo2_url}", "{os.path.basename(cliente.anexo2.name)}")' if anexo2_url != "S/D" else "S/D",
-                f'=HYPERLINK("{anexo3_url}", "{os.path.basename(cliente.anexo3.name)}")' if anexo3_url != "S/D" else "S/D",
+                (
+                    f'=HYPERLINK("{anexo1_url}", "{os.path.basename(cliente.anexo1.name)}")'
+                    if anexo1_url != "S/D"
+                    else "S/D"
+                ),
+                (
+                    f'=HYPERLINK("{anexo2_url}", "{os.path.basename(cliente.anexo2.name)}")'
+                    if anexo2_url != "S/D"
+                    else "S/D"
+                ),
+                (
+                    f'=HYPERLINK("{anexo3_url}", "{os.path.basename(cliente.anexo3.name)}")'
+                    if anexo3_url != "S/D"
+                    else "S/D"
+                ),
             ]
         )
     return response

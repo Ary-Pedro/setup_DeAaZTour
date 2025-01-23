@@ -7,6 +7,7 @@ from django.contrib.auth.models import Group, Permission, AbstractUser, BaseUser
 from django.core.exceptions import ValidationError
 from .exceptions import validate_custom_user_funcionario
 
+
 class CustomUserManager(BaseUserManager):
     def create_user(self, email, password=None, **extra_fields):
         if not email:
@@ -16,7 +17,7 @@ class CustomUserManager(BaseUserManager):
         user.set_password(password)
         user.save(using=self._db)
         return user
-    
+
     def create_superuser(self, email, password=None, **extra_fields):
         extra_fields.setdefault("is_staff", True)
         extra_fields.setdefault("is_superuser", True)
@@ -25,6 +26,7 @@ class CustomUserManager(BaseUserManager):
         if extra_fields.get("is_superuser") is not True:
             raise ValueError("Superuser must have is_superuser=True.")
         return self.create_user(email, password, **extra_fields)
+
 
 class CustomUser_Funcionario(AbstractUser):
     id = models.AutoField(primary_key=True)
@@ -103,23 +105,24 @@ class CustomUser_Funcionario(AbstractUser):
     def save(self, *args, **kwargs):
         # Validações de exceções
         validate_custom_user_funcionario(self)
-        
+
         # Atualização do nome completo
         self.nome = f"{self.first_name} {self.last_name}"
-        
+
         # Cálculo da idade
         if self.data_nascimento:
             self.idade = idade_Func(self)
-        
+
         # Manipulação do campo is_active de acordo com a atividade
         self.is_active = self.atividade != "Inativo"
-        
+
         super().save(*args, **kwargs)
 
     def __str__(self):
         return self.nome
 
     objects = CustomUserManager()
+
 
 @receiver(pre_save, sender=CustomUser_Funcionario)
 def idade_Func(sender, instance, **kwargs):
@@ -131,6 +134,7 @@ def idade_Func(sender, instance, **kwargs):
         return idade
     else:
         return None
+
 
 @receiver(pre_save, sender=CustomUser_Funcionario)
 def update_nome(sender, instance, **kwargs):

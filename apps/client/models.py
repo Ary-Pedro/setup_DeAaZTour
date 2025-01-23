@@ -1,4 +1,4 @@
-'''
+"""
 from django.db import models
 
 # INFO: Dados de clientes
@@ -123,4 +123,4 @@ class CadCliente(models.Model):
     def get_anexo3_nome(self):
         import os
         return os.path.basename(self.anexo3.name) if self.anexo3 else None
-'''
+"""
