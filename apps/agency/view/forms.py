@@ -2,7 +2,7 @@ from django import forms
 from django.core.exceptions import ValidationError
 from apps.agency.models import Agencia
 import re
-
+# WARING adicionar deixar campo vazio, e arrumar digitações em geral como cnpj e cep ...
 def validar_cnpj(cnpj):
     if not cnpj:
         raise ValidationError("O CNPJ não pode ser nulo!")
@@ -24,7 +24,9 @@ class AgenciaForm(forms.ModelForm):
         fields = [
             'nome_contato',
             'nome_fantasia',
-            'email',
+            'email1',
+            'email2',
+            'email3',
             'telefone1',
             'telefone2',
             'telefone3',
@@ -37,6 +39,8 @@ class AgenciaForm(forms.ModelForm):
             'numero',
             'complemento',
             'bairro',
+            'observacao',
+
         ]
 
     def clean_email(self):
@@ -51,18 +55,13 @@ class AgenciaForm(forms.ModelForm):
         if Agencia.objects.filter(cnpj=cnpj).exists():
             raise ValidationError("Este CNPJ já está registrado.")
         return cnpj
-
-    def clean_telefone1(self):
-        telefone1 = self.cleaned_data.get("telefone1")
-        if telefone1 and not re.match(r"^\d{10,11}$", telefone1):
-            raise ValidationError("O telefone deve conter 10 ou 11 dígitos numéricos.")
-        return telefone1
-
+    
     def clean_contato_ano(self):
         contato_ano = self.cleaned_data.get("contato_ano")
         if contato_ano and not re.match(r"^\d{2}/\d{2}/\d{4}$", contato_ano):
             raise ValidationError("O ano de contato deve estar no formato DD/MM/YYYY.")
         return contato_ano
+    
 
 
     """
