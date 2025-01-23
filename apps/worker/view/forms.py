@@ -2,7 +2,7 @@ from django import forms
 from phonenumber_field.formfields import PhoneNumberField
 from django.core.exceptions import ValidationError
 from apps.worker.models import (
-    CustomUser_Funcionario,
+    Funcionario,
 )  # Use o modelo de usuário personalizado
 
 
@@ -44,7 +44,7 @@ class RegisterForm(forms.Form):
 
     def clean_email(self):
         email = self.cleaned_data.get("email")
-        if CustomUser_Funcionario.objects.filter(
+        if Funcionario.objects.filter(
             email=email
         ).exists():  # Use o modelo de usuário personalizado
             raise ValidationError("Este e-mail já está registrado.")
@@ -52,7 +52,7 @@ class RegisterForm(forms.Form):
 
     def clean_log(self):
         log = self.cleaned_data.get("log")
-        if CustomUser_Funcionario.objects.filter(
+        if Funcionario.objects.filter(
             username=log
         ).exists():  # Use o modelo de usuário personalizado
             raise ValidationError("Este apelido já está registrado.")

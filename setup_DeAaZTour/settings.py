@@ -40,6 +40,8 @@ MY_APPS = [
 FUNCIONAIS_APPS = [
     "phonenumber_field",
     'compressor',
+    "crispy_forms",
+    "crispy_bootstrap5",
 ]
 
 INSTALLED_APPS = BASE_INSTALLED_APPS + MY_APPS + FUNCIONAIS_APPS
@@ -130,11 +132,15 @@ STATICFILES_FINDERS = [
 COMPRESS_ENABLED = True
 COMPRESS_OFFLINE = True
 
+# Django bootstrap5 settings
+RISPY_ALLOWED_TEMPLATE_PACKS = "bootstrap5"
+CRISPY_TEMPLATE_PACK = "bootstrap5"
+
 # Whitenoise settings
 STATICFILES_STORAGE = 'whitenoise.storage.CompressedManifestStaticFilesStorage'
 
 # Authentication settings
-AUTH_USER_MODEL = "worker.CustomUser_Funcionario"
+AUTH_USER_MODEL = "worker.Funcionario"
 
 # Email configuration
 EMAIL_BACKEND = "django.core.mail.backends.smtp.EmailBackend"

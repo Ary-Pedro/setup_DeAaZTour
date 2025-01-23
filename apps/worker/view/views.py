@@ -1,20 +1,22 @@
 from django.shortcuts import render, redirect
 from django.contrib.auth import get_user_model, authenticate, login
-from django.http import JsonResponse
+from django.http import JsonResponse, Http404
 from django.contrib import messages
 from django.contrib.auth.views import LogoutView
-from django.views.generic import TemplateView
+from django.views.generic import *
+from django.contrib.auth.mixins import LoginRequiredMixin
 from django.views import View
 from django.core.mail import send_mail
 import uuid
+from django.urls import reverse_lazy
 from .forms import RegisterForm
-from apps.worker.models import CustomUser_Funcionario
+from apps.worker.models import Funcionario
 from setup_DeAaZTour import settings
 
 User = get_user_model()
 
 
-# INFO: Conta ----------------------------------------------------------------------------------------------------
+# IDEA: Dados Cadastrais ----------------------------------------------------------------------------------------------------
 # INFO: Campo de login da conta
 def log(request):
     url_redefinir_senha = (
@@ -27,25 +29,26 @@ def log(request):
             log = request.POST.get("log")
             logpass = request.POST.get("logpass")
             user = authenticate(request, username=log, password=logpass)
-            if user is not None:  # NOTE caso exista um usuário
-                return redirect("home")
+            if user is not None:  
+                login(request, user)
+                return redirect("home")                
 
             elif user.is_active == False:
                 error_message = "Funcionário inativo"
                 return render(
-                    request, "registro/login.html", {"error_message": error_message}
+                    request, "register/login.html", {"error_message": error_message}
                 )
             else:
                 error_message = "Apelido ou senha incorretos. Tente novamente."
                 return render(
-                    request, "registro/login.html", {"error_message": error_message}
+                    request, "register/login.html", {"error_message": error_message}
                 )
 
-        # Se o campo '' estiver presente, é uma solicitação de recuperação de senha
+        # Se o campo estiver presente, é uma solicitação de recuperação de senha
         elif "email" in request.POST:
             email = request.POST.get("email")
             try:
-                user = CustomUser_Funcionario.objects.get(email=email)
+                user = Funcionario.objects.get(email=email)
                 user.token = str(uuid.uuid4())[:8]  # Apenas os 8 primeiros caracteres
                 user.save()  # Salva o token no banco de dados
 
@@ -61,7 +64,7 @@ def log(request):
                     },
                     status=200,
                 )
-            except CustomUser_Funcionario.DoesNotExist:
+            except Funcionario.DoesNotExist:
                 return JsonResponse({"message": "E-mail não encontrado."}, status=404)
             except Exception as e:
                 return JsonResponse(
@@ -71,12 +74,12 @@ def log(request):
                     status=500,
                 )
 
-    return render(request, "login.html")
+    return render(request, "register/login.html")
 
 
 # INFO: Campo de registro da conta
 class RegisterView(TemplateView):
-    template_name = "worker/registro.html"
+    template_name = "register/registro.html"
 
     def get(self, request, **kwargs):
         form = RegisterForm()
@@ -86,7 +89,7 @@ class RegisterView(TemplateView):
         form = RegisterForm(request.POST)
         if form.is_valid():
             # Criar o usuário
-            user = CustomUser_Funcionario.objects.create_user(
+            user = Funcionario.objects.create_user(
                 username=form.cleaned_data["log"],
                 password=form.cleaned_data["logpass"],
                 email=form.cleaned_data["email"],
@@ -112,33 +115,34 @@ def RedefinirSenha(request):
         # Verifica se todos os campos foram preenchidos
         if not all([novolog, novologpass, novotoken]):
             messages.error(request, "Por favor, preencha todos os campos.")
-            return render(request, "email/email.html")
+            return render(request, "register/redefinirSenha.html")
 
         try:
             # Tenta recuperar o usuário com o token fornecido
-            user = CustomUser_Funcionario.objects.get(token=novotoken)
+            user = Funcionario.objects.get(token=novotoken)
 
-            # Verifica se o novo nome de usuário já está em uso
-            if CustomUser_Funcionario.objects.filter(username=novolog).exists():
-                messages.error(
-                    request, "Esse nome de usuário já está em uso. Escolha outro."
-                )
-                return render(request, "email/email.html")
+            if user.username == novolog:
+                # Se o novo nome de usuário for igual ao atual, apenas redefine a senha
+                user.set_password(novologpass)
+            else:
+                # Verifica se o novo nome de usuário já está em uso
+                if Funcionario.objects.filter(username=novolog).exists():
+                    messages.error(
+                        request, "Esse nome de usuário já está em uso. Escolha outro."
+                    )
+                    return render(request, "register/redefinirSenha.html")
 
-            # Redefine a senha e o nome de usuário
-            user.set_password(
-                novologpass
-            )  # Usa set_password para criptografar a senha corretamente
-            user.username = novolog
+                # Redefine a senha e o nome de usuário
+                user.set_password(novologpass)
+                user.username = novolog
+
             user.token = None  # Remove o token após o uso
             user.save()
 
             messages.success(request, "Sua senha foi redefinida com sucesso.")
-            return redirect(
-                "homeAdmin"
-            )  # Redireciona para a página de login ou onde preferir
+            return redirect("home")  # Redireciona para a página de login ou onde preferir
 
-        except CustomUser_Funcionario.DoesNotExist:
+        except Funcionario.DoesNotExist:
             messages.error(
                 request, "Token inválido. Verifique o token enviado para o seu e-mail."
             )
@@ -146,14 +150,121 @@ def RedefinirSenha(request):
             messages.error(request, f"Ocorreu um erro: {str(e)}")
 
     # Se não for uma requisição POST, ou se a requisição POST não passar pelas verificações
-    return render(request, "email/email.html")
+    return render(request, "register/redefinirSenha.html")
 
+
+
+class Home(LoginRequiredMixin, TemplateView):
+    template_name = "home.html"
+    login_url = "log"  # URL para redirecionar para login
+    model = User
+
+    def get_context_data(self, **kwargs):
+        context = super().get_context_data(**kwargs)
+        usuario_logado = self.request.user
+
+        # Checa se o usuário logado é um Funcionario e se está na situação "Adm."
+        if isinstance(usuario_logado, Funcionario) and usuario_logado.departamento == "Adm":
+           pass
+            # Chama a função calcular_comissao para o administrador logado
+            #usuario_logado.calcular_comissao()
+
+        context["usuario_logado"] = usuario_logado
+        return context
 
 # INFO: Sair da conta
 class LogoutView(LogoutView):
     next_page = "log"
 
 
+
+# IDEIA: Dados Cadastrais - Alterar, Completar, Atualizar----------------------------------------------------------------------------------------------------
+# ----------------------------------------------------------------------------------------------------
+
+
+
+"""
+Funcão
++ADM Editar + AlterarCargo() manual
++ADM Editar + Desligar() manual
++Determinar Comissão() Automático
+
+Paginas 
++Editar() UpdateView
++Visualizar() DadosCadastrosFuncionario
+listar() ListFuncionario
++Filtrar(nome,cpf...) ProcurarFuncionario *
++Editar atualizar cargos em falta() *
+"""
+
+
+
+# INFO: Funcionário - Listar
+class ListFuncionario(LoginRequiredMixin, ListView):
+    model = Funcionario
+    paginate_by = 20
+    template_name = "cadAdmin/Funcionario/formsFuncionario/cadastroFuncionario_list.html"
+    context_object_name = "worker/cadastroFuncionario_list.html"
+    login_url = "log"  # URL para redirecionar para login
+
+
+# INFO: Funcionário - Atualizar
+class UpdateView(LoginRequiredMixin, UpdateView):
+    login_url = "log"  # URL para redirecionar para login
+    model = Funcionario
+    fields = [
+        "first_name", "last_name", "email",
+        "telefone", "cargo_atual", "salario", "cidade", "data_nascimento", "cpf"
+        "departamento", "atividade", "especializacao_funcao"
+    ]
+    template_name = "worker/cadastroFuncionario_form.html"
+    success_url = reverse_lazy("AdminListagemFuncionario")
+
+
+# INFO: Procurar -------------------------------------------------------------------------------------------------------
+# INFO: Procurar - Funcionário
+class ProcurarFuncionario(LoginRequiredMixin, ListView):
+    login_url = "log"  # URL para redirecionar para login
+    model = Funcionario
+    template_name = "buscasFuncionario/procurarFuncionario.html"
+    context_object_name = "cadastro_list"
+
+    def get_queryset(self):
+        procurar_termo = self.request.GET.get("q", "").strip()
+        if not procurar_termo:
+            raise Http404()
+
+        return Funcionario.objects.filter(
+            Q(Q(first_name__istartswith=procurar_termo))
+        ).order_by("-id")
+
+    def get_context_data(self, **kwargs):
+        context = super().get_context_data(**kwargs)
+        procurar_termo = self.request.GET.get("q", "").strip()
+        context["page_title"] = (f'Procurar por "{procurar_termo}" |',)
+        context["procurar_termo"] = procurar_termo
+        context["total_resultados"] = self.get_queryset().count()
+        return context
+
+
+# INFO: Dados - Funcionário
+class DadosFuncionario(LoginRequiredMixin, ListView):
+    login_url = "log"  # URL para redirecionar para login
+    model = Funcionario
+    template_name = "buscasFuncionario/dadosFuncionario.html"
+
+    def get_queryset(self):
+        dados_id = self.kwargs.get("dados_id")
+        return Funcionario.objects.filter(id=dados_id)
+
+    def get_context_data(self, **kwargs):
+        context = super().get_context_data(**kwargs)
+        context["title"] = "Detalhes do Cadastro"
+        return context
+
+    
+
+"""
 ### rever e corrigir!!!
 def salvar_csvVenda(request, periodo, forma_pagamento=None):
     response = HttpResponse(content_type="text/csv")
@@ -348,3 +459,4 @@ def salvar_csvClientes(request, periodo):
             ]
         )
     return response
+"""

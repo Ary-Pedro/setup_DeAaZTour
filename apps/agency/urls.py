@@ -1,22 +1,22 @@
-"""
 from django.urls import path
-from .view import cadAgencia, CadListViewAgencia, AgenciaUpdateView, AgenciaDeleteView, DadosCadastrosAgencia, ProcurarAgencia, pesquisar_rota
+from .view import views
  
 
 urlpatterns = [
 
    # AGENCIA
-    path(f"cadAgencia/", cadAgencia.as_view(), name="cadAgencia"),
-    path(f"ListagemAgencia/", CadListViewAgencia.as_view(), name="ListagemAgencia"),
-    path(f"agencia_deletar/-<int:pk>", AgenciaDeleteView.as_view(), name="agencia_deletar"),
-    path(f"agencia/Atualizar/-<int:pk>", AgenciaUpdateView.as_view(), name="agencia_atualizar"),
+    path(f"cadastrarAgencia/", views.AgenciaCadview.as_view(), name="Agencia"),
+    path(f"agencia/ListagemAgencia/", views.AgenciaListView.as_view(), name="ListagemAgencia"),
 
-    # login
-    path('Agencia/dados/<int:dados_id>/', DadosCadastrosAgencia.as_view(), name='dadosAgencia'),
-    path(f"buscar-agencia/", ProcurarAgencia.as_view(), name="procurarAgencia"),
-    path(f"pesquisar-rota/", pesquisar_rota, name="pesquisarRota"),
+
+    path(f"agenciaDeletar/-<int:pk>", views.AgenciaDeleteView.as_view(), name="agencia_deletar"),
+    path(f"Atualizar-Campos/-<int:pk>", views.AgenciaUpdateView.as_view(), name="agencia_atualizar"),
+    
+    
+    path('buscar-agencia/dados/<int:dados_id>/', views.DadosCadastrosAgencia.as_view(), name='dadosAgencia'),
+    path(f"buscar-agencia/", views.ProcurarAgencia.as_view(), name="procurarAgencia"),
+    path(f"pesquisar-rota/", views.pesquisar_rota, name="pesquisarRota"),
 
     # -------------------------------------------------------------------------------------------------------------------
 
 ]
-"""

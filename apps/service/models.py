@@ -7,7 +7,7 @@ from datetime import date
 
 from django.db.models.signals import post_save, post_delete
 from django.dispatch import receiver
-from worker.models import CustomUser_Funcionario
+from worker.models import Funcionario
 from client.models import CadCliente
 
 
@@ -22,7 +22,7 @@ class Venda(models.Model):
 
     cliente = models.ForeignKey(CadCliente, on_delete=models.CASCADE)
     vendedor = models.ForeignKey(
-        CustomUser_Funcionario, on_delete=models.CASCADE, null=True, blank=True
+        Funcionario, on_delete=models.CASCADE, null=True, blank=True
     )
     situacaoMensal = models.CharField(
         max_length=10,

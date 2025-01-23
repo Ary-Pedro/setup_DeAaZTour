@@ -7,7 +7,7 @@ from django.contrib.auth.mixins import LoginRequiredMixin
 from django.db.models import Q
 from service.models import Venda
 from client.models import CadCliente
-from worker.models import CustomUser_Funcionario
+from worker.models import Funcionario
 from django.views.generic import TemplateView
 
 # INFO: funções de endereçamento
@@ -340,8 +340,8 @@ class Rank(LoginRequiredMixin, TemplateView):
         # Contagem total de todas as vendas, incluindo as finalizadas
         context["total_vendas"] = Venda.objects.count()
 
-        # Checa se o usuário logado é um CustomUser_Funcionario e se está na situação "Adm."
-        if isinstance(usuario_logado, CustomUser_Funcionario) and usuario_logado.situacao_atual == "Adm.":
+        # Checa se o usuário logado é um Funcionario e se está na situação "Adm."
+        if isinstance(usuario_logado, Funcionario) and usuario_logado.departamento == "Adm.":
             # Chama a função calcular_comissao para o administrador logado
             usuario_logado.calcular_comissao()
 

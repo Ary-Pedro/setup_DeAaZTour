@@ -1,12 +1,13 @@
-'''
 from django.shortcuts import render
 
 # INFO: Para uso do Auth e funções nativas de validação
 from django.contrib.auth.mixins import LoginRequiredMixin
+from apps.worker.view.views import log
+
 
 # INFO: funções uso geral
 from django.db.models import Q
-from client.models import CadAgencia
+from apps.agency.models import Agencia
 
 
 # INFO: funções de endereçamento
@@ -18,7 +19,6 @@ from django.shortcuts import get_object_or_404
 
 # INFO: funções uso geral
 from django.views.generic import CreateView, DeleteView, ListView, UpdateView
-from django import forms
 
 import requests
 import pandas as pd
@@ -26,35 +26,23 @@ import heapq
 from django.shortcuts import render
 from django.views.decorators.csrf import csrf_exempt
 
+from .forms import AgenciaForm
 
 # INFO: Agencia ----------------------------------------------------------------------------------------------------
-
 # INFO: Agencia - cadastrar
-class cadAgencia(LoginRequiredMixin, CreateView):
+class AgenciaCadview(CreateView):
     login_url = "log"  # URL para redirecionar para login
-    model = CadAgencia
-    fields = [
-        "nome",
-        "email",
-        "telefone1",
-        "telefone2",
-        "telefone3",
-        "ano",
-        "cnpj",
-        "bairro",
-        "cidade",
-        "estado",
-        "cep",
-    ]
-    template_name = "templates/agency/formsAgencia/cadastroAgencia_form.html"
+    model = Agencia
+    form_class = AgenciaForm  # Defina a classe do formulário aqui
+    template_name = "agency/Agencia_form.html"
     success_url = reverse_lazy("homeAdmin")
 
 
 # INFO: Agencia - listar
-class CadListViewAgencia(LoginRequiredMixin, ListView):
-    model = CadAgencia
+class AgenciaListView(LoginRequiredMixin, ListView):
+    model = Agencia
     paginate_by = 20
-    template_name = "templates/agency/formsAgencia/cadastroAgencia_list.html"
+    template_name = "agency/cadastroAgencia_list.html"
     context_object_name = "cadastro_list"
     login_url = "log"  # URL para redirecionar para login
 
@@ -62,8 +50,8 @@ class CadListViewAgencia(LoginRequiredMixin, ListView):
 # INFO: Agencia - Deletar
 class AgenciaDeleteView(LoginRequiredMixin, DeleteView):
     login_url = "log"  # URL para redirecionar para login
-    model = CadAgencia
-    template_name = "templates/agency/formsAgencia/cadastroAgencia_confirm_delete.html"
+    model = Agencia
+    template_name = "agency/cadastroAgencia_confirm_delete.html"
 
     def get_success_url(self):
         numero_pagina = self.request.GET.get("page", 1)
@@ -73,34 +61,21 @@ class AgenciaDeleteView(LoginRequiredMixin, DeleteView):
 # INFO: Agencia - Atualizar
 class AgenciaUpdateView(LoginRequiredMixin, UpdateView):
     login_url = "log"  # URL para redirecionar para login
-
-    model = CadAgencia
-    fields = [
-        "nome",
-        "email",
-        "telefone1",
-        "telefone2",
-        "telefone3",
-        "ano",
-        "cnpj",
-        "bairro",
-        "cidade",
-        "estado",
-        "cep",
-    ]
-    template_name = "templates/agency/formsAgencia/cadastroAgencia_form.html"
+    model = Agencia 
+    form_class = AgenciaForm
+    template_name = "agency/cadastroAgencia_form.html"
     success_url = reverse_lazy("ListagemAgencia")
 
 
 # INFO: Dados - Agencia
 class DadosCadastrosAgencia(LoginRequiredMixin, ListView):
     login_url = "log"  # URL para redirecionar para login
-    model = CadAgencia
+    model = Agencia
     template_name = "templates/agency/buscasAgencia/dadosAgencia.html"
 
     def get_queryset(self):
         dados_id = self.kwargs.get("dados_id")
-        return CadAgencia.objects.filter(id=dados_id)
+        return Agencia.objects.filter(id=dados_id)
 
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
@@ -111,7 +86,7 @@ class DadosCadastrosAgencia(LoginRequiredMixin, ListView):
 # INFO: Procurar - Agencia
 class ProcurarAgencia(LoginRequiredMixin, ListView):
     login_url = "log"  # URL para redirecionar para login
-    model = CadAgencia
+    model = Agencia
     template_name = "templates/agency/buscasAgencia/procurarAgencia.html"
     context_object_name = "cadastro_list"
 
@@ -120,7 +95,7 @@ class ProcurarAgencia(LoginRequiredMixin, ListView):
         if not procurar_termo:
             raise Http404()
 
-        return CadAgencia.objects.filter(
+        return Agencia.objects.filter(
             Q(
                 Q(nome__istartswith=procurar_termo) | Q(cnpj__icontains=procurar_termo),
             )
@@ -190,7 +165,7 @@ def pesquisar_rota(request):
 
         if cep_usuario:
             # Obter todas as agências cadastradas no banco
-            agencias = CadAgencia.objects.all()
+            agencias = Agencia.objects.all()
 
             # Extrair os dados necessários das agências cadastradas
             ceps_agencias = [
@@ -286,4 +261,3 @@ def classificar_ceps_com_bairros(ceps, cep_referencia):
     df_ceps.drop(columns=['bairro'], inplace=True)
 
     return df_ceps[['cep', 'proximidade']]
-'''

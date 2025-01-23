@@ -6,14 +6,14 @@ os.environ.setdefault('DJANGO_SETTINGS_MODULE', 'setup_DeAaZTour.settings')
 django.setup()
 
 from django.test import TestCase
-from apps.worker.models import CustomUser_Funcionario
+from apps.worker.models import Funcionario
 from django.core.exceptions import ValidationError
 import datetime
 
-class CustomUserFuncionarioTestCase(TestCase):
+class FuncionarioTestCase(TestCase):
     def setUp(self):
         # Set up any initial data for the tests
-        CustomUser_Funcionario.objects.create(
+        Funcionario.objects.create(
             first_name='John',
             last_name='Doe',
             username='johndoe',
@@ -25,33 +25,33 @@ class CustomUserFuncionarioTestCase(TestCase):
 
     def test_model_creation(self):
         """Test that a model instance can be created"""
-        instance = CustomUser_Funcionario.objects.get(username='johndoe')
+        instance = Funcionario.objects.get(username='johndoe')
         self.assertEqual(instance.first_name, 'John')
         self.assertEqual(instance.last_name, 'Doe')
         self.assertEqual(instance.email, 'johndoe@example.com')
 
     def test_model_str(self):
         """Test the __str__ method of the model"""
-        instance = CustomUser_Funcionario.objects.get(username='johndoe')
+        instance = Funcionario.objects.get(username='johndoe')
         self.assertEqual(str(instance), 'John Doe')
 
     def test_model_update(self):
         """Test that a model instance can be updated"""
-        instance = CustomUser_Funcionario.objects.get(username='johndoe')
+        instance = Funcionario.objects.get(username='johndoe')
         instance.first_name = 'Jane'
         instance.save()
         self.assertEqual(instance.first_name, 'Jane')
 
     def test_model_delete(self):
         """Test that a model instance can be deleted"""
-        instance = CustomUser_Funcionario.objects.get(username='johndoe')
+        instance = Funcionario.objects.get(username='johndoe')
         instance.delete()
-        with self.assertRaises(CustomUser_Funcionario.DoesNotExist):
-            CustomUser_Funcionario.objects.get(username='johndoe')
+        with self.assertRaises(Funcionario.DoesNotExist):
+            Funcionario.objects.get(username='johndoe')
 
     def test_calculate_age(self):
         """Test the age calculation method"""
-        instance = CustomUser_Funcionario.objects.get(username='johndoe')
+        instance = Funcionario.objects.get(username='johndoe')
         today = datetime.date.today()
         birth_date = instance.data_nascimento
         age = today.year - birth_date.year - ((today.month, today.day) < (birth_date.month, birth_date.day))
@@ -65,13 +65,13 @@ class CustomUserFuncionarioTestCase(TestCase):
 
     def test_email_verification(self):
         """Test the email verification method"""
-        instance = CustomUser_Funcionario.objects.get(username='johndoe')
+        instance = Funcionario.objects.get(username='johndoe')
         self.assertEqual(instance.verificar_email(), instance.password)
 
     def test_unique_email(self):
         """Test that the email field is unique"""
         with self.assertRaises(Exception):
-            CustomUser_Funcionario.objects.create(
+            Funcionario.objects.create(
                 first_name='Jane',
                 last_name='Doe',
                 username='janedoe',
@@ -84,7 +84,7 @@ class CustomUserFuncionarioTestCase(TestCase):
     def test_unique_username(self):
         """Test that the username field is unique"""
         with self.assertRaises(Exception):
-            CustomUser_Funcionario.objects.create(
+            Funcionario.objects.create(
                 first_name='Jane',
                 last_name='Doe',
                 username='johndoe',  # Same username as 'johndoe'
@@ -97,7 +97,7 @@ class CustomUserFuncionarioTestCase(TestCase):
     def test_invalid_email(self):
         """Test that an invalid email raises a ValidationError"""
         with self.assertRaises(ValidationError):
-            CustomUser_Funcionario.objects.create(
+            Funcionario.objects.create(
                 first_name='Jane',
                 last_name='Doe',
                 username='janedoe',
@@ -109,7 +109,7 @@ class CustomUserFuncionarioTestCase(TestCase):
 
     def test_default_values(self):
         """Test the default values of certain fields"""
-        instance = CustomUser_Funcionario.objects.get(username='johndoe')
+        instance = Funcionario.objects.get(username='johndoe')
         self.assertEqual(instance.salario, 0)
         self.assertEqual(instance.comissao_acumulada, 0)
         self.assertEqual(instance.departamento, 'Adm')
@@ -117,7 +117,7 @@ class CustomUserFuncionarioTestCase(TestCase):
 
     def test_is_active_based_on_atividade(self):
         """Test that is_active is set based on atividade"""
-        instance = CustomUser_Funcionario.objects.get(username='johndoe')
+        instance = Funcionario.objects.get(username='johndoe')
         instance.atividade = 'Inativo'
         instance.save()
         self.assertFalse(instance.is_active)

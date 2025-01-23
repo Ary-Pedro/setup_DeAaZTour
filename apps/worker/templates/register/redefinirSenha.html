@@ -1,0 +1,228 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Login</title>
+    <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/css/bootstrap.min.css">
+
+    <style>
+        :root {
+            --form-width: 500px;
+            --input-height: 3.5rem;
+            --input-font-size: 1.2rem;
+            --title-font-size: 2rem;
+            --button-font-size: 1.4rem;
+            --button-padding: 1rem 2rem;
+             --primary-color: #9dce63;
+            --background-color: #fff;
+            --input-background: #e5e5e5;
+            --input-text-color: #000000;
+            --input-placeholder-color: rgba(255, 255, 255, 0.5);
+        }
+
+        body {
+            margin: 0;
+            padding: 0;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            height: 100vh;
+            background: linear-gradient(135deg, #b0e0f0, #d4f7b4);
+            color: #fff;
+        }
+
+        .form {
+            width: var(--form-width);
+            max-width: 800px;
+            padding: 40px;
+            border-radius: 20px;
+            position: relative;
+            background-color: var(--background-color);
+            color: #000000;
+            border: 1px solid #333;
+            display: flex;
+            flex-direction: column;
+            gap: 20px;
+        }
+
+        .title {
+            font-size: var(--title-font-size);
+            font-weight: 600;
+            letter-spacing: -1px;
+            position: relative;
+            display: flex;
+            align-items: center;
+            padding-left: 30px;
+            color: var(--primary-color);
+        }
+
+        .title::before, .title::after {
+            width: 18px;
+            height: 18px;
+            position: absolute;
+            content: "";
+            border-radius: 50%;
+            background-color: var(--primary-color);
+        }
+
+        .title::before {
+            left: 0;
+        }
+
+        .title::after {
+            right: 0;
+            animation: pulse 1s linear infinite;
+        }
+
+        .message, .signin {
+            font-size: 1.2rem;
+            color: #000000;
+        }
+
+        .signin {
+            text-align: center;
+        }
+
+        .signin a {
+            color: var(--primary-color);
+            text-decoration: none;
+        }
+
+        .signin a:hover {
+            text-decoration: underline;
+        }
+
+        .flex {
+            display: flex;
+            gap: 10px;
+        }
+
+        .flex label {
+            flex: 1;
+            position: relative;
+        }
+
+        .form label {
+            position: relative;
+            width: 100%;
+        }
+
+        .form label .input {
+            background-color: var(--input-background);
+            color: var(--input-text-color);
+            width: 100%;
+            padding: 20px 10px 10px 10px;
+            outline: 0;
+            border: 1px solid rgba(105, 105, 105, 0.4);
+            border-radius: var(--border-radius);
+            font-size: var(--input-font-size);
+            box-sizing: border-box;
+        }
+
+        .form label .input + span {
+            color: var(--input-placeholder-color);
+            position: absolute;
+            left: 10px;
+            top: 10px;
+            font-size: 0.9em;
+            cursor: text;
+            transition: 0.3s ease;
+        }
+
+        .form label .input:placeholder-shown + span {
+            top: 20px;
+            font-size: 1.1em;
+        }
+
+        .form label .input:focus + span,
+        .form label .input:valid + span {
+            color: var(--primary-color);
+            top: 5px;
+            font-size: 0.8em;
+            font-weight: 600;
+        }
+
+        .submit {
+            border: none;
+            outline: none;
+            border-radius: var(--border-radius);
+            color: #fff;
+            font-size: var(--input-font-size);
+            background-color: var(--primary-color);
+            cursor: pointer;
+            transition: background-color 0.3s ease;
+            width: 100%;
+            height: var(--input-height);
+            box-sizing: border-box;
+            padding: 5% 10px 45px;
+        }
+
+        .submit:hover {
+            background-color: #a7ed54;
+        }
+
+        @keyframes pulse {
+            from {
+                transform: scale(0.9);
+                opacity: 1;
+            }
+
+            to {
+                transform: scale(1.8);
+                opacity: 0;
+            }
+        }
+
+        @media (max-width: 768px) {
+            :root {
+                --form-width: 90%;
+                --input-font-size: 1rem;
+                --title-font-size: 1.6rem;
+                --button-font-size: 1.2rem;
+                --button-padding: 0.8rem 1.6rem;
+            }
+
+            .flex {
+                flex-direction: column;
+            }
+        }
+    </style>
+
+</head>
+<body>
+<div>
+    <form class="form" action="{% url 'redefinirSenha' %}" method="POST">
+        {% csrf_token %}
+
+        <p class="title" style="color: #9dce63;">Esqueci a senha</p>
+        <p class="message">Preencha os dados abaixo:</p>
+        <div class="flex"></div>
+        <label>
+            <input class="input" type="text" placeholder="" name="log">
+            <span>Novo Usuário:</span>
+        </label>
+        <label>
+            <input class="input" type="password" placeholder="" name="logpass">
+            <span>Nova Senha:</span>
+        </label>
+
+        <label>
+            <input class="input" type="text" placeholder="" name="token">
+            <span>Token:</span>
+        </label>
+
+     {% if messages %}
+    {% for message in messages %}
+        <div class="{% if message.tags %}alert alert-{{ message.tags }}{% endif %}">
+            {{ message }}
+        </div>
+    {% endfor %}
+{% endif %}
+
+        <button class="submit">Confirmar</button>
+    </form>
+</div>
+
+</body>
+</html>

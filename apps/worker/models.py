@@ -6,6 +6,7 @@ from django.db.models.signals import pre_save
 from django.contrib.auth.models import Group, Permission, AbstractUser, BaseUserManager
 from django.core.exceptions import ValidationError
 from .exceptions import validate_custom_user_funcionario
+from apps.agency.models import Agencia
 
 
 class CustomUserManager(BaseUserManager):
@@ -28,18 +29,18 @@ class CustomUserManager(BaseUserManager):
         return self.create_user(email, password, **extra_fields)
 
 
-class CustomUser_Funcionario(AbstractUser):
+class Funcionario(AbstractUser):
     id = models.AutoField(primary_key=True)
+    
     first_name = models.CharField(max_length=50, verbose_name="primeiro nome")
     last_name = models.CharField(max_length=50, verbose_name="último nome")
     nome = models.CharField(max_length=101, editable=False, null=True)
     idade = models.IntegerField(null=True, editable=False)
     username = models.CharField(max_length=255, unique=True, verbose_name="apelido")
-    email = models.EmailField(unique=True, verbose_name="e-mail")
-    tefone = models.CharField(max_length=15)
+    email = models.EmailField(unique=True, verbose_name="e-mail",max_length=255)
     salario = models.FloatField(default=0, verbose_name="salário")
     comissao_acumulada = models.FloatField(default=0, verbose_name="comissão acumulada")
-    telefone = models.CharField(max_length=15, blank=True)
+    telefone = models.CharField(max_length=20, blank=True)
     cidade = models.CharField(max_length=255, null=True)
     data_nascimento = models.DateField(verbose_name="Data de nascimento", null=True)
     token = models.CharField(null=True, unique=True, max_length=8)
@@ -77,7 +78,7 @@ class CustomUser_Funcionario(AbstractUser):
         blank=True,
         verbose_name="especialização",
         default="",
-        help_text="A função a qual o empregado exerce é:",
+        help_text="A função a qual o empregado exerce.",
         choices=situacao_especializada,
     )
     groups = models.ManyToManyField(
@@ -96,7 +97,7 @@ class CustomUser_Funcionario(AbstractUser):
     )
 
     def verificar_email(self):
-        func = CustomUser_Funcionario.objects.filter(email=self.email).first()
+        func = Funcionario.objects.filter(email=self.email).first()
         if func:
             return func.senha
         else:
@@ -124,7 +125,7 @@ class CustomUser_Funcionario(AbstractUser):
     objects = CustomUserManager()
 
 
-@receiver(pre_save, sender=CustomUser_Funcionario)
+@receiver(pre_save, sender=Funcionario)
 def idade_Func(sender, instance, **kwargs):
     if instance.data_nascimento:
         hoje = date.today()
@@ -136,6 +137,18 @@ def idade_Func(sender, instance, **kwargs):
         return None
 
 
-@receiver(pre_save, sender=CustomUser_Funcionario)
+@receiver(pre_save, sender=Funcionario)
 def update_nome(sender, instance, **kwargs):
     instance.nome = f"{instance.first_name} {instance.last_name}"
+
+
+
+
+class Executivo_registros(models.Model):
+    id = models.AutoField(primary_key=True)
+    funcionario = models.ForeignKey(Funcionario, on_delete=models.CASCADE, related_name='vendas')
+    agencia = models.ForeignKey(Agencia, on_delete=models.CASCADE, related_name='vendas')
+    data_venda = models.DateTimeField(auto_now_add=True)
+
+    def __str__(self):
+        return f"Venda {self.id} - {self.funcionario.nome} - {self.agencia.nome_fantasia}"

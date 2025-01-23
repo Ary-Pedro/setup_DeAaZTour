@@ -1,53 +1,84 @@
 from django import forms
 from django.core.exceptions import ValidationError
+from apps.agency.models import Agencia
 import re
-from .models import CadAgencia
 
+def validar_cnpj(cnpj):
+    if not cnpj:
+        raise ValidationError("O CNPJ não pode ser nulo!")
+    if len(cnpj) != 18:
+        raise ValidationError("O CNPJ deve ter 18 caracteres!")
+    for i, char in enumerate(cnpj):
+        if i in [2, 6] and char != ".":
+            raise ValidationError(f"O caracter na posição {i + 1} deve ser '.'")
+        elif i == 10 and char != "/":
+            raise ValidationError(f"O caracter na posição {i + 1} deve ser '/'")
+        elif i == 15 and char != "-":
+            raise ValidationError(f"O caracter na posição {i + 1} deve ser '-'")
+        elif i not in [2, 6, 10, 15] and not char.isdigit():
+            raise ValidationError(f"O caracter na posição {i + 1} deve ser um dígito.")
 
-class CadAgenciaForm(forms.ModelForm):
+class AgenciaForm(forms.ModelForm):
     class Meta:
-        model = CadAgencia
+        model = Agencia
         fields = [
-            "nome",
-            "email",
-            "telefone1",
-            "telefone2",
-            "telefone3",
-            "ano",
-            "cnpj",
-            "bairro",
-            "cidade",
-            "estado",
-            "cep",
+            'nome_contato',
+            'nome_fantasia',
+            'email',
+            'telefone1',
+            'telefone2',
+            'telefone3',
+            'contato_ano',
+            'cnpj',
+            'cep',
+            'municipio',
+            'uf',
+            'logradouro',
+            'numero',
+            'complemento',
+            'bairro',
         ]
-
-    def clean_nome(self):
-        nome = self.cleaned_data.get("nome")
-        if any(char.isdigit() for char in nome):
-            raise ValidationError("O nome não pode conter números.")
-        return nome
 
     def clean_email(self):
         email = self.cleaned_data.get("email")
-        if not re.match(r"[^@]+@[^@]+\.[^@]+", email):
-            raise ValidationError("Insira um endereço de email válido.")
+        if Agencia.objects.filter(email=email).exists():
+            raise ValidationError("Este e-mail já está registrado.")
         return email
 
     def clean_cnpj(self):
         cnpj = self.cleaned_data.get("cnpj")
-        if len(cnpj) != 14 or not cnpj.isdigit():
-            raise ValidationError("O CNPJ deve conter exatamente 14 dígitos numéricos.")
-        # Aqui você pode implementar uma validação adicional para verificar a validade do CNPJ.
+        validar_cnpj(cnpj)
+        if Agencia.objects.filter(cnpj=cnpj).exists():
+            raise ValidationError("Este CNPJ já está registrado.")
         return cnpj
 
     def clean_telefone1(self):
-        telefone = self.cleaned_data.get("telefone1")
-        if not re.match(r"^\d{10,11}$", telefone):
+        telefone1 = self.cleaned_data.get("telefone1")
+        if telefone1 and not re.match(r"^\d{10,11}$", telefone1):
             raise ValidationError("O telefone deve conter 10 ou 11 dígitos numéricos.")
-        return telefone
+        return telefone1
 
-    def clean_ano(self):
-        ano = self.cleaned_data.get("ano")
-        if ano and (ano < 1900 or ano > 2100):
-            raise ValidationError("O ano deve estar entre 1900 e 2100.")
-        return ano
+    def clean_contato_ano(self):
+        contato_ano = self.cleaned_data.get("contato_ano")
+        if contato_ano and not re.match(r"^\d{2}/\d{2}/\d{4}$", contato_ano):
+            raise ValidationError("O ano de contato deve estar no formato DD/MM/YYYY.")
+        return contato_ano
+
+
+    """
+    nome_contato = forms.CharField(label="Nome do Contato", max_length=101)
+    nome_fantasia = forms.CharField(label="Nome Fantasia", max_length=200)
+    email = forms.EmailField(label="E-mail")
+    telefone1 = forms.CharField(label="Telefone 1", max_length=20, required=False)
+    telefone2 = forms.CharField(label="Telefone 2", max_length=20, required=False)
+    telefone3 = forms.CharField(label="Telefone 3", max_length=20, required=False)
+    contato_ano = forms.CharField(label="Ano de Contato", max_length=15, required=False)
+    cnpj = forms.CharField(label="CNPJ", max_length=18)
+    cep = forms.CharField(label="CEP", max_length=9, required=False)
+    municipio = forms.CharField(label="Município", max_length=100)
+    uf = forms.CharField(label="UF", max_length=2)
+    logradouro = forms.CharField(label="Logradouro", max_length=255)
+    numero = forms.CharField(label="Número", max_length=10)
+    complemento = forms.CharField(label="Complemento", max_length=255, required=False)
+    bairro = forms.CharField(label="Bairro", max_length=100)
+    """

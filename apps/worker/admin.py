@@ -1,12 +1,12 @@
 from django.contrib import admin
-from .models import CustomUser_Funcionario
+from .models import Funcionario
 
-def deactivate_users(CustomUser_Funcionario, request, queryset):
+def deactivate_users(Funcionario, request, queryset):
     queryset.update(is_active=False)
 
 deactivate_users.short_description = "Desativar usuários selecionados"
 
-class CustomUserAdmin(admin.ModelAdmin):
+class Admin(admin.ModelAdmin):
     list_display = ('username', 'email', 'first_name', 'last_name', 'is_staff')
     search_fields = ('username', 'email', 'first_name', 'last_name')
     actions = [deactivate_users]#exemplo de um uso 
@@ -24,4 +24,4 @@ class CustomUserAdmin(admin.ModelAdmin):
         }),
     )
 
-admin.site.register(CustomUser_Funcionario, CustomUserAdmin)
+admin.site.register(Funcionario, Admin)
