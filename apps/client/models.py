@@ -1,6 +1,7 @@
 from django.db import models
 from datetime import date
 from django.core.exceptions import ValidationError
+from apps.worker.models import idade_Func
 
 # INFO: Dados de clientes
 class Cliente(models.Model):
@@ -137,3 +138,4 @@ class Cliente(models.Model):
     def save(self, *args, **kwargs):
         if self.data_nascimento:
             self.idade = idade_Func(self)
+     

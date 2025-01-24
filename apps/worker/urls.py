@@ -23,6 +23,21 @@ urlpatterns = [
     path(f"buscar-funcionario/", views.ProcurarFuncionario.as_view(), name="procurarFuncionario"),
     path(f"buscar-funcionario/dados/-<int:dados_id>", views.DadosFuncionario.as_view(),
          name="dadosFuncionario"),
+
+
+
+             path('ranking/', views.Rank.as_view(), name='rank'),
+ path("export-csv-vendas/<str:periodo>/", views.salvar_csvVenda, name="salvarVenda"),
+    path(
+        "export-csv-vendas/<str:periodo>/<str:forma_pagamento>/",
+        views.salvar_csvVenda,
+        name="salvarVendaPagamento",
+    ),
+    path(
+        "export-csv-Cliente/<str:periodo>/",
+        views.salvar_csvClientes,
+        name="salvarCliente",
+    ),
 ]
 
 if settings.DEBUG:

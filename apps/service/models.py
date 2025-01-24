@@ -1,4 +1,3 @@
-'''
 from django.db import models
 
 # INFO: funções uso geral
@@ -7,8 +6,8 @@ from datetime import date
 
 from django.db.models.signals import post_save, post_delete
 from django.dispatch import receiver
-from worker.models import Funcionario
-from client.models import CadCliente
+from apps.worker.models import Funcionario
+from apps.client.models import Cliente
 
 
 # WARNING -- ---- --- --- -----
@@ -20,7 +19,7 @@ class Venda(models.Model):
         ("Cancelada", "Cancelada"),
     ]
 
-    cliente = models.ForeignKey(CadCliente, on_delete=models.CASCADE)
+    cliente = models.ForeignKey(Cliente, on_delete=models.CASCADE)
     vendedor = models.ForeignKey(
         Funcionario, on_delete=models.CASCADE, null=True, blank=True
     )
@@ -166,4 +165,3 @@ def recalcular_comissao_apos_exclusao(sender, instance, **kwargs):
     """Recalcula a comissão ao excluir uma venda."""
     vendedor = instance.vendedor
     vendedor.calcular_comissao()
-'''
