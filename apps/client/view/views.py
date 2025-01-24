@@ -1,11 +1,10 @@
-"""
 # INFO: Para uso do Auth e funções nativas de validação
 from django.contrib import messages
 from django.contrib.auth.mixins import LoginRequiredMixin
 
 # INFO: funções uso geral
 from django.db.models import Q
-from client.models import CadCliente
+from apps.client.models import Cliente
 
 # INFO: funções de endereçamento
 from django.http import Http404, HttpResponseRedirect, JsonResponse, HttpResponseRedirect
@@ -25,7 +24,7 @@ from django.shortcuts import render
 class cadCliente(LoginRequiredMixin, CreateView):
     login_url = "log"  # URL para redirecionar para login
 
-    model = CadCliente
+    model = Cliente
     fields = [
         "nome",
         "celular",
@@ -42,7 +41,7 @@ class cadCliente(LoginRequiredMixin, CreateView):
         'anexo2',
         'anexo3',
     ]
-    template_name = "templates/client/formsCliente/cadastroCliente_form.html"
+    template_name = "client/formsCliente/cadastroCliente_form.html"
     success_url = reverse_lazy("homeAdmin")
 
     def form_valid(self, form):
@@ -53,9 +52,9 @@ class cadCliente(LoginRequiredMixin, CreateView):
 
 # INFO: Cliente - listar
 class CadListView(LoginRequiredMixin, ListView):
-    model = CadCliente
+    model = Cliente
     paginate_by = 20
-    template_name = "templates/client/formsCliente/cadastroCliente_list.html"
+    template_name = "client/formsCliente/cadastroCliente_list.html"
     context_object_name = "cadastro_list"
     login_url = "log"  # URL para redirecionar para login
 
@@ -67,7 +66,7 @@ class ValidarCliente(View):
 
     @staticmethod
     def get(request, pk):
-        finalizar = get_object_or_404(CadCliente, pk=pk)
+        finalizar = get_object_or_404(Cliente, pk=pk)
         finalizar.mark_has_complete()
 
         numero_pagina = request.GET.get("page", 1)
@@ -81,7 +80,7 @@ class ValidarCliente(View):
 class ClienteUpdateView(LoginRequiredMixin, UpdateView):
     login_url = "log"  # URL para redirecionar para login
 
-    model = CadCliente
+    model = Cliente
     fields = [
         "nome",
         "celular",
@@ -99,7 +98,7 @@ class ClienteUpdateView(LoginRequiredMixin, UpdateView):
         'anexo2',
         'anexo3',
     ]
-    template_name = "templates/client/formsCliente/cadastroCliente_form.html"
+    template_name = "client/formsCliente/cadastroCliente_form.html"
     success_url = reverse_lazy("AdminListagemCliente")
 
 
@@ -107,8 +106,8 @@ class ClienteUpdateView(LoginRequiredMixin, UpdateView):
 class ClienteDeleteView(LoginRequiredMixin, DeleteView):
     login_url = "log"  # URL para redirecionar para login
 
-    model = CadCliente
-    template_name = "templates/client/formsCliente/cadastroCliente_confirm_delete.html"
+    model = Cliente
+    template_name = "client/formsCliente/cadastroCliente_confirm_delete.html"
 
     def get_success_url(self):
         numero_pagina = self.request.GET.get("page", 1)
@@ -120,8 +119,8 @@ class ClienteDeleteView(LoginRequiredMixin, DeleteView):
 class ProcurarCliente(LoginRequiredMixin, ListView):
     login_url = "log"  # URL para redirecionar para login
 
-    model = CadCliente
-    template_name = "templates/client/buscasCliente/procurarCliente.html"
+    model = Cliente
+    template_name = "client/buscasCliente/procurarCliente.html"
     context_object_name = "cadastro_list"
 
     def get_queryset(self):
@@ -129,7 +128,7 @@ class ProcurarCliente(LoginRequiredMixin, ListView):
         if not procurar_termo:
             raise Http404()
 
-        return CadCliente.objects.filter(
+        return Cliente.objects.filter(
             Q(
                 Q(nome__istartswith=procurar_termo) | Q(cpf__icontains=procurar_termo),
             )
@@ -147,12 +146,12 @@ class ProcurarCliente(LoginRequiredMixin, ListView):
 # INFO: Dados - Cliente
 class DadosCadastrosCliente(LoginRequiredMixin, ListView):
     login_url = "log"  # URL para redirecionar para login
-    model = CadCliente
-    template_name = "templates/client/buscasCliente/dadosCliente.html"
+    model = Cliente
+    template_name = "client/buscasCliente/dadosCliente.html"
 
     def get_queryset(self):
         dados_id = self.kwargs.get("dados_id")
-        return CadCliente.objects.filter(id=dados_id)
+        return Cliente.objects.filter(id=dados_id)
 
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
@@ -163,7 +162,7 @@ class DadosCadastrosCliente(LoginRequiredMixin, ListView):
 
 # NOTE: função para puxar informaçoes de clientes em nova venda pelo id
 def cliente_detail_api(request, pk):
-    cliente = get_object_or_404(CadCliente, pk=pk)
+    cliente = get_object_or_404(Cliente, pk=pk)
     data = {
         "nome": cliente.nome,
         "cpf": cliente.cpf,
@@ -176,4 +175,4 @@ def cliente_detail_api(request, pk):
         "estado": cliente.estado,
     }
     return JsonResponse(data)
-"""
+
