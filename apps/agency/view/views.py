@@ -2,7 +2,6 @@ from django.shortcuts import render
 
 # INFO: Para uso do Auth e funções nativas de validação
 from django.contrib.auth.mixins import LoginRequiredMixin
-from apps.worker.view.views import log
 
 
 # INFO: funções uso geral
@@ -63,7 +62,7 @@ class AgenciaUpdateView(LoginRequiredMixin, UpdateView):
     login_url = "log"  # URL para redirecionar para login
     model = Agencia 
     form_class = AgenciaForm
-    template_name = "agency/cadastroAgencia_form.html"
+    template_name = "agency/Agencia_form.html"
     success_url = reverse_lazy("ListagemAgencia")
 
 
@@ -71,7 +70,7 @@ class AgenciaUpdateView(LoginRequiredMixin, UpdateView):
 class DadosCadastrosAgencia(LoginRequiredMixin, ListView):
     login_url = "log"  # URL para redirecionar para login
     model = Agencia
-    template_name = "templates/agency/buscasAgencia/dadosAgencia.html"
+    template_name = "buscasAgencia/dadosAgencia.html"
 
     def get_queryset(self):
         dados_id = self.kwargs.get("dados_id")
@@ -87,7 +86,7 @@ class DadosCadastrosAgencia(LoginRequiredMixin, ListView):
 class ProcurarAgencia(LoginRequiredMixin, ListView):
     login_url = "log"  # URL para redirecionar para login
     model = Agencia
-    template_name = "templates/agency/buscasAgencia/procurarAgencia.html"
+    template_name = "buscasAgencia/procurarAgencia.html"
     context_object_name = "cadastro_list"
 
     def get_queryset(self):
@@ -211,7 +210,7 @@ def pesquisar_rota(request):
             except Exception as e:
                 print(f"Erro ao processar os dados: {e}")
 
-    return render(request, 'templates/agency/pesquisarRota.html', {'agencias_com_distancia': agencias_com_distancia})
+    return render(request, 'pesquisarRota.html', {'agencias_com_distancia': agencias_com_distancia})
 
 
 def obter_bairro_por_cep(cep):

@@ -1,4 +1,3 @@
-"""
 from django.urls import path
 from .view import cadCliente, CadListView, ValidarCliente, ClienteUpdateView, ClienteDeleteView, ProcurarCliente, DadosCadastrosCliente, cliente_detail_api
 from .view import views
@@ -16,4 +15,4 @@ urlpatterns = [
     path('api/cliente/<int:pk>/', views.cliente_detail_api, name='cliente_detail_api'),
 
     # -------------------------------------------------------------------------------------------------------------------
-]"""
+]
