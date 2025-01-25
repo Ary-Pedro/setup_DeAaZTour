@@ -1,6 +1,8 @@
 from django.db import models
 from datetime import date
 from django.core.exceptions import ValidationError
+from math import floor
+from django.db.models.signals import pre_save, receiver
 
 # INFO: Dados de clientes
 class Cliente(models.Model):
@@ -79,7 +81,7 @@ class Cliente(models.Model):
     num_passaporte = models.CharField(
         max_length=20, verbose_name="número de passaporte", null=True, unique=True, blank=True
     )
-
+    #remover
     finished_at = models.DateField(null=True, verbose_name="Data finalizado")
 
     created_at = models.DateTimeField(auto_now_add=True)
@@ -120,12 +122,7 @@ class Cliente(models.Model):
         import os
         return os.path.basename(self.anexo3.name) if self.anexo3 else None
     
-    def verificar_email(self):
-        cliente = Cliente.objects.filter(email=self.email).first()
-        if cliente:
-            return cliente.senha
-        else:
-            raise ValidationError("E-mail não encontrado.")
+ 
     def mark_has_complete(self):
         if not self.finished_at:
             self.finished_at = date.today()
@@ -136,4 +133,22 @@ class Cliente(models.Model):
 
     def save(self, *args, **kwargs):
         if self.data_nascimento:
-            self.idade = idade_Func(self)
+            self.idade = idade_Cliente(self)
+
+
+
+@receiver(pre_save, sender=Cliente)
+def idade_Cliente(sender, instance, **kwargs):
+    if instance.data_nascimento:
+        hoje = date.today()
+        resto = hoje.month - instance.data_nascimento.month
+        idade = ((hoje.year - instance.data_nascimento.year) * 12 + resto) / 12
+        idade = floor(idade)
+        return idade
+    else:
+        return None
+
+
+
+
+
