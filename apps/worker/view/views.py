@@ -12,6 +12,18 @@ from django.urls import reverse_lazy
 from .forms import RegisterForm
 from apps.worker.models import Funcionario
 from setup_DeAaZTour import settings
+from apps.client.models import Cliente
+from apps.service.models import Venda
+from datetime import date, timedelta, datetime
+from django.http import HttpResponse  
+import csv  
+import os 
+from django.db.models import Q, Sum
+
+# INFO: Data
+from django.utils.timezone import now
+from dateutil.relativedelta import relativedelta  # Usando relativedelta para manipulação de meses
+from django.db.models import Count
 
 User = get_user_model()
 
@@ -203,7 +215,7 @@ listar() ListFuncionario
 class ListFuncionario(LoginRequiredMixin, ListView):
     model = Funcionario
     paginate_by = 20
-    template_name = "cadAdmin/Funcionario/formsFuncionario/cadastroFuncionario_list.html"
+    template_name = "worker/cadastroFuncionario_list.html"
     context_object_name = "worker/cadastroFuncionario_list.html"
     login_url = "log"  # URL para redirecionar para login
 
@@ -262,9 +274,7 @@ class DadosFuncionario(LoginRequiredMixin, ListView):
         context["title"] = "Detalhes do Cadastro"
         return context
 
-    
 
-"""
 ### rever e corrigir!!!
 def salvar_csvVenda(request, periodo, forma_pagamento=None):
     response = HttpResponse(content_type="text/csv")
@@ -406,15 +416,15 @@ def salvar_csvClientes(request, periodo):
     )  # Cabeçalho do CSV
 
     if periodo == "hoje":
-        clientes = CadCliente.objects.filter(created_at__date=date.today())
+        clientes = Cliente.objects.filter(created_at__date=date.today())
     elif periodo == "semana":
         inicio_semana = date.today() - timedelta(days=date.today().weekday())
-        clientes = CadCliente.objects.filter(created_at__date__gte=inicio_semana)
+        clientes = Cliente.objects.filter(created_at__date__gte=inicio_semana)
     elif periodo == "mes":
         inicio_mes = date.today().replace(day=1)
-        clientes = CadCliente.objects.filter(created_at__date__gte=inicio_mes)
+        clientes = Cliente.objects.filter(created_at__date__gte=inicio_mes)
     else:
-        clientes = CadCliente.objects.all()
+        clientes = Cliente.objects.all()
 
     for cliente in clientes:
         anexo1_url = (
@@ -459,4 +469,47 @@ def salvar_csvClientes(request, periodo):
             ]
         )
     return response
-"""
+
+
+class Rank(LoginRequiredMixin, TemplateView):
+    template_name = "ranking/rank.html"
+    login_url = "log"  # URL para redirecionar para login
+
+    def get_context_data(self, **kwargs):
+        context = super().get_context_data(**kwargs)
+        usuario_logado = self.request.user
+
+        # Verificação de situação com base no tempo exato de um mês
+        self.atualizar_situacao()
+
+        # Carregar vendedores rankeados apenas com vendas mensais
+        context["ranked_vendedores"] = Venda.objects.filter(
+            Q(situacaoMensal="Mensal") | Q(situacaoMensal="Finalizada")).values(
+            "vendedor__username",
+            "vendedor__first_name",
+            "vendedor__last_name",
+            "vendedor__telefone",
+            "vendedor__email",
+        ).annotate(total_vendas=Count("id")).order_by("-total_vendas")
+
+        # Contagem total de todas as vendas, incluindo as finalizadas
+        context["total_vendas"] = Venda.objects.count()
+
+        # Checa se o usuário logado é um CustomUser_Funcionario e se está na situação "Adm."
+        if isinstance(usuario_logado, Funcionario) and usuario_logado.situacao_atual == "Adm.":
+            # Chama a função calcular_comissao para o administrador logado
+            usuario_logado.calcular_comissao()
+
+        # Adiciona o usuário logado ao contexto
+        context["usuario_logado"] = usuario_logado
+
+        return context
+
+    def atualizar_situacao(self):
+        # Verificar se a última atualização foi há mais de 1 mês exato
+        vendas = Venda.objects.filter(situacaoMensal="Mensal")
+        for venda in vendas:
+            # Comparar a data atual com a data de "situacaoMensal_dataApoio"
+            if now() >= venda.situacaoMensal_dataApoio + relativedelta(months=1):
+                venda.situacaoMensal = "Finalizada"
+                venda.save()

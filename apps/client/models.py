@@ -3,6 +3,7 @@ from datetime import date
 from django.core.exceptions import ValidationError
 from math import floor
 from django.db.models.signals import pre_save, receiver
+from apps.worker.models import idade_Func
 
 # INFO: Dados de clientes
 class Cliente(models.Model):

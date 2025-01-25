@@ -1,12 +1,12 @@
 from django import forms
-from client.models import CadCliente
+from apps.client.models import Cliente
 from django.core.exceptions import ValidationError
 import re
 
 
 class CadClienteForm(forms.ModelForm):
     class Meta:
-        model = CadCliente
+        model = Cliente
         fields = [
             "nome",
             "celular",
