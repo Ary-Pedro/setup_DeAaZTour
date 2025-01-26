@@ -32,11 +32,11 @@ from django.shortcuts import render
 # INFO: Venda  --------------------------------------------------------------------------------------------------------
 
 # INFO: Venda - Cadastar
-class cadVendas(LoginRequiredMixin, CreateView):
+class CadVendas(LoginRequiredMixin, CreateView):
     login_url = "log"  # URL para redirecionar para login
     model = Venda
     fields = ["vendedor", "valor", "tipo_pagamento", "situacaoMensal"]
-    template_name = "service/formsVenda/cadastroVendas_form.html"
+    template_name = "service/Vendas_form.html"
     success_url = reverse_lazy("home")
 
     def get_initial(self):
@@ -112,21 +112,21 @@ class cadVendas(LoginRequiredMixin, CreateView):
 
 
 # INFO: Venda - Listar
-class CadListViewVenda(LoginRequiredMixin, ListView):
+class ListVenda(LoginRequiredMixin, ListView):
     login_url = "log"  # URL para redirecionar para login
     model = Venda
     paginate_by = 20
-    template_name = "service/formsVenda/cadastroVenda_list.html"
+    template_name = "service/Venda_list.html"
     context_object_name = "cadastro_list"
 
 
 # INFO: Venda - Atualizar
-class VendaUpdateView(LoginRequiredMixin, UpdateView):
+class UpdateView(LoginRequiredMixin, UpdateView):
     login_url = "log"  # URL para redirecionar para login
     model = Venda
     fields = ["vendedor", "valor", "tipo_pagamento", "situacaoMensal"]
-    template_name = "service/formsVenda/cadastroVendas_form.html"
-    success_url = reverse_lazy("AdminListagemVenda")
+    template_name = "service/Vendas_form.html"
+    success_url = reverse_lazy("ListagemVenda")
 
     def get_initial(self):
         initial = super().get_initial()
@@ -239,23 +239,23 @@ class VendaUpdateView(LoginRequiredMixin, UpdateView):
 
 
 # INFO: Venda - Deletar
-class VendaDeleteView(LoginRequiredMixin, DeleteView):
+class DeleteView(LoginRequiredMixin, DeleteView):
     login_url = "log"  # URL para redirecionar para login
     model = Venda
-    template_name = "service/formsVenda/cadastroVenda_confirm_delete.html"
+    template_name = "service/Venda_confirm_delete.html"
 
     def get_success_url(self):
         numero_pagina = self.request.GET.get("page", 1)
-        return f"{reverse_lazy('AdminListagemVenda')}?page={numero_pagina}"
+        return f"{reverse_lazy('ListagemVenda')}?page={numero_pagina}"
 
 
 
 # INFO: Procurar -------------------------------------------------------------------------------------------------------
 # INFO: Procurar - Venda
-class ProcurarVenda(LoginRequiredMixin, ListView):
+class Procurar(LoginRequiredMixin, ListView):
     login_url = "log"  # URL para redirecionar para login
     model = Venda
-    template_name = "cadAdmin/Vendas/buncasVendas/procurarVenda.html"
+    template_name = "buncasVendas/procurarVenda.html"
     context_object_name = "cadastro_list"
 
     def get_queryset(self):
@@ -287,10 +287,10 @@ class ProcurarVenda(LoginRequiredMixin, ListView):
 
 
 # INFO: Dados - Venda
-class DadosCadastrosVenda(LoginRequiredMixin, ListView):
+class DadosCadastros(LoginRequiredMixin, ListView):
     login_url = "log"  # URL para redirecionar para login
     model = Venda
-    template_name = "service/buncasVendas/dadosVenda.html"
+    template_name = "buncasVendas/dadosVenda.html"
 
     def get_queryset(self):
         dados_id = self.kwargs.get("dados_id")
@@ -303,7 +303,7 @@ class DadosCadastrosVenda(LoginRequiredMixin, ListView):
 
 
 # INFO: Venda - Validar
-class ValidarVendas(LoginRequiredMixin, View):
+class Validar(LoginRequiredMixin, View):
     login_url = "log"  # URL para redirecionar para login
 
     @staticmethod
@@ -313,7 +313,7 @@ class ValidarVendas(LoginRequiredMixin, View):
 
         numero_pagina = request.GET.get("page", 1)
 
-        url = reverse("AdminListagemVenda")
+        url = reverse("ListagemVenda")
         return HttpResponseRedirect(f"{url}?page={numero_pagina}")
 
 

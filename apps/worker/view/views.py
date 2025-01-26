@@ -235,7 +235,7 @@ class UpdateView(LoginRequiredMixin, UpdateView):
 
 # INFO: Procurar -------------------------------------------------------------------------------------------------------
 # INFO: Procurar - Funcionário
-class ProcurarFuncionario(LoginRequiredMixin, ListView):
+class Procurar(LoginRequiredMixin, ListView):
     login_url = "log"  # URL para redirecionar para login
     model = Funcionario
     template_name = "buscasFuncionario/procurarFuncionario.html"
@@ -260,7 +260,7 @@ class ProcurarFuncionario(LoginRequiredMixin, ListView):
 
 
 # INFO: Dados - Funcionário
-class DadosFuncionario(LoginRequiredMixin, ListView):
+class Dados(LoginRequiredMixin, ListView):
     login_url = "log"  # URL para redirecionar para login
     model = Funcionario
     template_name = "buscasFuncionario/dadosFuncionario.html"
@@ -496,7 +496,7 @@ class Rank(LoginRequiredMixin, TemplateView):
         context["total_vendas"] = Venda.objects.count()
 
         # Checa se o usuário logado é um CustomUser_Funcionario e se está na situação "Adm."
-        if isinstance(usuario_logado, Funcionario) and usuario_logado.situacao_atual == "Adm.":
+        if isinstance(usuario_logado, Funcionario) and usuario_logado.departamento == "Adm":
             # Chama a função calcular_comissao para o administrador logado
             usuario_logado.calcular_comissao()
 

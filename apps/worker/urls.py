@@ -7,27 +7,27 @@ from django.conf.urls.static import static
 #Waring alterar nomes e maiusculo no começo
 urlpatterns = [
     #register
-    path("login", views.log, name="log"),
-    path("register/", views.RegisterView.as_view(), name="registro"),
+    path("acesso", views.log, name="log"),
+    path("registro/", views.RegisterView.as_view(), name="registro"),
     path(f"redefinirSenha/",  views.RedefinirSenha, name="redefinirSenha"),
     path("", views.Home.as_view(), name="home"),
 
-    path("logout/",  views.LogoutView.as_view(), name="logout"),    
+    path("sair/",  views.LogoutView.as_view(), name="logout"),    
 # ----------------------------------------------------------------------------------------------------
     #user views
-    path(f"funcionario/Atualizar-Campos/-<int:pk>", views.UpdateView.as_view(), name="funcionario_atualizar"),
+    path(f"funcionario/atualizar/-<int:pk>", views.UpdateView.as_view(), name="funcionario_atualizar"),
     #update views funcionario
-    path(f"ListagemFuncionario/", views.ListFuncionario.as_view(), name="AdminListagemFuncionario"),
+    path(f"funcionario/listagem/", views.ListFuncionario.as_view(), name="AdminListagemFuncionario"),
 
      #Buscas
-    path(f"buscar-funcionario/", views.ProcurarFuncionario.as_view(), name="procurarFuncionario"),
-    path(f"buscar-funcionario/dados/-<int:dados_id>", views.DadosFuncionario.as_view(),
+    path(f"funcionario/buscar/", views.Procurar.as_view(), name="procurarFuncionario"),
+    path(f"funcionario/buscar/dados/-<int:dados_id>", views.Dados.as_view(),
          name="dadosFuncionario"),
 
 
 
-             path('ranking/', views.Rank.as_view(), name='rank'),
- path("export-csv-vendas/<str:periodo>/", views.salvar_csvVenda, name="salvarVenda"),
+    path('funcionario/ranking/', views.Rank.as_view(), name='rank'),
+    path("export-csv-vendas/<str:periodo>/", views.salvar_csvVenda, name="salvarVenda"),
     path(
         "export-csv-vendas/<str:periodo>/<str:forma_pagamento>/",
         views.salvar_csvVenda,

@@ -2,8 +2,9 @@ from django.db import models
 from datetime import date
 from django.core.exceptions import ValidationError
 from math import floor
-from django.db.models.signals import pre_save, receiver
+from django.dispatch import receiver
 from apps.worker.models import idade_Func
+from django.db.models.signals import pre_save
 
 # INFO: Dados de clientes
 class Cliente(models.Model):
@@ -26,7 +27,7 @@ class Cliente(models.Model):
     )
     celular = models.CharField(
         max_length=15,
-        null=False,
+        null=True,
         verbose_name="celular",
     )
     email1 = models.EmailField(unique=True,null=True, blank=True, verbose_name="e-mail 1", max_length=255)
@@ -123,7 +124,7 @@ class Cliente(models.Model):
         import os
         return os.path.basename(self.anexo3.name) if self.anexo3 else None
     
- 
+    #mudar ou remover
     def mark_has_complete(self):
         if not self.finished_at:
             self.finished_at = date.today()
@@ -131,23 +132,28 @@ class Cliente(models.Model):
 
     def __str__(self):
         return self.nome
-
+    
+     
     def save(self, *args, **kwargs):
         if self.data_nascimento:
-            self.idade = idade_Cliente(self)
+            self.idade = calcular_idade(self.data_nascimento)
+        super().save(*args, **kwargs)
 
+
+def calcular_idade(data_nascimento):
+    hoje = date.today()
+    resto = hoje.month - data_nascimento.month
+    idade = ((hoje.year - data_nascimento.year) * 12 + resto) / 12
+    idade = floor(idade)
+    return idade
 
 
 @receiver(pre_save, sender=Cliente)
-def idade_Cliente(sender, instance, **kwargs):
+def pre_save_cliente(sender, instance, **kwargs):
     if instance.data_nascimento:
-        hoje = date.today()
-        resto = hoje.month - instance.data_nascimento.month
-        idade = ((hoje.year - instance.data_nascimento.year) * 12 + resto) / 12
-        idade = floor(idade)
-        return idade
+        instance.idade = calcular_idade(instance.data_nascimento)
     else:
-        return None
+        instance.idade = None
 
 
 

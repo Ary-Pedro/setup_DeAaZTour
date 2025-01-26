@@ -17,7 +17,7 @@
 <form method="POST">
     {% csrf_token %}
     <button type="submit" class="btn btn-danger">Excluir</button>
-    <a href="{% url 'AdminListagemCliente' %}?page={{ request.GET.page }}" class="btn btn-primary">Cancelar</a>
+    <a href="{% url 'ListagemCliente' %}?page={{ request.GET.page }}" class="btn btn-primary">Cancelar</a>
 
 </form>
 </div>

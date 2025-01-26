@@ -232,9 +232,9 @@ main {
        {% if user is not None %}
            {% if 'Adm' in user.departamento or 'Func' in user.departamento%}
        <li><a href="{% url 'cadCliente' %}">Cadastrar Cliente</a></li>
-       <li><a href="{% url 'AdminListagemCliente' %}">Gerenciar Clientes</a></li>
+       <li><a href="{% url 'ListagemCliente' %}">Gerenciar Clientes</a></li>
        <li><a href="{% url 'cadVendas' %}">Nova Venda</a></li>
-       <li><a href="{% url 'AdminListagemVenda' %}">Ver Vendas</a></li>
+       <li><a href="{% url 'ListagemVenda' %}">Ver Vendas</a></li>
        {% endif %}
            {% endif %}
        {% if user is not None %}

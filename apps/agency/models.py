@@ -59,3 +59,5 @@ class Agencia(models.Model):
     complemento = models.CharField( max_length=255, null=True, blank=True, verbose_name="complemento")
     bairro = models.CharField(null=True, max_length=100, verbose_name="bairro")
     observacao = models.TextField(null=True, blank=True, verbose_name="Observação", max_length=2000)
+    def __str__(self):
+        return self.nome_fantasia

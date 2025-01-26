@@ -18,31 +18,16 @@ from django.views.generic import CreateView, DeleteView, ListView, UpdateView, V
 from django import forms
 
 from django.shortcuts import render
+from .forms import ClienteForm
 
 # INFO: Cliente --------------------------------------------------------------------------------------------------------
 # INFO: Cliente - Cadastrar
-class cadCliente(LoginRequiredMixin, CreateView):
+class CadCliente(LoginRequiredMixin, CreateView):
     login_url = "log"  # URL para redirecionar para login
-
     model = Cliente
-    fields = [
-        "nome",
-        "celular",
-        "cpf",
-        "sexo",
-        "data_nascimento",
-        "num_passaporte",
-        "endereco",
-        "cidade",
-        "bairro",
-        "estado",
-        "cep",
-        'anexo1',
-        'anexo2',
-        'anexo3',
-    ]
-    template_name = "client/formsCliente/cadastroCliente_form.html"
-    success_url = reverse_lazy("homeAdmin")
+    form_class = ClienteForm  # Defina a classe do formulário aqui
+    template_name = "client/Cliente_form.html"
+    success_url = reverse_lazy("home")
 
     def form_valid(self, form):
         response = super().form_valid(form)
@@ -51,17 +36,17 @@ class cadCliente(LoginRequiredMixin, CreateView):
 
 
 # INFO: Cliente - listar
-class CadListView(LoginRequiredMixin, ListView):
+class ListCliente(LoginRequiredMixin, ListView):
     model = Cliente
     paginate_by = 20
-    template_name = "client/formsCliente/cadastroCliente_list.html"
+    template_name = "client/Cliente_list.html"
     context_object_name = "cadastro_list"
     login_url = "log"  # URL para redirecionar para login
 
 
 
 # INFO: Cliente - Validar
-class ValidarCliente(View):
+class Validar(View):
     login_url = "log"  # URL para redirecionar para login
 
     @staticmethod
@@ -71,56 +56,38 @@ class ValidarCliente(View):
 
         numero_pagina = request.GET.get("page", 1)
 
-        url = reverse("AdminListagemCliente")
+        url = reverse("ListagemCliente")
         return HttpResponseRedirect(f"{url}?page={numero_pagina}")
 
 
 
 # INFO: Cliente - Atualizar
-class ClienteUpdateView(LoginRequiredMixin, UpdateView):
+class UpdateView(LoginRequiredMixin, UpdateView):
     login_url = "log"  # URL para redirecionar para login
-
     model = Cliente
-    fields = [
-        "nome",
-        "celular",
-        "cpf",
-        "rg",
-        "sexo",
-        "data_nascimento",
-        "num_passaporte",
-        "endereco",
-        "cidade",
-        "bairro",
-        "estado",
-        "cep",
-        'anexo1',
-        'anexo2',
-        'anexo3',
-    ]
-    template_name = "client/formsCliente/cadastroCliente_form.html"
-    success_url = reverse_lazy("AdminListagemCliente")
+    form_class = ClienteForm
+    template_name = "client/Cliente_form.html"
+    success_url = reverse_lazy("ListagemCliente")
 
 
 # INFO: Cliente - Deletar
-class ClienteDeleteView(LoginRequiredMixin, DeleteView):
+class DeleteView(LoginRequiredMixin, DeleteView):
     login_url = "log"  # URL para redirecionar para login
-
     model = Cliente
-    template_name = "client/formsCliente/cadastroCliente_confirm_delete.html"
+    template_name = "client/Cliente_confirm_delete.html"
 
     def get_success_url(self):
         numero_pagina = self.request.GET.get("page", 1)
-        return f"{reverse_lazy('AdminListagemCliente')}?page={numero_pagina}"
+        return f"{reverse_lazy('ListagemCliente')}?page={numero_pagina}"
 
 
 # INFO: Procurar -------------------------------------------------------------------------------------------------------
 # INFO: Procurar - Cliente
-class ProcurarCliente(LoginRequiredMixin, ListView):
+class Procurar(LoginRequiredMixin, ListView):
     login_url = "log"  # URL para redirecionar para login
 
     model = Cliente
-    template_name = "client/buscasCliente/procurarCliente.html"
+    template_name = "buscasCliente/procurarCliente.html"
     context_object_name = "cadastro_list"
 
     def get_queryset(self):
@@ -144,10 +111,10 @@ class ProcurarCliente(LoginRequiredMixin, ListView):
 
 
 # INFO: Dados - Cliente
-class DadosCadastrosCliente(LoginRequiredMixin, ListView):
+class DadosCadastros(LoginRequiredMixin, ListView):
     login_url = "log"  # URL para redirecionar para login
     model = Cliente
-    template_name = "client/buscasCliente/dadosCliente.html"
+    template_name = "buscasCliente/dadosCliente.html"
 
     def get_queryset(self):
         dados_id = self.kwargs.get("dados_id")

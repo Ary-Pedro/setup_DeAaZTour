@@ -29,16 +29,16 @@ from .forms import AgenciaForm
 
 # INFO: Agencia ----------------------------------------------------------------------------------------------------
 # INFO: Agencia - cadastrar
-class AgenciaCadview(CreateView):
+class CadAgencia(CreateView):
     login_url = "log"  # URL para redirecionar para login
     model = Agencia
     form_class = AgenciaForm  # Defina a classe do formulário aqui
     template_name = "agency/Agencia_form.html"
-    success_url = reverse_lazy("homeAdmin")
+    success_url = reverse_lazy("home")
 
 
 # INFO: Agencia - listar
-class AgenciaListView(LoginRequiredMixin, ListView):
+class ListAgencia(LoginRequiredMixin, ListView):
     model = Agencia
     paginate_by = 20
     template_name = "agency/cadastroAgencia_list.html"
@@ -47,7 +47,7 @@ class AgenciaListView(LoginRequiredMixin, ListView):
 
 
 # INFO: Agencia - Deletar
-class AgenciaDeleteView(LoginRequiredMixin, DeleteView):
+class DeleteView(LoginRequiredMixin, DeleteView):
     login_url = "log"  # URL para redirecionar para login
     model = Agencia
     template_name = "agency/cadastroAgencia_confirm_delete.html"
@@ -58,7 +58,7 @@ class AgenciaDeleteView(LoginRequiredMixin, DeleteView):
 
 
 # INFO: Agencia - Atualizar
-class AgenciaUpdateView(LoginRequiredMixin, UpdateView):
+class UpdateView(LoginRequiredMixin, UpdateView):
     login_url = "log"  # URL para redirecionar para login
     model = Agencia 
     form_class = AgenciaForm
@@ -67,7 +67,7 @@ class AgenciaUpdateView(LoginRequiredMixin, UpdateView):
 
 
 # INFO: Dados - Agencia
-class DadosCadastrosAgencia(LoginRequiredMixin, ListView):
+class DadosCadastros(LoginRequiredMixin, ListView):
     login_url = "log"  # URL para redirecionar para login
     model = Agencia
     template_name = "buscasAgencia/dadosAgencia.html"
@@ -83,7 +83,7 @@ class DadosCadastrosAgencia(LoginRequiredMixin, ListView):
 
 
 # INFO: Procurar - Agencia
-class ProcurarAgencia(LoginRequiredMixin, ListView):
+class Procurar(LoginRequiredMixin, ListView):
     login_url = "log"  # URL para redirecionar para login
     model = Agencia
     template_name = "buscasAgencia/procurarAgencia.html"
@@ -153,7 +153,7 @@ def dijkstra(ceps, distancias, origem):
 
 
 @csrf_exempt
-def pesquisar_rota(request):
+def Pesquisar_rota(request):
     """
     View para processar a busca de rotas com base no CEP do usuário e listar as agências mais próximas.
     """

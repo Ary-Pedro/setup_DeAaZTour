@@ -124,6 +124,8 @@ class Funcionario(AbstractUser):
 
     objects = CustomUserManager()
 
+    def calcular_comissao(self):
+        pass
 
 @receiver(pre_save, sender=Funcionario)
 def idade_Func(sender, instance, **kwargs):

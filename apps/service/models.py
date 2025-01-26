@@ -13,7 +13,7 @@ from apps.client.models import Cliente
 # WARNING -- ---- --- --- -----
 # INFO: Dados de Venda (funcionário - Cliente)
 class Venda(models.Model):
-    SITUACAO_CHOICES = [
+    tipo_mensal = [
         ("Mensal", "Mensal"),
         ("Finalizada", "Finalizada"),
         ("Cancelada", "Cancelada"),
@@ -25,12 +25,12 @@ class Venda(models.Model):
     )
     situacaoMensal = models.CharField(
         max_length=10,
-        choices=SITUACAO_CHOICES,
+        choices=tipo_mensal,
         default="Mensal",
         null=True,
         blank=True,
-        verbose_name="Situação da venda",
     )
+    
     situacaoMensal_dataApoio = models.DateTimeField(
         auto_now_add=True
     )  # Registra quando foi atualizada a última vez

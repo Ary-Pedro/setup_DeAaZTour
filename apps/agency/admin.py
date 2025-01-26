@@ -1,27 +1,21 @@
 from django.contrib import admin
 from .models import Agencia
 
-def deactivate_users(Agencia, request, queryset):
-    queryset.update(is_active=False)
-
-deactivate_users.short_description = "Desativar usuários selecionados"
-"""
-class Admin(admin.ModelAdmin):
-    list_display = ('username', 'email', 'first_name', 'last_name', 'is_staff')
-    search_fields = ('username', 'email', 'first_name', 'last_name')
-    actions = [deactivate_users]#exemplo de um uso 
-    list_filter = ('is_staff', 'is_superuser', 'is_active')
-    ordering = ('username',)
+class AgenciaAdmin(admin.ModelAdmin):
+    list_display = ('nome_contato', 'nome_fantasia', 'email1', 'telefone1', 'cnpj')
+    search_fields = ('nome_contato', 'nome_fantasia', 'email1', 'cnpj')
+    list_filter = ('nome_contato', 'contato_ano')
+    ordering = ('id',)
     fieldsets = (
-        ('Informações Pessoais', {
-            'fields': ('username', 'password', 'telefone', 'email')
+        ('Informações Da Agência', {
+            'fields': ('nome_contato', 'nome_fantasia', 'email1', 'telefone1')
         }),
         ('Permissões', {
             'fields': ('is_active', 'is_staff', 'is_superuser', 'groups', 'user_permissions')
         }),
         ('Datas Importantes', {
-            'fields': ('last_login', 'date_joined')
+            'fields': ('contato_ano',)
         }),
     )
 
-admin.site.register(Agencia, Admin)"""
+admin.site.register(Agencia, AgenciaAdmin)

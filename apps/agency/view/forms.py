@@ -2,9 +2,11 @@ from django import forms
 from django.core.exceptions import ValidationError
 from apps.agency.models import Agencia
 import re
-# WARING adicionar deixar campo vazio, e arrumar digitações em geral como cnpj e cep ...
+
 def validar_cnpj(cnpj):
-    if len(cnpj) != 18 :
+    if not cnpj:
+        raise ValidationError("O CNPJ não pode ser nulo!")
+    if len(cnpj) != 18:
         raise ValidationError("O CNPJ deve ter 18 caracteres!")
     for i, char in enumerate(cnpj):
         if i in [2, 6] and char != ".":
@@ -21,7 +23,7 @@ class AgenciaForm(forms.ModelForm):
         model = Agencia
         fields = [
             'nome_contato',
-            'nome_fantasia',
+            'nome_fantasia',  # Certifique-se de que este campo existe no modelo
             'email1',
             'email2',
             'email3',
@@ -64,47 +66,21 @@ class AgenciaForm(forms.ModelForm):
             raise ValidationError("e-mail 3: Este e-mail já está registrado.")
         return email3
 
-    def clean_telefone1(self):
-        telefone1 = self.cleaned_data.get("telefone1")
-        telefone2 = self.cleaned_data.get("telefone2")
-        telefone3 = self.cleaned_data.get("telefone3")
-
-        if telefone1 and (telefone1 == telefone2 or telefone1 == telefone3):
-            raise ValidationError("O telefone1 não pode ser igual aos outros telefones.")
-        return telefone1
-
-    def clean_telefone2(self):
-        telefone2 = self.cleaned_data.get("telefone2")
-        telefone1 = self.cleaned_data.get("telefone1")
-        telefone3 = self.cleaned_data.get("telefone3")
-
-        if telefone2 and (telefone2 == telefone1 or telefone2 == telefone3):
-            raise ValidationError("O telefone2 não pode ser igual aos outros telefones.")
-        return telefone2
-
-    def clean_telefone3(self):
-        telefone3 = self.cleaned_data.get("telefone3")
-        telefone1 = self.cleaned_data.get("telefone1")
-        telefone2 = self.cleaned_data.get("telefone2")
-
-        if telefone3 and (telefone3 == telefone1 or telefone3 == telefone2):
-            raise ValidationError("O telefone3 não pode ser igual aos outros telefones.")
-        return telefone3
-        
-
     def clean_cnpj(self):
         cnpj = self.cleaned_data.get("cnpj")
         validar_cnpj(cnpj)
         if Agencia.objects.filter(cnpj=cnpj).exists():
             raise ValidationError("Este CNPJ já está registrado.")
         return cnpj
-    
+    #remover alterar
+    def clean_telefone1(self):
+        telefone1 = self.cleaned_data.get("telefone1")
+        if telefone1 and not re.match(r"^\d{10,11}$", telefone1):
+            raise ValidationError("O telefone deve conter 10 ou 11 dígitos numéricos.")
+        return telefone1
+
     def clean_contato_ano(self):
         contato_ano = self.cleaned_data.get("contato_ano")
         if contato_ano and not re.match(r"^\d{2}/\d{2}/\d{4}$", contato_ano):
             raise ValidationError("O ano de contato deve estar no formato DD/MM/YYYY.")
         return contato_ano
-
-        
-
-    

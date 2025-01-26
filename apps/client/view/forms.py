@@ -3,21 +3,40 @@ from apps.client.models import Cliente
 from django.core.exceptions import ValidationError
 import re
 
+def validar_cpf(cpf):
+    if not cpf:
+        raise ValidationError("O CPF não pode ser nulo!")
+    if len(cpf) != 14:
+        raise ValidationError("O CPF deve ter 14 caracteres!")
+    for i, char in enumerate(cpf):
+        if i in [3, 7] and char != ".":
+            raise ValidationError(f"O caracter na posição {i + 1} deve ser '.'")
+        elif i == 11 and char != "-":
+            raise ValidationError(f"O caracter na posição {i + 1} deve ser '-'")
+        elif i not in [3, 7, 11] and not char.isdigit():
+            raise ValidationError(f"O caracter na posição {i + 1} deve ser um dígito.")
 
-class CadClienteForm(forms.ModelForm):
+
+class ClienteForm(forms.ModelForm):
     class Meta:
         model = Cliente
         fields = [
             "nome",
+            "telefone1",
+            "telefone2",
             "celular",
-            "cpf",
-            "rg",
+            "email1",
+            "email2",
             "sexo",
             "data_nascimento",
-            "num_passaporte",
             "endereco",
+            "cidade",
             "bairro",
             "estado",
+            "cep",
+            "rg",
+            "cpf",
+            "num_passaporte",
             "cep",
             "anexo1",
             "anexo2",
@@ -29,18 +48,22 @@ class CadClienteForm(forms.ModelForm):
         if any(char.isdigit() for char in nome):
             raise ValidationError("O nome não pode conter números.")
         return nome
-
+    
     def clean_cpf(self):
-        cpf = self.cleaned_data.get("cpf")
-        if len(cpf) != 11 or not cpf.isdigit():
-            raise ValidationError("O CPF deve conter exatamente 11 dígitos numéricos.")
-        return cpf
+            cpf = self.cleaned_data.get("cpf")
+            validar_cpf(cpf)
+            return cpf
 
-    def clean_celular(self):
-        celular = self.cleaned_data.get("celular")
-        pattern = r"^\d{10,11}$"
-        if not re.match(pattern, celular):
-            raise ValidationError(
-                "O celular deve conter apenas números com 10 ou 11 dígitos."
-            )
-        return celular
+    def clean_email1(self):
+            email1 = self.cleaned_data.get("email1")
+            if Cliente.objects.filter(email1=email1).exists() or \
+            Cliente.objects.filter(email2=email1).exists():
+                raise ValidationError("e-mail 1: Este e-mail já está registrado.")
+            return email1
+
+    def clean_email2(self):
+        email2 = self.cleaned_data.get("email2")
+        if Cliente.objects.filter(email1=email2).exists() or \
+        Cliente.objects.filter(email2=email2).exists():
+            raise ValidationError("e-mail 2: Este e-mail já está registrado.")
+        return email2
