@@ -4,7 +4,7 @@
 <head>
     <meta charset="UTF-8">
     <title>Title</title>
-    <link href="{% static 'estilos/dados_print.css' %}" rel="stylesheet" type="text/css"/>
+    <link href="{% static 'global/css/buscasFuncionario/dados_print.css' %}" rel="stylesheet" type="text/css"/>
 </head>
 <body>
 
@@ -22,13 +22,13 @@
          <p><strong>Nome: </strong>{{ cadastro.first_name }} {{ cadastro.last_name }}</p>
         <p><strong>Email: </strong> {{ cadastro.email }}</p>
         <p><strong>Telefone: </strong> {{ cadastro.telefone }}</p>
-        <p><strong>Cargo: </strong> {{ cadastro.cargo_atual }}</p>
+        <p><strong>Cargo: </strong> {{ cadastro.departamento }}</p>
          <p><strong>Salario: </strong> {{ cadastro.salario }}</p>
          <p><strong>Situação: </strong> {{ cadastro.departamento }}</p>
          <p><strong>Situação na empre sa: </strong> {{ cadastro.departamento_empresa }}</p>
         </div>
 
-    <button class="btnvoltar"><a href="{% url 'AdminListagemFuncionario' %}">Voltar</a></button>
+        <a href="{% url 'ListagemFuncionario' %}"><button class="btnvoltar">Voltar</button></a>
 {% endfor %}
 
 

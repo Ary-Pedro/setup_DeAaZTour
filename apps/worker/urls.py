@@ -17,7 +17,7 @@ urlpatterns = [
     #user views
     path(f"funcionario/atualizar/-<int:pk>", views.UpdateView.as_view(), name="funcionario_atualizar"),
     #update views funcionario
-    path(f"funcionario/listagem/", views.ListFuncionario.as_view(), name="AdminListagemFuncionario"),
+    path(f"funcionario/listagem/", views.ListFuncionario.as_view(), name="ListagemFuncionario"),
 
      #Buscas
     path(f"funcionario/buscar/", views.Procurar.as_view(), name="procurarFuncionario"),
@@ -45,7 +45,7 @@ if settings.DEBUG:
 
 # as_vier() é um método que converte uma classe em uma view generica da Class-Based Views (CBVs),
 '''
- path(f"AdminListagemFuncionario/", CadListViewFunc.as_view(), name="AdminListagemFuncionario"),
+ path(f"ListagemFuncionario/", CadListViewFunc.as_view(), name="ListagemFuncionario"),
     path(f"funcionario/Atualizar/-<int:pk>", FuncionarioUpdateView.as_view(), name="funcionario_atualizar"),
     path(f"Admin/buscar-funcionario/", ProcurarFuncionario.as_view(), name="procurarFuncionario"),
     path(f"Admin/buscar-Funcionario/dados/-<int:dados_id>", DadosCadastrosFuncionario.as_view(),

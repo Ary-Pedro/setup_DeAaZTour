@@ -38,32 +38,35 @@ class Funcionario(AbstractUser):
     idade = models.IntegerField(null=True, editable=False)
     username = models.CharField(max_length=255, unique=True, verbose_name="apelido")
     email = models.EmailField(unique=True, verbose_name="e-mail",max_length=255)
-    salario = models.FloatField(default=0, verbose_name="salário")
+    Sub_salario_fixo = models.FloatField(default=0, verbose_name="salário fixo",help_text="Um valor fixo pago ao funcionario", null=True, blank=True)
+    salario = models.FloatField(default=0, verbose_name="salário total",editable=False)
     comissao_acumulada = models.FloatField(default=0, verbose_name="comissão acumulada")
-    telefone = models.CharField(max_length=20, blank=True)
-    cidade = models.CharField(max_length=255, null=True)
-    data_nascimento = models.DateField(verbose_name="Data de nascimento", null=True)
+    telefone = models.CharField(max_length=20, null=True, blank=True)
+    cidade = models.CharField(max_length=255, null=True, blank=True)
+    data_nascimento = models.DateField(verbose_name="Data de nascimento", null=True, blank=True)
     token = models.CharField(null=True, unique=True, max_length=8)
     is_staff = models.BooleanField(default=True)
-    cpf = models.CharField(max_length=14, unique=True, verbose_name="CPF")
+    cpf = models.CharField(max_length=14, unique=True, verbose_name="CPF", null=True, blank=True)
     area_departamento = (
         ("Adm", "Administrativo"),
         ("Vend", "Vendedor"),
         ("Exec", "Executivo"),
     )
     departamento = models.CharField(
-        null=True,
         max_length=15,
         default="Adm",
         choices=area_departamento,
+        null=True, 
+        blank=True
     )
     xpto = (("Ativo", "Ativo "), ("Inativo", "Inativo"))
     atividade = models.CharField(
-        null=True,
+        null=True, 
+        blank=True,
         max_length=15,
         default="Ativo",
-        verbose_name="",
         choices=xpto,
+        help_text="Defini se o funcionario tá ativo na empresa, ou foi desligado."
     )
     situacao_especializada = (
         ("Financeiro", "Financeiro"),
@@ -76,8 +79,8 @@ class Funcionario(AbstractUser):
         max_length=100,
         null=True,
         blank=True,
-        verbose_name="especialização",
-        default="",
+        verbose_name="especialização, área de atuação",
+        default="Financeiro",
         help_text="A função a qual o empregado exerce.",
         choices=situacao_especializada,
     )
@@ -112,7 +115,7 @@ class Funcionario(AbstractUser):
 
         # Cálculo da idade
         if self.data_nascimento:
-            self.idade = idade_Func(self)
+            self.idade = self.calcular_idade()
 
         # Manipulação do campo is_active de acordo com a atividade
         self.is_active = self.atividade != "Inativo"
@@ -127,16 +130,15 @@ class Funcionario(AbstractUser):
     def calcular_comissao(self):
         pass
 
-@receiver(pre_save, sender=Funcionario)
-def idade_Func(sender, instance, **kwargs):
-    if instance.data_nascimento:
-        hoje = date.today()
-        resto = hoje.month - instance.data_nascimento.month
-        idade = ((hoje.year - instance.data_nascimento.year) * 12 + resto) / 12
-        idade = floor(idade)
-        return idade
-    else:
-        return None
+    def calcular_idade(self):
+        if self.data_nascimento:
+            hoje = date.today()
+            resto = hoje.month - self.data_nascimento.month
+            idade = ((hoje.year - self.data_nascimento.year) * 12 + resto) / 12
+            idade = floor(idade)
+            return idade
+        else:
+            return None
 
 
 @receiver(pre_save, sender=Funcionario)

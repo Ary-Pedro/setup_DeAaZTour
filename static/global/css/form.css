@@ -1,0 +1,44 @@
+.mb-3 {
+    padding: 15px;
+    border-radius: 5px;
+    margin-bottom: 15px;
+    box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
+    transition: background-color 0.4s ease, border-color 0.4s ease;
+    border: 1px solid transparent; /* Inicialmente sem borda */
+}
+
+.mb-3:nth-child(odd) {
+    background-color: #ffffff; /* Fundo branco para itens ímpares */
+}
+
+.mb-3:nth-child(even) {
+    background-color: rgba(0, 0, 0, 0.05); /* Fundo cinza claro para itens pares */
+}
+
+.mb-3:hover {
+    background-color: #f0f0f0; /* Destaca ao passar o mouse */
+    border-color: #007bff; /* Adiciona uma borda azul suave */
+}
+
+.form-label {
+    background-color: rgba(255, 255, 255, 0.1); /* Fundo cinza claro */
+    padding: 5px 10px;
+    border-radius: 5px;
+    font-weight: bold;
+    transition: background-color 0.3s ease-in-out;
+}
+
+.form-label:hover {
+    background-color: rgba(0, 0, 0, 0.1); /* Destaca ao passar o mouse */
+}
+
+.form-label::after {
+    font-weight: bold;
+}
+
+
+
+
+
+
+

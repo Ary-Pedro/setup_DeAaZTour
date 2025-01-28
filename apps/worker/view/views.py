@@ -170,7 +170,6 @@ class Home(LoginRequiredMixin, TemplateView):
     template_name = "home.html"
     login_url = "log"  # URL para redirecionar para login
     model = User
-
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
         usuario_logado = self.request.user
@@ -215,10 +214,8 @@ listar() ListFuncionario
 class ListFuncionario(LoginRequiredMixin, ListView):
     model = Funcionario
     paginate_by = 20
-    template_name = "worker/cadastroFuncionario_list.html"
-    context_object_name = "worker/cadastroFuncionario_list.html"
-    login_url = "log"  # URL para redirecionar para login
 
+    login_url = "log"  # URL para redirecionar para login
 
 # INFO: Funcionário - Atualizar
 class UpdateView(LoginRequiredMixin, UpdateView):
@@ -226,11 +223,10 @@ class UpdateView(LoginRequiredMixin, UpdateView):
     model = Funcionario
     fields = [
         "first_name", "last_name", "email",
-        "telefone", "cargo_atual", "salario", "cidade", "data_nascimento", "cpf"
-        "departamento", "atividade", "especializacao_funcao"
+        "telefone", "departamento", "Sub_salario_fixo","telefone", "cidade", "data_nascimento", "cpf", "atividade", "especializacao_funcao"
     ]
-    template_name = "worker/cadastroFuncionario_form.html"
-    success_url = reverse_lazy("AdminListagemFuncionario")
+    template_name = "worker/Funcionario_form.html"
+    success_url = reverse_lazy("ListagemFuncionario")
 
 
 # INFO: Procurar -------------------------------------------------------------------------------------------------------
@@ -495,7 +491,7 @@ class Rank(LoginRequiredMixin, TemplateView):
         # Contagem total de todas as vendas, incluindo as finalizadas
         context["total_vendas"] = Venda.objects.count()
 
-        # Checa se o usuário logado é um CustomUser_Funcionario e se está na situação "Adm."
+        # Checa se o usuário logado é um Funcionario e se está na situação "Adm."
         if isinstance(usuario_logado, Funcionario) and usuario_logado.departamento == "Adm":
             # Chama a função calcular_comissao para o administrador logado
             usuario_logado.calcular_comissao()

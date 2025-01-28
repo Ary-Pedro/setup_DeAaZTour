@@ -1,6 +1,10 @@
 import os
+import sys
 import django
 from django.conf import settings
+
+# Adicione o caminho do diretório do projeto ao sys.path
+sys.path.append(os.path.dirname(os.path.dirname(os.path.dirname(os.path.abspath(__file__)))))
 
 os.environ.setdefault('DJANGO_SETTINGS_MODULE', 'setup_DeAaZTour.settings')
 django.setup()
@@ -19,7 +23,7 @@ class FuncionarioTestCase(TestCase):
             username='johndoe',
             email='johndoe@example.com',
             telefone='(12) 3456-4789',
-            data_nascimento='1990-01-01',
+            data_nascimento=datetime.date(1990, 1, 1),
             cpf='123.456.789-00'
         )
 
@@ -55,13 +59,13 @@ class FuncionarioTestCase(TestCase):
         today = datetime.date.today()
         birth_date = instance.data_nascimento
         age = today.year - birth_date.year - ((today.month, today.day) < (birth_date.month, birth_date.day))
-        self.assertEqual(instance.idade, age)
+        self.assertEqual(instance.calcular_idade(), age)
 
         # Test with a specific birth date to ensure the calculation is correct
         instance.data_nascimento = datetime.date(2002, 1, 1)
         instance.save()
         expected_age = today.year - 2002 - ((today.month, today.day) < (1, 1))
-        self.assertEqual(instance.idade, expected_age)
+        self.assertEqual(instance.calcular_idade(), expected_age)
 
     def test_email_verification(self):
         """Test the email verification method"""
@@ -77,7 +81,7 @@ class FuncionarioTestCase(TestCase):
                 username='janedoe',
                 email='johndoe@example.com',  # Same email as 'johndoe'
                 telefone='987654321',
-                data_nascimento='1992-02-02',
+                data_nascimento=datetime.date(1992, 2, 2),
                 cpf='987.654.321-00'
             )
 

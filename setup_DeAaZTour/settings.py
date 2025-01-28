@@ -112,15 +112,17 @@ USE_TZ = True
 
 # Static files (CSS, JavaScript, Images)
 # https://docs.djangoproject.com/en/5.1/howto/static-files/
-STATIC_URL = "/static/"
-STATICFILES_DIRS = [
-    BASE_DIR / "static_global",
-]
-STATIC_ROOT = BASE_DIR / "static_root"
+DEFAULT_AUTO_FIELD = "django.db.models.BigAutoField"
 
-# Media files
+STATIC_URL = "/static/"  # lemvbrar de adiconar uma / antes e depois ou o nome que seja referente a static!
+STATICFILES_DIRS = [
+    BASE_DIR / "base_static",
+]
+STATIC_ROOT = BASE_DIR / "static"  # aonde vai ser salvo as pastas estáticas do projeto
+
 MEDIA_URL = "/media/"
 MEDIA_ROOT = BASE_DIR / "media"
+
 
 # Static files finders
 STATICFILES_FINDERS = [
@@ -164,7 +166,6 @@ MESSAGE_TAGS = {
 }
 """
 # Default primary key field type
-DEFAULT_AUTO_FIELD = "django.db.models.BigAutoField"
 
 # Security settings for deployment
 SECURE_BROWSER_XSS_FILTER = True

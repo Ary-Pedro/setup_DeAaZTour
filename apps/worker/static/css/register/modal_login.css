@@ -1,0 +1,76 @@
+.modal {
+    display: none;
+}
+
+.alert {
+    display: none;
+    position: absolute;
+    top: 20px;
+    right: 20px;
+    z-index: 1050;
+    width: 300px;
+}
+
+.modal-title {
+    color: black;
+}
+
+.btn-link{
+    color: #2092c6;
+}
+
+.btn-link:hover{
+    color: #40a1ae;
+}
+
+.btnS {
+background-color: #2092c6;
+color: white;
+border: none;
+border-radius: 8px;
+padding: 10px 20px;
+font-size: 16px;
+cursor: pointer;
+transition: all 0.3s ease;
+}
+
+
+btnS + btnS {
+margin-left: 10px;
+}
+
+.btnS:hover {
+background-color: #40a1ae;
+}
+
+.btnS {
+width: 120px;
+height: 45px;
+display: inline-block;
+}
+
+.btnS2 {
+background-color: #717d7e;
+color: white;
+border: none;
+border-radius: 8px;
+padding: 10px 20px;
+font-size: 16px;
+cursor: pointer;
+transition: all 0.3s ease;
+}
+
+btnS2 + btnS2 {
+margin-left: 10px;
+}
+
+
+.btnS2:hover {
+background-color: #616b6c;
+}
+
+.btnS2 {
+width: 120px;
+height: 45px;
+display: inline-block;
+}

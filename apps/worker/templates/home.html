@@ -224,7 +224,7 @@ main {
 <body>
 <header>
    <div class="logo">
-       <h1>Bem-vindo, {{ usuario_logado.username }}</h1>
+       <h1>Bem-vindo, {{ usuario_logado.nome }}</h1>
    </div>
 </header>
 <div class="menu-lateral">
@@ -240,7 +240,7 @@ main {
        {% if user is not None %}
            {% if 'Adm' in user.departamento %}
       <li><a href="{% url 'rank' %}">Ranking</a></li> 
-       <li><a href="{% url 'AdminListagemFuncionario' %}">Lista Funcionários</a></li>
+       <li><a href="{% url 'ListagemFuncionario' %}">Lista Funcionários</a></li>
            {% endif %}
        {% endif %}
        {% if user is not None %}
