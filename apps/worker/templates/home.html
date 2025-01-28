@@ -7,7 +7,7 @@
    <meta charset="UTF-8">
    <meta name="viewport" content="width=device-width, initial-scale=1.0">
    <title>Administração</title>
-   <link rel="stylesheet" href="{% static 'estilos/admin.css' %}">
+   <link rel="stylesheet" href="{% static 'css/admin.css' %}">
    <style>
    body {
        margin: 0;
@@ -224,13 +224,13 @@ main {
 <body>
 <header>
    <div class="logo">
-       <h1>Bem-vindo, {{ usuario_logado.nome }}</h1>
-   </div>
+    <h1>Bem-vindo, {{ usuario_logado.nome }}</h1>
+</div>
 </header>
 <div class="menu-lateral">
    <ul>
        {% if user is not None %}
-           {% if 'Adm' in user.departamento or 'Func' in user.departamento%}
+       {% if 'Adm' in user.departamento or 'Func' in user.departamento%}
        <li><a href="{% url 'cadCliente' %}">Cadastrar Cliente</a></li>
        <li><a href="{% url 'ListagemCliente' %}">Gerenciar Clientes</a></li>
        <li><a href="{% url 'cadVendas' %}">Nova Venda</a></li>
@@ -238,13 +238,13 @@ main {
        {% endif %}
            {% endif %}
        {% if user is not None %}
-           {% if 'Adm' in user.departamento %}
-      <li><a href="{% url 'rank' %}">Ranking</a></li> 
+       {% if 'Adm' in user.departamento %}
+       <li><a href="{% url 'rank' %}">Ranking</a></li>
        <li><a href="{% url 'ListagemFuncionario' %}">Lista Funcionários</a></li>
            {% endif %}
        {% endif %}
        {% if user is not None %}
-           {% if 'Exec' in user.departamento %}
+        {% if 'Exec' in user.departamento %}
        <li><a href="{% url 'Agencia' %}">Cadastrar Agência</a></li>
        <li><a href="{% url 'ListagemAgencia' %}">Visualizar Agência</a></li>
        <li><a href="{% url 'pesquisarRota' %}">Pesquisar Rota</a></li>
@@ -255,8 +255,8 @@ main {
 
 
         {% if user is not None %}
-           {% if 'Adm' in user.departamento or 'Func' in user.departamento%}
-       <li>
+        {% if 'Adm' in user.departamento or 'Func' in user.departamento%}
+        <li>
            <a class="expand" onclick="toggleDropdown(event)">Exportações - Vendas</a>
            <ul class="dropdown">
                <li><a href="{% url 'salvarVenda' 'hoje' %}">Exportar Hoje</a></li>
@@ -323,7 +323,7 @@ main {
          {% endif %}
            {% endif %}
 
-    
+
 
 
    </ul>
@@ -336,10 +336,10 @@ main {
 </div>
 <main>
    {% if user is not None %}
-       {% if 'Adm' in user.departamento %}
-           <h2 class="bmv">Bem-vindo(a) a Área do Administrador</h2>
-       {% elif 'Func' in user.departamento %}
-           <h2 class="bmv">Bem-vindo(a) a Área do Funcionário</h2>
+   {% if 'Adm' in user.situacao_atual %}
+   <h2 class="bmv">Bem-vindo(a) a Área do Administrador</h2>
+   {% elif 'Func' in user.situacao_atual %}
+   <h2 class="bmv">Bem-vindo(a) a Área do Funcionário</h2>
        {% else %}
            <h2 class="bmv">Bem-vindo(a) a Área do Executivo</h2>
        {% endif %}
