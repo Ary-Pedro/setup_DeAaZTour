@@ -133,7 +133,6 @@ def cliente_detail_api(request, pk):
     data = {
         "nome": cliente.nome,
         "cpf": cliente.cpf,
-        "rg": cliente.rg,
         "num_passaporte": cliente.num_passaporte,
         "data_nascimento": cliente.data_nascimento,
         "endereco": cliente.endereco,

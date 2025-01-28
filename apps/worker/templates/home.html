@@ -259,54 +259,59 @@ main {
         <li>
            <a class="expand" onclick="toggleDropdown(event)">Exportações - Vendas</a>
            <ul class="dropdown">
-               <li><a href="{% url 'salvarVenda' 'hoje' %}">Exportar Hoje</a></li>
-               <li><a href="{% url 'salvarVenda' 'semana' %}">Exportar Semana</a></li>
-               <li><a href="{% url 'salvarVenda' 'mes' %}">Exportar Mês</a></li>
-               <li><a href="{% url 'salvarVenda' 'todos' %}">Exportar Todos</a></li>
+               <li><a href="{% url 'salvarVenda' 'hoje' %}">• Exportar Hoje</a></li>
+               <li><a href="{% url 'salvarVenda' 'semana' %}">• Exportar Semana</a></li>
+               <li><a href="{% url 'salvarVenda' 'mes' %}">• Exportar Mês</a></li>
+               <li><a href="{% url 'salvarVenda' 'todos' %}">• Exportar Todos</a></li>
+               <br>
            </ul>
        </li>
 
 
        <li>
-           <a class="expand" onclick="toggleDropdown(event)">Vendas Pix</a>
+           <a class="expand" onclick="toggleDropdown(event)">Vendas - Pix</a>
            <ul class="dropdown">
-               <li><a href="{% url 'salvarVendaPagamento' 'hoje'  'Pix' %}" class="btn btn-secondary">Hoje</a></li>
-               <li><a href="{% url 'salvarVendaPagamento' 'semana'  'Pix' %}" class="btn btn-secondary">Semana</a></li>
-               <li><a href="{% url 'salvarVendaPagamento' 'mes' 'Pix' %}" class="btn btn-secondary">Mês</a></li>
-               <li><a href="{% url 'salvarVendaPagamento' 'todos'  'Pix'%}" class="btn btn-secondary">Todos</a></li>
+               <li><a href="{% url 'salvarVendaPagamento' 'hoje'  'Pix' %}" class="btn btn-secondary">• Hoje</a></li>
+               <li><a href="{% url 'salvarVendaPagamento' 'semana'  'Pix' %}" class="btn btn-secondary">• Semana</a></li>
+               <li><a href="{% url 'salvarVendaPagamento' 'mes' 'Pix' %}" class="btn btn-secondary">• Mês</a></li>
+               <li><a href="{% url 'salvarVendaPagamento' 'todos'  'Pix'%}" class="btn btn-secondary">• Todos</a></li>
+               <br>
            </ul>
        </li>
 
 
        <li>
-           <a class="expand" onclick="toggleDropdown(event)">Vendas Dinheiro</a>
+           <a class="expand" onclick="toggleDropdown(event)">Vendas - Dinheiro</a>
            <ul class="dropdown">
-               <li><a href="{% url 'salvarVendaPagamento' 'hoje'  'Dinheiro' %}" class="btn btn-secondary">Hoje</a></li>
-               <li><a href="{% url 'salvarVendaPagamento' 'semana'  'Dinheiro' %}" class="btn btn-secondary">Semana</a></li>
-               <li><a href="{% url 'salvarVendaPagamento' 'mes' 'Dinheiro' %}" class="btn btn-secondary">Mês</a></li>
-               <li><a href="{% url 'salvarVendaPagamento' 'todos' 'Dinheiro'%}" class="btn btn-secondary">Todos</a></li>
+               <li><a href="{% url 'salvarVendaPagamento' 'hoje'  'Dinheiro' %}" class="btn btn-secondary">• Hoje</a></li>
+               <li><a href="{% url 'salvarVendaPagamento' 'semana'  'Dinheiro' %}" class="btn btn-secondary">• Semana</a></li>
+               <li><a href="{% url 'salvarVendaPagamento' 'mes' 'Dinheiro' %}" class="btn btn-secondary">• Mês</a></li>
+               <li><a href="{% url 'salvarVendaPagamento' 'todos' 'Dinheiro'%}" class="btn btn-secondary">• Todos</a></li>
+               <br>
            </ul>
        </li>
 
 
        <li>
-           <a class="expand" onclick="toggleDropdown(event)">Vendas Crédito</a>
+           <a class="expand" onclick="toggleDropdown(event)">Vendas - Crédito</a>
            <ul class="dropdown">
-               <li><a href="{% url 'salvarVendaPagamento' 'hoje'  'Credito' %}" class="btn btn-secondary">Hoje</a></li>
-               <li><a href="{% url 'salvarVendaPagamento' 'semana'  'Credito' %}" class="btn btn-secondary">Semana</a></li>
-               <li><a href="{% url 'salvarVendaPagamento' 'mes' 'Credito' %}" class="btn btn-secondary">Mês</a></li>
-               <li><a href="{% url 'salvarVendaPagamento' 'todos'  'Credito'%}" class="btn btn-secondary">Todos</a></li>
+               <li><a href="{% url 'salvarVendaPagamento' 'hoje'  'Crédito' %}" class="btn btn-secondary">• Hoje</a></li>
+               <li><a href="{% url 'salvarVendaPagamento' 'semana'  'Crédito' %}" class="btn btn-secondary">• Semana</a></li>
+               <li><a href="{% url 'salvarVendaPagamento' 'mes' 'Crédito' %}" class="btn btn-secondary">• Mês</a></li>
+               <li><a href="{% url 'salvarVendaPagamento' 'todos'  'Crédito'%}" class="btn btn-secondary">• Todos</a></li>
+               <br>
            </ul>
        </li>
 
 
        <li>
-           <a class="expand" onclick="toggleDropdown(event)">Vendas Débito</a>
+           <a class="expand" onclick="toggleDropdown(event)">Vendas - Débito</a>
            <ul class="dropdown">
-               <li><a href="{% url 'salvarVendaPagamento' 'hoje'  'Debito' %}" class="btn btn-secondary">Hoje</a></li>
-               <li><a href="{% url 'salvarVendaPagamento' 'semana'  'Debito' %}" class="btn btn-secondary">Semana</a></li>
-               <li><a href="{% url 'salvarVendaPagamento' 'mes' 'Debito' %}" class="btn btn-secondary">Mês</a></li>
-               <li><a href="{% url 'salvarVendaPagamento' 'todos'  'Debito'%}" class="btn btn-secondary">Todos</a></li>
+               <li><a href="{% url 'salvarVendaPagamento' 'hoje'  'Débito' %}" class="btn btn-secondary">• Hoje</a></li>
+               <li><a href="{% url 'salvarVendaPagamento' 'semana'  'Débito' %}" class="btn btn-secondary">• Semana</a></li>
+               <li><a href="{% url 'salvarVendaPagamento' 'mes' 'Débito' %}" class="btn btn-secondary">• Mês</a></li>
+               <li><a href="{% url 'salvarVendaPagamento' 'todos'  'Débito'%}" class="btn btn-secondary">• Todos</a></li>
+               <br>
            </ul>
        </li>
 
@@ -314,10 +319,11 @@ main {
        <li>
            <a class="expand" onclick="toggleDropdown(event)">Exportações - Clientes</a>
            <ul class="dropdown">
-               <li><a href="{% url 'salvarCliente' 'hoje' %}">Exportar Hoje</a></li>
-               <li><a href="{% url 'salvarCliente' 'semana' %}">Exportar Semana</a></li>
-               <li><a href="{% url 'salvarCliente' 'mes' %}">Exportar Mês</a></li>
-               <li><a href="{% url 'salvarCliente' 'todos' %}">Exportar Todos</a></li>
+               <li><a href="{% url 'salvarCliente' 'hoje' %}">• Exportar Hoje</a></li>
+               <li><a href="{% url 'salvarCliente' 'semana' %}">• Exportar Semana</a></li>
+               <li><a href="{% url 'salvarCliente' 'mes' %}">• Exportar Mês</a></li>
+               <li><a href="{% url 'salvarCliente' 'todos' %}">• Exportar Todos</a></li>
+               <br>
            </ul>
        </li>
          {% endif %}
@@ -336,9 +342,9 @@ main {
 </div>
 <main>
    {% if user is not None %}
-   {% if 'Adm' in user.situacao_atual %}
+   {% if 'Adm' in user.departamento %}
    <h2 class="bmv">Bem-vindo(a) a Área do Administrador</h2>
-   {% elif 'Func' in user.situacao_atual %}
+   {% elif 'Vend' in user.departamento %}
    <h2 class="bmv">Bem-vindo(a) a Área do Funcionário</h2>
        {% else %}
            <h2 class="bmv">Bem-vindo(a) a Área do Executivo</h2>
