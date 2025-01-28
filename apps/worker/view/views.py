@@ -1,4 +1,4 @@
-from django.shortcuts import render, redirect
+from django.shortcuts import render, redirect, get_object_or_404
 from django.contrib.auth import get_user_model, authenticate, login
 from django.http import JsonResponse, Http404
 from django.contrib import messages
@@ -19,6 +19,7 @@ from django.http import HttpResponse
 import csv  
 import os 
 from django.db.models import Q, Sum
+from .forms import AtualizarForm
 
 # INFO: Data
 from django.utils.timezone import now
@@ -196,39 +197,42 @@ class LogoutView(LogoutView):
 
 """
 Funcão
-+ADM Editar + AlterarCargo() manual
-+ADM Editar + Desligar() manual
-+Determinar Comissão() Automático
++ADM Editar + AlterarCargo() manual✅
++ADM Editar + Desligar() manual ✅
++Determinar Comissão() Automático **
 
 Paginas 
-+Editar() UpdateView
-+Visualizar() DadosCadastrosFuncionario
-listar() ListFuncionario
++Cadastrar / login / refazer senha ✅
++Editar() UpdateView *
++Visualizar() DadosCadastrosFuncionario ✅
+listar() ListFuncionario ✅
 +Filtrar(nome,cpf...) ProcurarFuncionario *
-+Editar atualizar cargos em falta() *
++Editar atualizar cargo()✅
 """
-
-
 
 # INFO: Funcionário - Listar
 class ListFuncionario(LoginRequiredMixin, ListView):
     model = Funcionario
     paginate_by = 20
-
     login_url = "log"  # URL para redirecionar para login
 
 # INFO: Funcionário - Atualizar
 class UpdateView(LoginRequiredMixin, UpdateView):
     login_url = "log"  # URL para redirecionar para login
     model = Funcionario
-    fields = [
-        "first_name", "last_name", "email",
-        "telefone", "departamento", "Sub_salario_fixo","telefone", "cidade", "data_nascimento", "cpf", "atividade", "especializacao_funcao"
-    ]
+    form_class = AtualizarForm
     template_name = "worker/Funcionario_form.html"
     success_url = reverse_lazy("ListagemFuncionario")
 
 
+class Desligar(View):
+    def get(self, request, pk):
+        
+        funcionario =  get_object_or_404(Funcionario, pk=pk)
+        funcionario.AlterarAtividade()
+        return redirect("ListagemFuncionario")
+        
+            
 # INFO: Procurar -------------------------------------------------------------------------------------------------------
 # INFO: Procurar - Funcionário
 class Procurar(LoginRequiredMixin, ListView):

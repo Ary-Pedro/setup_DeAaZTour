@@ -16,7 +16,8 @@ urlpatterns = [
 # ----------------------------------------------------------------------------------------------------
     #user views
     path(f"funcionario/atualizar/-<int:pk>", views.UpdateView.as_view(), name="funcionario_atualizar"),
-    #update views funcionario
+    path(f"funcionario/<int:pk>", views.Desligar.as_view(), name="desligar_funcionario"),
+
     path(f"funcionario/listagem/", views.ListFuncionario.as_view(), name="ListagemFuncionario"),
 
      #Buscas

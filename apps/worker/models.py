@@ -139,6 +139,16 @@ class Funcionario(AbstractUser):
             return idade
         else:
             return None
+        
+    def AlterarAtividade(self):
+        try:
+            if self.atividade == "Ativo":
+                self.atividade = "Inativo"
+            else:
+                self.atividade = "Ativo"
+            self.save()
+        except Funcionario.DoesNotExist:
+            raise ValidationError("erro inesperado")
 
 
 @receiver(pre_save, sender=Funcionario)

@@ -1,9 +1,7 @@
 from django import forms
 from phonenumber_field.formfields import PhoneNumberField
 from django.core.exceptions import ValidationError
-from apps.worker.models import (
-    Funcionario,
-)  # Use o modelo de usuário personalizado
+from apps.worker.models import Funcionario  # Use o modelo de usuário personalizado
 
 
 def validar_cpf(cpf):
@@ -57,3 +55,18 @@ class RegisterForm(forms.Form):
         ).exists():  # Use o modelo de usuário personalizado
             raise ValidationError("Este apelido já está registrado.")
         return log
+
+
+class AtualizarForm(forms.ModelForm):
+    class Meta:
+        model = Funcionario
+        fields = [
+            "first_name", "last_name", "email", "telefone", "departamento", 
+            "Sub_salario_fixo", "telefone", "cidade", "data_nascimento", 
+            "cpf", "atividade", "especializacao_funcao",
+        ]
+
+    def clean_cpf(self):
+        cpf = self.cleaned_data.get("cpf")
+        validar_cpf(cpf)
+        return cpf
