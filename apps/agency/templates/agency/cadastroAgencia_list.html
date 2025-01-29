@@ -30,7 +30,8 @@
                 <thead class="table-dark">
                     <tr>
                         <th>#</th>
-                        <th>Nome</th>
+                        <th>Nome da agência</th>
+                        <th>Nome de contato</th>
                         <th>CNPJ</th>
                         <th>Bairro</th>
                         <th>Ações</th>
@@ -40,7 +41,8 @@
                 {% for todo in cadastro_list %}
                     <tr>
                         <td><a href="{% url 'dadosAgencia' todo.pk %}" class="text-decoration-none">{{ todo.pk }}</a></td>
-                        <td><a href="{% url 'dadosAgencia' todo.pk %}" class="text-decoration-none">{{ todo.nome }}</a></td>
+                        <td><a href="{% url 'dadosAgencia' todo.pk %}" class="text-decoration-none">{{ todo.nome_fantasia }}</a></td>
+                        <td>{{ todo.nome_contato }}</td>
                         <td>{{ todo.cnpj }}</td>
                         <td>{{ todo.bairro }}</td>
                         <td>

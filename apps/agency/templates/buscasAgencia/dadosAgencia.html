@@ -20,9 +20,21 @@
 
         <div class="apenasp_cliente">
         <h2>Dados da agência</h2>
-        <p><strong>Nome: </strong> {{ cadastro.nome }}</p>
+        <p><strong>Nome de contato: </strong> {{ cadastro.nome_contato }}</p>
+        <p><strong>Nome da agência: </strong> {{ cadastro.nome_fantasia }}</p>
         <p><strong>CNPJ: </strong> {{ cadastro.cnpj }}</p>
-        <p><strong>E-mail: </strong> {{ cadastro.email }}</p>
+
+        {% if cadastro.email1 %}
+        <p><strong>E-mail 1: </strong> {{ cadastro.email1 }}</p>
+        {% endif %}
+
+        {% if cadastro.email2 %}
+        <p><strong>E-mail 2: </strong> {{ cadastro.email2 }}</p>
+        {% endif %}
+
+        {% if cadastro.email3 %}
+        <p><strong>E-mail 3: </strong> {{ cadastro.email3 }}</p>
+        {% endif %}
 
       {% if cadastro.telefone1 %}
         <p><strong>Telefone 1: </strong> {{ cadastro.telefone1 }}</p>
@@ -36,12 +48,17 @@
         <p><strong>Telefone 3: </strong> {{ cadastro.telefone3 }}</p>
       {% endif %}
 
-        <p><strong>Ano: </strong> {{ cadastro.ano }}</p>
+        <p><strong>Ano de contato: </strong> {{ cadastro.contato_ano }}</p>
         <p><strong>Bairro: </strong> {{ cadastro.bairro }}</p>
-        <p><strong>Cidade: </strong> {{ cadastro.cidade }}</p>
-        <p><strong>Estado: </strong> {{ cadastro.estado }}</p>
+        <p><strong>Município: </strong> {{ cadastro.municipio }}</p>
+        <p><strong>Estado: </strong> {{ cadastro.uf }}</p>
         <p><strong>Cep: </strong> {{ cadastro.cep }}</p>
-
+        <p><strong>Logradouro: </strong> {{ cadastro.logradouro }}</p>
+        <p><strong>Número: </strong> {{ cadastro.numero }}</p>
+  
+        {% if cadastro.observacao %}
+        <p><strong>Observação: </strong> {{ cadastro.observacao }}</p>
+        {% endif %}
 
         </div>
 
