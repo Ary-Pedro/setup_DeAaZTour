@@ -34,7 +34,8 @@
             <ul>
                 {% for item in agencias_com_distancia %}
                     <li>
-                        <strong>Agência:</strong> {{ item.agencia.nome }}<br>
+                        <strong>Nome do contato:</strong> {{ item.agencia.nome_contato }}<br>
+                        <strong>Nome da agência:</strong> {{ item.agencia.nome_fantasia }}<br>
                         <strong>CEP:</strong> {{ item.agencia.cep }}<br>
                         <strong>Bairro:</strong> {{ item.agencia.bairro }}<br>
                         <strong>Cidade:</strong> {{ item.agencia.cidade }}<br>

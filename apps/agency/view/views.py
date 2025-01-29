@@ -96,7 +96,7 @@ class Procurar(LoginRequiredMixin, ListView):
 
         return Agencia.objects.filter(
             Q(
-                Q(nome__istartswith=procurar_termo) | Q(cnpj__icontains=procurar_termo),
+                Q(nome_fantasia__istartswith=procurar_termo) | Q(cnpj__icontains=procurar_termo),
             )
         ).order_by("-id")
 
@@ -169,10 +169,11 @@ def Pesquisar_rota(request):
             # Extrair os dados necessários das agências cadastradas
             ceps_agencias = [
                 {
-                    "nome": agencia.nome,
+                    "nome do contato": agencia.nome_contato,
+                    "nome da agência": agencia.nome_fantasia,
                     "cep": agencia.cep,
                     "bairro": agencia.bairro,
-                    "cidade": agencia.cidade
+                    "cidade": agencia.municipio
                 }
                 for agencia in agencias if agencia.cep
             ]

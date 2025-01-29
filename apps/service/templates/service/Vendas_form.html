@@ -209,35 +209,35 @@
 
 
 <script>
-   function buscarCliente() {
-    var pk_cliente = document.getElementById('pk_cliente').value.trim();
-    if (!pk_cliente) {
-        alert('Informe o ID do Cliente.');
-        return;
-    }
-
-    axios.get(`/api/cliente/${pk_cliente}/`)
-        .then(function (response) {
-            var cliente = response.data;
-            if (cliente) {
-               document.getElementById('cliente').value = cliente.nome;
-               document.getElementById('cpf_cliente').value = cliente.cpf;
-               document.getElementById('passaporte_cliente').value = cliente.num_passaporte;
-               document.getElementById('data_nascimento_cliente').value = cliente.data_nascimento;
-               document.getElementById('endereco_cliente').value = cliente.endereco;
-               document.getElementById('cep_cliente').value = cliente.cep;
-               document.getElementById('bairro_cliente').value = cliente.bairro;
-               document.getElementById('estado_cliente').value = cliente.estado;
-
-            } else {
-                alert('Cliente não encontrado.');
-            }
-        })
-        .catch(function (error) {
-            console.error('Erro ao buscar cliente:', error);
-            alert('Cliente de id inserido não existe.');
-        });
-}
+    function buscarCliente() {
+     var pk_cliente = document.getElementById('pk_cliente').value.trim();
+     if (!pk_cliente) {
+         alert('Informe o ID do Cliente.');
+         return;
+     }
+ 
+     axios.get(`/api/cliente/${pk_cliente}/`)
+         .then(function (response) {
+             var cliente = response.data;
+             if (cliente) {
+                document.getElementById('cliente').value = cliente.nome;
+                document.getElementById('cpf_cliente').value = cliente.cpf;
+                document.getElementById('passaporte_cliente').value = cliente.num_passaporte;
+                document.getElementById('data_nascimento_cliente').value = cliente.data_nascimento;
+                document.getElementById('endereco_cliente').value = cliente.endereco;
+                document.getElementById('cep_cliente').value = cliente.cep;
+                document.getElementById('bairro_cliente').value = cliente.bairro;
+                document.getElementById('estado_cliente').value = cliente.estado;
+ 
+             } else {
+                 alert('Cliente não encontrado.');
+             }
+         })
+         .catch(function (error) {
+             console.error('Erro ao buscar cliente:', error);
+             alert('Cliente de id inserido não existe.');
+         });
+ }
 
   setTimeout(function() {
         var messageContainer = document.getElementById('message-container');

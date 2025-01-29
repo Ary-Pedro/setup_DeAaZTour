@@ -14,6 +14,6 @@ urlpatterns = [
     path('api/cliente/<int:pk>/', views.cliente_detail_api, name='cliente_detail_api'),
     #remover
 
-    path(f"btn-complete/Cliente/-<int:pk>", views.Validar.as_view(), name="cliente_complete"),
+    path(f"btn-complete/cliente/-<int:pk>", views.Validar.as_view(), name="cliente_complete"),
     # -------------------------------------------------------------------------------------------------------------------
 ]
