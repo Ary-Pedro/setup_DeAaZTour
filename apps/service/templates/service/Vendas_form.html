@@ -216,7 +216,7 @@
          return;
      }
  
-     axios.get(`/api/cliente/${pk_cliente}/`)
+    axios.get("{% url 'cliente_detail_api' pk=0 %}".replace('0', pk_cliente))
          .then(function (response) {
              var cliente = response.data;
              if (cliente) {

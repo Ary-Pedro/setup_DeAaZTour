@@ -18,32 +18,29 @@ def validar_cpf(cpf):
             raise ValidationError(f"O caracter na posição {i + 1} deve ser um dígito.")
 
 
+# telefone = PhoneNumberField(label="Telefone", region="BR")
+
 class RegisterForm(forms.Form):
     log = forms.CharField(label="Apelido", max_length=50)
     logpass = forms.CharField(label="Senha", widget=forms.PasswordInput)
     first_name = forms.CharField(label="Nome", max_length=50)
     last_name = forms.CharField(label="Sobrenome", max_length=50)
     email = forms.EmailField(label="E-mail")
-    telefone = PhoneNumberField(label="Telefone", region="BR")
+    telefone = forms.CharField(label="Telefone")
     cpf = forms.CharField(label="CPF", max_length=14)
-
-    def clean_telefone(self):
-        telefone = self.cleaned_data.get("telefone")
-        if telefone and len(str(telefone)) < 10:
-            raise forms.ValidationError(
-                "O número de telefone deve conter pelo menos 10 dígitos."
-            )
-        return telefone
 
     def clean_cpf(self):
         cpf = self.cleaned_data.get("cpf")
         validar_cpf(cpf)
-        
+    
         if Funcionario.objects.filter(
             cpf = cpf
         ).exists():  # Use o modelo de usuário personalizado
             raise ValidationError("Este CPF já está registrado.")
         return cpf
+   
+   
+        
 
     def clean_email(self):
         email = self.cleaned_data.get("email")

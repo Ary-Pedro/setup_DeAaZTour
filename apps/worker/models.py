@@ -5,7 +5,6 @@ from django.dispatch import receiver
 from django.db.models.signals import pre_save
 from django.contrib.auth.models import Group, Permission, AbstractUser, BaseUserManager
 from django.core.exceptions import ValidationError
-from .exceptions import validate_custom_user_funcionario
 from apps.agency.models import Agencia
 
 
@@ -31,7 +30,6 @@ class CustomUserManager(BaseUserManager):
 
 class Funcionario(AbstractUser):
     id = models.AutoField(primary_key=True)
-    
     first_name = models.CharField(max_length=50, verbose_name="primeiro nome")
     last_name = models.CharField(max_length=50, verbose_name="último nome")
     nome = models.CharField(max_length=101, editable=False, null=True)
@@ -108,7 +106,7 @@ class Funcionario(AbstractUser):
 
     def save(self, *args, **kwargs):
         # Validações de exceções
-        validate_custom_user_funcionario(self)
+        #validate_custom_user_funcionario(self) FROM EXEPTIONS
 
         # Atualização do nome completo
         self.nome = f"{self.first_name} {self.last_name}"

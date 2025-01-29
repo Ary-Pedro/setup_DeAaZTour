@@ -70,7 +70,7 @@
         
         <div class="flex">
             <label class="flex-item">
-                <input class="input" type="text" name="telefone" value="{{ form.telefone.value|default_if_none:'' }}">
+                <input class="input" type="text" name="telefone" placeholder="Para customizar use '+' no início" value="{{ form.telefone.value|default_if_none:'' }}">
                 <span>Telefone:</span>
                 {% if form.telefone.errors %}
                     <div class="text-danger">
