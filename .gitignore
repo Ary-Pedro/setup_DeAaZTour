@@ -125,3 +125,5 @@ _local_settings.py
 gunicorn-error-log
 db copy.sqlite3
 db.sqlite3
+*.sqlite3
+
