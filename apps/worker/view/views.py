@@ -31,61 +31,68 @@ User = get_user_model()
 
 # IDEA: Dados Cadastrais ----------------------------------------------------------------------------------------------------
 # INFO: Campo de login da conta
+
 def log(request):
     url_redefinir_senha = (
         settings.BASE_URL + "/redefinirSenha/"
     )  # WARNING mudar lógica (em caso de deploy)
 
     if request.method == "POST":
-        # Se o campo 'log' estiver presente, é uma tentativa de login
-        if "log" in request.POST:
-            log = request.POST.get("log")
-            logpass = request.POST.get("logpass")
-            user = authenticate(request, username=log, password=logpass)
-            if user is not None:  
-                login(request, user)
-                return redirect("home")                
+        try:
+            # Se o campo 'log' estiver presente, é uma tentativa de login
+            if "log" in request.POST:
+                log = request.POST.get("log")
+                logpass = request.POST.get("logpass")
+                user = authenticate(request, username=log, password=logpass)
+                if user is not None:
+                    if user.is_active:
+                        login(request, user)
+                        return redirect("home")
+                    else:
+                        error_message = "Funcionário inativo"
+                        return render(
+                            request, "register/login.html", {"error_message": error_message}
+                        )
+                else:
+                    error_message = "Apelido ou senha incorretos. Tente novamente."
+                    return render(
+                        request, "register/login.html", {"error_message": error_message}
+                    )
 
-            elif user.is_active == False:
-                error_message = "Funcionário inativo"
-                return render(
-                    request, "register/login.html", {"error_message": error_message}
-                )
-            else:
-                error_message = "Apelido ou senha incorretos. Tente novamente."
-                return render(
-                    request, "register/login.html", {"error_message": error_message}
-                )
+            # Se o campo 'email' estiver presente, é uma solicitação de recuperação de senha
+            elif "email" in request.POST:
+                email = request.POST.get("email")
+                try:
+                    user = Funcionario.objects.get(email=email)
+                    user.token = str(uuid.uuid4())[:8]  # Apenas os 8 primeiros caracteres
+                    user.save()  # Salva o token no banco de dados
 
-        # Se o campo estiver presente, é uma solicitação de recuperação de senha
-        elif "email" in request.POST:
-            email = request.POST.get("email")
-            try:
-                user = Funcionario.objects.get(email=email)
-                user.token = str(uuid.uuid4())[:8]  # Apenas os 8 primeiros caracteres
-                user.save()  # Salva o token no banco de dados
-
-                send_mail(
-                    subject="Relembrar senha",
-                    message=f"Link de redefinição de senha: {url_redefinir_senha} \n\n Use o Token {user.token} para alterar seu acesso! \n\n Caso perca faça um novo pedido.",
-                    from_email="projeto.abaprj@gmail.com",
-                    recipient_list=[email],
-                )
-                return JsonResponse(
-                    {
-                        "message": "Um email com sua senha foi enviado para o endereço fornecido."
-                    },
-                    status=200,
-                )
-            except Funcionario.DoesNotExist:
-                return JsonResponse({"message": "E-mail não encontrado."}, status=404)
-            except Exception as e:
-                return JsonResponse(
-                    {
-                        "message": "Ocorreu um erro ao enviar o e-mail. Por favor, tente novamente."
-                    },
-                    status=500,
-                )
+                    send_mail(
+                        subject="Relembrar senha",
+                        message=f"Link de redefinição de senha: {url_redefinir_senha} \n\n Use o Token {user.token} para alterar seu acesso! \n\n Caso perca faça um novo pedido.",
+                        from_email="projeto.abaprj@gmail.com",
+                        recipient_list=[email],
+                    )
+                    return JsonResponse(
+                        {
+                            "message": "Um email com sua senha foi enviado para o endereço fornecido."
+                        },
+                        status=200,
+                    )
+                except Funcionario.DoesNotExist:
+                    return JsonResponse({"message": "E-mail não encontrado."}, status=404)
+                except Exception as e:
+                    return JsonResponse(
+                        {
+                            "message": "Ocorreu um erro ao enviar o e-mail. Por favor, tente novamente."
+                        },
+                        status=500,
+                    )
+        except Exception as e:
+            error_message = "Ocorreu um erro. Por favor, tente novamente."
+            return render(
+                request, "register/login.html", {"error_message": error_message}
+            )
 
     return render(request, "register/login.html")
 

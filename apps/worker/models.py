@@ -46,7 +46,7 @@ class Funcionario(AbstractUser):
     data_nascimento = models.DateField(verbose_name="Data de nascimento", null=True, blank=True)
     token = models.CharField(null=True, unique=True, max_length=8)
     is_staff = models.BooleanField(default=True)
-    cpf = models.CharField(max_length=14, unique=True, verbose_name="CPF", null=True, blank=True)
+    cpf = models.CharField(max_length=14, unique=True, verbose_name="CPF",null="True")
     area_departamento = (
         ("Adm", "Administrativo"),
         ("Vend", "Vendedor"),

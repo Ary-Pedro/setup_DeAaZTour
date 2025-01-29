@@ -38,6 +38,11 @@ class RegisterForm(forms.Form):
     def clean_cpf(self):
         cpf = self.cleaned_data.get("cpf")
         validar_cpf(cpf)
+        
+        if Funcionario.objects.filter(
+            cpf = cpf
+        ).exists():  # Use o modelo de usuário personalizado
+            raise ValidationError("Este CPF já está registrado.")
         return cpf
 
     def clean_email(self):
