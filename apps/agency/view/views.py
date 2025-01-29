@@ -196,7 +196,7 @@ def Pesquisar_rota(request):
                 agencias_com_distancia = [
                     {
                         "agencia": {
-                            "nome": item["nome"],
+                            "nome_fantasia": item["nome da agência"],  
                             "cep": item["cep"],
                             "bairro": item["bairro"],
                             "cidade": item["cidade"]
