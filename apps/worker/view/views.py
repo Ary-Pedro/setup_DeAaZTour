@@ -458,8 +458,8 @@ def salvar_csvClientes(request, periodo):
                 cliente.rg,
                 cliente.cpf,
                 cliente.num_passaporte,
-                cliente.idade() if cliente.idade() else "S/D",
-                (
+                cliente.idade if cliente.idade else "S/D"
+                   (
                     f'=HYPERLINK("{anexo1_url}", "{os.path.basename(cliente.anexo1.name)}")'
                     if anexo1_url != "S/D"
                     else "S/D"
