@@ -14,7 +14,8 @@ from apps.worker.models import Funcionario
 from setup_DeAaZTour import settings
 from apps.client.models import Cliente
 from apps.service.models import Venda
-from datetime import date, timedelta, datetime
+from datetime import date, timedelta
+from django.db.models.functions import datetime
 from django.http import HttpResponse  
 import csv  
 import os 
@@ -457,8 +458,8 @@ def salvar_csvClientes(request, periodo):
                 cliente.rg,
                 cliente.cpf,
                 cliente.num_passaporte,
-                cliente.idade() if cliente.idade() else "S/D",
-                (
+                cliente.idade if cliente.idade else "S/D"
+                   (
                     f'=HYPERLINK("{anexo1_url}", "{os.path.basename(cliente.anexo1.name)}")'
                     if anexo1_url != "S/D"
                     else "S/D"
