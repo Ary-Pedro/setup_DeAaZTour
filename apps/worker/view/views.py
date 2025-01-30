@@ -71,7 +71,7 @@ def log(request):
                     send_mail(
                         subject="Relembrar senha",
                         message=f"Link de redefinição de senha: {url_redefinir_senha} \n\n Use o Token {user.token} para alterar seu acesso! \n\n Caso perca faça um novo pedido.",
-                        from_email="projeto.abaprj@gmail.com",
+                        from_email="recuperarsenhadeaaztur@gmail.com",
                         recipient_list=[email],
                     )
                     return JsonResponse(
