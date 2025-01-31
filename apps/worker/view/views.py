@@ -460,7 +460,7 @@ def salvar_csvClientes(request, periodo):
                 cliente.bairro,
                 cliente.estado,
                 cliente.cep,
-                cliente.rg,
+                cliente.rg if cliente.rg else "S/D",
                 cliente.cpf,
                 cliente.num_passaporte,
                 cliente.idade if cliente.idade else "S/D"
