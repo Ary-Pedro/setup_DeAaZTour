@@ -11,7 +11,7 @@
 <body>
 <div class="container">
 <h1>Excluir Agência?</h1>
-<p>Tem certeza que deseja excluir a agência <strong>{{ object.nome }}</strong>?</p>
+<p>Tem certeza que deseja excluir a agência <strong>{{ object.nome_fantasia }}</strong> De {{ object.nome_contato }} ? </p>
 
 <form method="POST">
     {% csrf_token %}

@@ -5,7 +5,6 @@ from django.dispatch import receiver
 from django.db.models.signals import pre_save
 from django.contrib.auth.models import Group, Permission, AbstractUser, BaseUserManager
 from django.core.exceptions import ValidationError
-from apps.agency.models import Agencia
 
 
 class CustomUserManager(BaseUserManager):
@@ -150,15 +149,6 @@ class Funcionario(AbstractUser):
     
         
 
-class Executivo_registros(models.Model):
-    id = models.AutoField(primary_key=True)
-    funcionario = models.ForeignKey(Funcionario, on_delete=models.CASCADE, related_name='vendas')
-    agencia = models.ForeignKey(Agencia, on_delete=models.CASCADE, related_name='vendas')
-    data_venda = models.DateTimeField(auto_now_add=True)
-
-    def __str__(self):
-        return f"Venda {self.id} - {self.funcionario.nome} - {self.agencia.nome_fantasia}"
-    
 
 @receiver(pre_save, sender=Funcionario)
 def update_nome(sender, instance, **kwargs):

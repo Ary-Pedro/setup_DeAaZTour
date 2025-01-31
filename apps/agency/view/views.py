@@ -25,7 +25,7 @@ import heapq
 from django.shortcuts import render
 from django.views.decorators.csrf import csrf_exempt
 
-from .forms import AgenciaForm
+from .forms import AgenciaForm,AtualizarForm
 
 # INFO: Agencia ----------------------------------------------------------------------------------------------------
 # INFO: Agencia - cadastrar
@@ -61,7 +61,7 @@ class DeleteView(LoginRequiredMixin, DeleteView):
 class UpdateView(LoginRequiredMixin, UpdateView):
     login_url = "log"  # URL para redirecionar para login
     model = Agencia 
-    form_class = AgenciaForm
+    form_class = AtualizarForm
     template_name = "agency/Agencia_form.html"
     success_url = reverse_lazy("ListagemAgencia")
 

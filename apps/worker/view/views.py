@@ -194,9 +194,6 @@ class Home(LoginRequiredMixin, TemplateView):
         context["usuario_logado"] = usuario_logado
         return context
 
-
-    
-
 # INFO: Sair da conta
 class LogoutView(LogoutView):
     next_page = "log"
@@ -550,6 +547,6 @@ listar() ListFuncionario ✅
 
 extras
 Rank - venda ✅
-Salvar_csv -V enda
+Salvar_csv -Venda
 Salvar_csv - Cliente
 """

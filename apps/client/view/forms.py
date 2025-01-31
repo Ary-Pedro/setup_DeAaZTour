@@ -18,6 +18,28 @@ def validar_cpf(cpf):
 
 
 class ClienteForm(forms.ModelForm):
+    telefone1 = forms.CharField(
+    label="Telefone 1",
+    widget=forms.TextInput(attrs={"placeholder": "Para customizar use '+' no início"})
+    )
+    telefone2 = forms.CharField(
+    label="Telefone 2",
+    widget=forms.TextInput(attrs={"placeholder": "Para customizar use '+' no início"})
+    )
+   
+    data_nascimento = forms.CharField(
+    label="data_nascimento",
+    widget=forms.TextInput(attrs={"placeholder": "Preencha apenas com números, a formatação será automática"})
+    )
+    cpf = forms.CharField(
+    label="cpf",
+    widget=forms.TextInput(attrs={"placeholder": "Preencha apenas com números, a formatação será automática"})
+    )
+    cep = forms.CharField(
+    label="CEP",
+    widget=forms.TextInput(attrs={"placeholder": "Preencha apenas com números, a formatação será automática"})
+    )
+
     class Meta:
         model = Cliente
         fields = [
@@ -48,7 +70,7 @@ class ClienteForm(forms.ModelForm):
         if any(char.isdigit() for char in nome):
             raise ValidationError("O nome não pode conter números.")
         return nome
-    
+
     def clean_cpf(self):
             cpf = self.cleaned_data.get("cpf")
             validar_cpf(cpf)
