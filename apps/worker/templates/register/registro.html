@@ -98,7 +98,7 @@
         
         <div class="flex">
             <label class="flex-item">
-                <input class="input" type="text" name="cpf" value="{{ form.cpf.value|default_if_none:'' }}">
+                <input class="input" type="text" name="cpf"  placeholder="Este campo pode permanecer vazio" value="{{ form.cpf.value|default_if_none:'' }}">
                 <span>CPF:</span>
                 {% if form.cpf.errors %}
                     <div class="text-danger">

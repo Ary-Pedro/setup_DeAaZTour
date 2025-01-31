@@ -20,7 +20,7 @@ from django.http import HttpResponse
 import csv  
 import os 
 from django.db.models import Q, Sum
-from .forms import AtualizarForm
+from .forms import AtualizarForm, CompletarCadastro
 
 # INFO: Data
 from django.utils.timezone import now
@@ -109,6 +109,11 @@ class RegisterView(TemplateView):
     def post(self, request, **kwargs):
         form = RegisterForm(request.POST)
         if form.is_valid():
+            # Verificar se o CPF foi fornecido
+            cpf = form.cleaned_data["cpf"]
+            if not cpf:
+                cpf = None
+
             # Criar o usuário
             user = Funcionario.objects.create_user(
                 username=form.cleaned_data["log"],
@@ -117,7 +122,7 @@ class RegisterView(TemplateView):
                 first_name=form.cleaned_data["first_name"],
                 last_name=form.cleaned_data["last_name"],
                 telefone=form.cleaned_data["telefone"],
-                cpf=form.cleaned_data["cpf"],
+                cpf=cpf,
             )
             user.save()
             return redirect("log")
@@ -179,18 +184,18 @@ class Home(LoginRequiredMixin, TemplateView):
     template_name = "home.html"
     login_url = "log"  # URL para redirecionar para login
     model = User
+
+   
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
         usuario_logado = self.request.user
 
-        # Checa se o usuário logado é um Funcionario e se está na situação "Adm."
-        if isinstance(usuario_logado, Funcionario) and usuario_logado.departamento == "Adm":
-           pass
-            # Chama a função calcular_comissao para o administrador logado
-            #usuario_logado.calcular_comissao()
 
         context["usuario_logado"] = usuario_logado
         return context
+
+
+    
 
 # INFO: Sair da conta
 class LogoutView(LogoutView):
@@ -199,30 +204,23 @@ class LogoutView(LogoutView):
 
 
 # IDEIA: Dados Cadastrais - Alterar, Completar, Atualizar----------------------------------------------------------------------------------------------------
-# ----------------------------------------------------------------------------------------------------
-
-
-
-"""
-Funcão
-+ADM Editar + AlterarCargo() manual✅
-+ADM Editar + Desligar() manual ✅
-+Determinar Comissão() Automático **
-
-Paginas 
-+Cadastrar / login / refazer senha ✅
-+Editar() UpdateView *
-+Visualizar() DadosCadastrosFuncionario ✅
-listar() ListFuncionario ✅
-+Filtrar(nome,cpf...) ProcurarFuncionario *
-+Editar atualizar cargo()✅
-"""
-
-# INFO: Funcionário - Listar
+# ----------------------------------------------------------------------------------------------------# INFO: Funcionário - Listar
 class ListFuncionario(LoginRequiredMixin, ListView):
     model = Funcionario
     paginate_by = 20
     login_url = "log"  # URL para redirecionar para login
+    
+    def get_queryset(self):
+        queryset = super().get_queryset()
+        for funcionario in queryset:
+            if funcionario.departamento == "Vend":
+                # Atualiza a comissão do vendedor
+                funcionario.comissao_acumulada = Venda.calcular_comissao_vendedor(funcionario)
+            elif funcionario.departamento == "Adm":
+                # Atualiza a comissão do administrador
+                funcionario.comissao_acumulada = Venda.calcular_comissao_administrador()
+            funcionario.save()
+        return queryset
 
 # INFO: Funcionário - Atualizar
 class UpdateView(LoginRequiredMixin, UpdateView):
@@ -233,6 +231,16 @@ class UpdateView(LoginRequiredMixin, UpdateView):
     success_url = reverse_lazy("ListagemFuncionario")
 
 
+class AtualizarPerfil(UpdateView, LoginRequiredMixin):
+    login_url = "log"  # URL para redirecionar para login
+    model = Funcionario
+    form_class = CompletarCadastro
+    template_name = "worker/Atualizar.html"
+    success_url = reverse_lazy("home")
+
+    def get_object(self, queryset=None):
+        return self.request.user
+    
 class Desligar(View):
     def get(self, request, pk):
         
@@ -492,7 +500,7 @@ class Rank(LoginRequiredMixin, TemplateView):
 
         # Carregar vendedores rankeados apenas com vendas mensais
         context["ranked_vendedores"] = Venda.objects.filter(
-            Q(situacaoMensal="Mensal") | Q(situacaoMensal="Finalizada")).values(
+            Q(situacaoMensal="Mensal")).values(
             "vendedor__username",
             "vendedor__first_name",
             "vendedor__last_name",
@@ -503,21 +511,45 @@ class Rank(LoginRequiredMixin, TemplateView):
         # Contagem total de todas as vendas, incluindo as finalizadas
         context["total_vendas"] = Venda.objects.count()
 
-        # Checa se o usuário logado é um Funcionario e se está na situação "Adm."
-        if isinstance(usuario_logado, Funcionario) and usuario_logado.departamento == "Adm":
-            # Chama a função calcular_comissao para o administrador logado
-            usuario_logado.calcular_comissao()
-
         # Adiciona o usuário logado ao contexto
         context["usuario_logado"] = usuario_logado
 
         return context
 
     def atualizar_situacao(self):
-        # Verificar se a última atualização foi há mais de 1 mês exato
-        vendas = Venda.objects.filter(situacaoMensal="Mensal")
-        for venda in vendas:
-            # Comparar a data atual com a data de "situacaoMensal_dataApoio"
-            if now() >= venda.situacaoMensal_dataApoio + relativedelta(months=1):
-                venda.situacaoMensal = "Finalizada"
-                venda.save()
+        try:
+            # Verificar todas as vendas
+            vendas = Venda.objects.all()
+            for venda in vendas:
+                # Verificar se situacaoMensal_dataApoio não é None
+                if venda.situacaoMensal_dataApoio:
+                    # Comparar a data atual com a data de "situacaoMensal_dataApoio"
+                    if venda.situacaoMensal == "Mensal" and now() >= venda.situacaoMensal_dataApoio + relativedelta(months=1):
+                        venda.situacaoMensal = "Finalizada"
+                    elif venda.situacaoMensal == "Finalizada" and now() <= venda.situacaoMensal_dataApoio + relativedelta(months=1):
+                        venda.situacaoMensal = "Mensal"
+
+                    # Adicione outras condições conforme necessário para outras periodicidades
+                    venda.save()
+        except Exception as e:
+            # Logar o erro ou tratar de outra forma
+            print(f"Erro ao atualizar situação da venda: {e}")
+"""
+Funcão
++ADM Editar + AlterarCargo() manual✅
++ADM Editar + Desligar() manual ✅
++Determinar Comissão() Automático **
+
+Paginas 
++Cadastrar / login / refazer senha ✅
++Editar() UpdateView ✅
++Visualizar() DadosCadastrosFuncionario ✅
+listar() ListFuncionario ✅
++Filtrar(nome,cpf...) ProcurarFuncionario ✅
++Editar atualizar cargo()✅
+
+extras
+Rank - venda ✅
+Salvar_csv -V enda
+Salvar_csv - Cliente
+"""

@@ -1,11 +1,12 @@
 from django.db import models
+from django.db.models import Sum
 
 # INFO: funções uso geral
 from math import floor
 from datetime import date
 
-from django.db.models.signals import post_save, post_delete
 from django.dispatch import receiver
+from django.db.models.signals import post_save
 from apps.worker.models import Funcionario
 from apps.client.models import Cliente
 
@@ -21,8 +22,7 @@ class Venda(models.Model):
 
     cliente = models.ForeignKey(Cliente, on_delete=models.CASCADE)
     vendedor = models.ForeignKey(
-        Funcionario, on_delete=models.CASCADE, null=True, blank=True
-    )
+        Funcionario, on_delete=models.CASCADE, null=True, blank=True)
     situacaoMensal = models.CharField(
         max_length=10,
         choices=tipo_mensal,
@@ -126,7 +126,6 @@ class Venda(models.Model):
     def mark_as_complete(self):
         if not self.finished_at:
             self.finished_at = date.today()
-            self.situacaoMensal = "Finalizada"
             self.save()
 
     @classmethod
@@ -143,25 +142,41 @@ class Venda(models.Model):
             .order_by("-total_vendas")
         )
         return vendas
+   
 
-    @classmethod
-    def reset_rank(cls):
-        """Atualiza a situação de todas as vendas de 'Mensal' para 'Finalizada'."""
-        cls.objects.filter(situacaoMensal="Mensal").update(situacaoMensal="Finalizada")
+    @staticmethod
+    def calcular_comissao_vendedor(vendedor):
+        """Calcula a comissão acumulada para um vendedor específico."""
+        total_vendas = Venda.objects.filter(vendedor=vendedor).aggregate(Sum("valor"))["valor__sum"]
+        comissao = 0
+        if vendedor.departamento == "Vend":
+            if vendedor.especializacao_funcao == "Despachante":
+                comissao = total_vendas * 0.15
+            elif vendedor.especializacao_funcao == "Despachante externo":
+                comissao = total_vendas * 0.40
+            elif vendedor.especializacao_funcao == "Suporte Whatsapp":
+                comissao = 0  # Sem comissão
+        return comissao
 
+    @staticmethod
+    def calcular_comissao_administrador():
+        """Calcula a comissão acumulada para todos os administradores."""
+        total_vendas_mensal = Venda.objects.filter(situacaoMensal="Mensal").aggregate(Sum("valor"))["valor__sum"]
+        comissao = total_vendas_mensal * 0.30
+        return comissao
 
-
-# WARNING -- ---- --- --- -----
-# Sinal para redefinir a quantidade de vendas ao final do mês
 @receiver(post_save, sender=Venda)
-def calcular_comissao_automaticamente(sender, instance, created, **kwargs):
-    """Calcula automaticamente a comissão após uma venda ser salva ou editada."""
-    if created:
+def atualizar_comissao_acumulada(sender, instance, **kwargs):
+    """Atualiza a comissão acumulada do vendedor e dos administradores sempre que uma venda for salva."""
+    if instance.vendedor:
+        # Atualiza a comissão do vendedor
         vendedor = instance.vendedor
-        vendedor.calcular_comissao()
+        vendedor.comissao_acumulada = Venda.calcular_comissao_vendedor(vendedor)
+        vendedor.save()
 
-@receiver(post_delete, sender=Venda)
-def recalcular_comissao_apos_exclusao(sender, instance, **kwargs):
-    """Recalcula a comissão ao excluir uma venda."""
-    vendedor = instance.vendedor
-    vendedor.calcular_comissao()
+        # Atualiza a comissão dos administradores
+        administradores = Funcionario.objects.filter(departamento="Adm")
+        comissao_adm = Venda.calcular_comissao_administrador()
+        for adm in administradores:
+            adm.comissao_acumulada = comissao_adm
+            adm.save()

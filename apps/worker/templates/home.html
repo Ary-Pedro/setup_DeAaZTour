@@ -209,17 +209,10 @@ main {
    .welcome-message {
        color: #63833d;
    }
-
-
 </style>
 
 
-   <script>
-       function toggleDropdown(event) {
-           const parent = event.target.parentElement;
-           parent.classList.toggle('active');
-       }
-   </script>
+   
 </head>
 <body>
 <header>
@@ -230,13 +223,15 @@ main {
 <div class="menu-lateral">
    <ul>
        {% if user is not None %}
-       {% if 'Adm' in user.departamento or 'Func' in user.departamento%}
+       {% if 'Adm' in user.departamento or 'Vend' in user.departamento%}
        <li><a href="{% url 'cadCliente' %}">Cadastrar Cliente</a></li>
        <li><a href="{% url 'ListagemCliente' %}">Gerenciar Clientes</a></li>
        <li><a href="{% url 'cadVendas' %}">Nova Venda</a></li>
        <li><a href="{% url 'ListagemVenda' %}">Ver Vendas</a></li>
        {% endif %}
            {% endif %}
+
+           
        {% if user is not None %}
        {% if 'Adm' in user.departamento %}
        <li><a href="{% url 'rank' %}">Ranking</a></li>
@@ -255,7 +250,7 @@ main {
 
 
         {% if user is not None %}
-        {% if 'Adm' in user.departamento or 'Func' in user.departamento%}
+        {% if 'Adm' in user.departamento or 'Vend' in user.departamento%}
         <li>
            <a class="expand" onclick="toggleDropdown(event)">Exportações - Vendas</a>
            <ul class="dropdown">
@@ -325,14 +320,15 @@ main {
                <li><a href="{% url 'salvarCliente' 'todos' %}">• Exportar Todos</a></li>
                <br>
            </ul>
-       </li>
+       </li>       
          {% endif %}
            {% endif %}
-
-
-
-
+           <!--ATUALIZAR NO CSS--->
+           <br><br><br><br><br><br><br><br>
+           <li><a href="{% url 'atualizar_perfil' user.pk %}"> ATUALIZAR PERFIL </a></li>
    </ul>
+   
+
    <div class="logout-section">
        <form action="{% url 'logout' %}" method="post">
            {% csrf_token %}
@@ -354,5 +350,12 @@ main {
        <img src="{% static 'imagens/logo.png' %}" alt="Logo da Empresa">
    </div>
 </main>
+
+<script>
+       function toggleDropdown(event) {
+           const parent = event.target.parentElement;
+           parent.classList.toggle('active');
+       }
+   </script>
 </body>
 </html>

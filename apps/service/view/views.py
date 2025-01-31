@@ -362,3 +362,5 @@ class Rank(LoginRequiredMixin, TemplateView):
             if now() >= venda.situacaoMensal_dataApoio + relativedelta(months=1):
                 venda.situacaoMensal = "Finalizada"
                 venda.save()
+
+

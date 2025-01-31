@@ -6,7 +6,7 @@ from apps.worker.models import Funcionario  # Use o modelo de usuário personali
 
 def validar_cpf(cpf):
     if not cpf:
-        raise ValidationError("O CPF não pode ser nulo!")
+        return
     if len(cpf) != 14:
         raise ValidationError("O CPF deve ter 14 caracteres!")
     for i, char in enumerate(cpf):
@@ -27,46 +27,55 @@ class RegisterForm(forms.Form):
     last_name = forms.CharField(label="Sobrenome", max_length=50)
     email = forms.EmailField(label="E-mail")
     telefone = forms.CharField(label="Telefone")
-    cpf = forms.CharField(label="CPF", max_length=14)
+    cpf = forms.CharField(label="CPF", max_length=14, required=False)
 
     def clean_cpf(self):
         cpf = self.cleaned_data.get("cpf")
-        validar_cpf(cpf)
-    
-        if Funcionario.objects.filter(
-            cpf = cpf
-        ).exists():  # Use o modelo de usuário personalizado
-            raise ValidationError("Este CPF já está registrado.")
+        if cpf:
+            validar_cpf(cpf)
+            if Funcionario.objects.filter(cpf=cpf).exists():
+                raise ValidationError("Este CPF já está registrado.")
         return cpf
-   
-   
-        
 
     def clean_email(self):
         email = self.cleaned_data.get("email")
-        if Funcionario.objects.filter(
-            email=email
-        ).exists():  # Use o modelo de usuário personalizado
+        if Funcionario.objects.filter(email=email).exists():
             raise ValidationError("Este e-mail já está registrado.")
         return email
 
     def clean_log(self):
         log = self.cleaned_data.get("log")
-        if Funcionario.objects.filter(
-            username=log
-        ).exists():  # Use o modelo de usuário personalizado
+        if Funcionario.objects.filter(username=log).exists():
             raise ValidationError("Este apelido já está registrado.")
         return log
 
-
 class AtualizarForm(forms.ModelForm):
+    telefone = forms.CharField(
+    label="Telefone",
+    widget=forms.TextInput(attrs={"placeholder": "Para customizar use '+' no início"})
+)
+
     class Meta:
         model = Funcionario
         fields = [
             "first_name", "last_name", "email", "telefone", "departamento", 
-            "Sub_salario_fixo", "telefone", "cidade", "data_nascimento", 
+            "Sub_salario_fixo", "telefone", "endereço", "cidade","complemento", "data_nascimento", 
             "cpf", "atividade", "especializacao_funcao",
         ]
+
+    def clean_cpf(self):
+        cpf = self.cleaned_data.get("cpf")
+        validar_cpf(cpf)
+        return cpf
+
+class CompletarCadastro(forms.ModelForm):
+    telefone = forms.CharField(
+    label="Telefone",
+    widget=forms.TextInput(attrs={"placeholder": "Para customizar use '+' no início"})
+)
+    class Meta:
+        model = Funcionario
+        fields = [ "username", "first_name", "last_name", "email", "telefone", "endereço", "cidade", "complemento", "data_nascimento", "cpf",]
 
     def clean_cpf(self):
         cpf = self.cleaned_data.get("cpf")

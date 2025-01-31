@@ -39,12 +39,14 @@ class Funcionario(AbstractUser):
     Sub_salario_fixo = models.FloatField(default=0, verbose_name="salário fixo",help_text="Um valor fixo pago ao funcionario", null=True, blank=True)
     salario = models.FloatField(default=0, verbose_name="salário total",editable=False)
     comissao_acumulada = models.FloatField(default=0, verbose_name="comissão acumulada")
-    telefone = models.CharField(max_length=20, null=True, blank=True)
+    telefone = models.CharField(max_length=20, null=True, blank=True,help_text="Apenas digite os números; este campo possui autoformatação")
+    endereço = models.CharField(max_length=255, null=True, blank=True)
     cidade = models.CharField(max_length=255, null=True, blank=True)
-    data_nascimento = models.DateField(verbose_name="Data de nascimento", null=True, blank=True)
+    complemento = models.CharField(max_length=255, null=True, blank=True)
+    data_nascimento = models.DateField(verbose_name="Data de nascimento", null=True, blank=True,help_text="Apenas digite os números; este campo possui autoformatação")
     token = models.CharField(null=True, unique=True, max_length=8)
     is_staff = models.BooleanField(default=True)
-    cpf = models.CharField(max_length=14, unique=True, verbose_name="CPF",null="True")
+    cpf = models.CharField(max_length=14, unique=True, verbose_name="CPF", null=True, blank=True,help_text="Apenas digite os números; este campo possui autoformatação")
     area_departamento = (
         ("Adm", "Administrativo"),
         ("Vend", "Vendedor"),
@@ -119,15 +121,12 @@ class Funcionario(AbstractUser):
         self.is_active = self.atividade != "Inativo"
 
         super().save(*args, **kwargs)
-
     def __str__(self):
         return self.nome
 
     objects = CustomUserManager()
 
-    def calcular_comissao(self):
-        pass
-
+    
     def calcular_idade(self):
         if self.data_nascimento:
             hoje = date.today()
@@ -147,14 +146,9 @@ class Funcionario(AbstractUser):
             self.save()
         except Funcionario.DoesNotExist:
             raise ValidationError("erro inesperado")
-
-
-@receiver(pre_save, sender=Funcionario)
-def update_nome(sender, instance, **kwargs):
-    instance.nome = f"{instance.first_name} {instance.last_name}"
-
-
-
+      
+    
+        
 
 class Executivo_registros(models.Model):
     id = models.AutoField(primary_key=True)
@@ -164,3 +158,9 @@ class Executivo_registros(models.Model):
 
     def __str__(self):
         return f"Venda {self.id} - {self.funcionario.nome} - {self.agencia.nome_fantasia}"
+    
+
+@receiver(pre_save, sender=Funcionario)
+def update_nome(sender, instance, **kwargs):
+    instance.nome = f"{instance.first_name} {instance.last_name}"
+
