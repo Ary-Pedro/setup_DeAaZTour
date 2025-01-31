@@ -122,16 +122,26 @@ class Venda(models.Model):
         return f"Venda {self.id} - {self.cliente.nome} para {self.vendedor.username}"
 
     
-    @classmethod  
     def mark_as_complete(self):
         if not self.finished_at:
             self.finished_at = date.today()
+
+        if self.situacaoMensal_dataApoio and self.finished_at:
+            # Garantir que ambos são instâncias de date
             situacaoMensal_dataApoio_date = self.situacaoMensal_dataApoio
             finished_at_date = self.finished_at
+
+            # Converter para tipo correto, se não for None
+            if isinstance(situacaoMensal_dataApoio_date, str):
+                situacaoMensal_dataApoio_date = date.fromisoformat(situacaoMensal_dataApoio_date)
+
+            if isinstance(finished_at_date, str):
+                finished_at_date = date.fromisoformat(finished_at_date)
+
             delta = finished_at_date - situacaoMensal_dataApoio_date
             self.duracao_venda = f"{delta.days} Dias"
             self.save()
-            
+                
     def calcular_comissao_vendedor(vendedor):
         """Calcula a comissão acumulada para um vendedor específico."""
         total_vendas = Venda.objects.filter(vendedor=vendedor).aggregate(Sum("valor"))["valor__sum"]

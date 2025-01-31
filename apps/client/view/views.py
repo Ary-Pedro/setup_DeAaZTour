@@ -18,7 +18,7 @@ from django.views.generic import CreateView, DeleteView, ListView, UpdateView, V
 from django import forms
 
 from django.shortcuts import render
-from .forms import ClienteForm
+from .forms import ClienteForm, AtualizarForm
 
 # INFO: Cliente --------------------------------------------------------------------------------------------------------
 # INFO: Cliente - Cadastrar
@@ -65,7 +65,7 @@ class Validar(View):
 class UpdateView(LoginRequiredMixin, UpdateView):
     login_url = "log"  # URL para redirecionar para login
     model = Cliente
-    form_class = ClienteForm
+    form_class = AtualizarForm
     template_name = "client/Cliente_form.html"
     success_url = reverse_lazy("ListagemCliente")
 

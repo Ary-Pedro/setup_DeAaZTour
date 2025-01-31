@@ -21,7 +21,7 @@ class Cliente(models.Model):
     telefone2 = models.CharField(
         max_length=20,
         null=True,
-        blank=True,
+        blank=True, 
         verbose_name="telefone 2",
     )
     celular = models.CharField(
