@@ -26,8 +26,7 @@ class ClienteForm(forms.ModelForm):
     label="Telefone 2",
     widget=forms.TextInput(attrs={"placeholder": "Para customizar use '+' no início"})
     )
-   
-    data_nascimento = forms.CharField(
+    data_nascimento = forms.DateField(
     label="data_nascimento",
     widget=forms.TextInput(attrs={"placeholder": "Preencha apenas com números, a formatação será automática"})
     )

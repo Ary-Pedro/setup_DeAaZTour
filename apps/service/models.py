@@ -31,13 +31,11 @@ class Venda(models.Model):
         blank=True,
     )
     
-    situacaoMensal_dataApoio = models.DateTimeField(
-        auto_now_add=True
-    )  # Registra quando foi atualizada a última vez
+    situacaoMensal_dataApoio = models.DateField(auto_now_add=True)
     data_venda = models.DateField(auto_now_add=True)
-    valor = models.FloatField()
     finished_at = models.DateField(null=True, verbose_name="Data finalizado")
-
+    duracao_venda = models.CharField(null=True, max_length=20, verbose_name="Duração da venda em dias")
+    valor = models.FloatField()
     nacionalidade = models.CharField(
         max_length=20,
         choices=[
@@ -123,28 +121,17 @@ class Venda(models.Model):
     def _str_(self):
         return f"Venda {self.id} - {self.cliente.nome} para {self.vendedor.username}"
 
+    
+    @classmethod  
     def mark_as_complete(self):
         if not self.finished_at:
             self.finished_at = date.today()
+            situacaoMensal_dataApoio_date = self.situacaoMensal_dataApoio
+            finished_at_date = self.finished_at
+            delta = finished_at_date - situacaoMensal_dataApoio_date
+            self.duracao_venda = f"{delta.days} Dias"
             self.save()
-
-    @classmethod
-    def rank_vendedores(cls):
-        """Retorna os vendedores rankeados por número de vendas."""
-        vendas = (
-            cls.objects.values(
-                "vendedor__first_name",
-                "vendedor__last_name",
-                "vendedor__telefone",
-                "vendedor__email",
-            )
-            .annotate(total_vendas=models.Count("id"))
-            .order_by("-total_vendas")
-        )
-        return vendas
-   
-
-    @staticmethod
+            
     def calcular_comissao_vendedor(vendedor):
         """Calcula a comissão acumulada para um vendedor específico."""
         total_vendas = Venda.objects.filter(vendedor=vendedor).aggregate(Sum("valor"))["valor__sum"]

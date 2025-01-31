@@ -45,27 +45,31 @@
                     </tr>
                 </thead>
                 <tbody>
-                {% for todo in cadastro_list %}
-                    <tr>
-                        <td><a href="{% url 'dadosVenda' todo.pk %}" class="text-decoration-none">{{ todo.pk }}</a></td>
-                        <td><a href="{% url 'dadosVenda' todo.pk %}" class="text-decoration-none">{{ todo.cliente }}</a></td>
-                        <td>{{ todo.vendedor }}</td>
-                        <td>{{ todo.cliente.cidade }}</td>
-                        <td>{{ todo.valor }}</td>
-                        <td>{{ todo.situacaoMensal }}</td>
-                        <td>{{ todo.finished_at }}</td>
-                        <td>
-                            <a href="{% url 'venda_complete' pk=todo.pk %}?page={{ page_obj.number }}" class="btn btn-primary btn-sm {% if todo.finished_at %}disabled{% endif %}">
-                                <img src="{% static 'imagens/check.svg' %}" alt="Concluir" style="height: 15px; width: 15px;"> Concluir
-                            </a>
-                            <a href="{% url 'venda_atualizar' pk=todo.pk %}?page={{ page_obj.number }}" class="btn btn-secondary btn-sm">
-                                <img src="{% static 'imagens/edit.svg' %}" alt="Editar" style="height: 15px; width: 15px;"> Editar
-                            </a>
-                            <a href="{% url 'venda_deletar' pk=todo.pk %}?page={{ page_obj.number }}" class="btn btn-danger btn-sm">
-                                <img src="{% static 'imagens/delete.svg' %}" alt="Excluir" style="height: 15px; width: 15px;"> Excluir
-                            </a>
-                        </td>
-                    </tr>
+                    {% for todo in cadastro_list %}
+                    {% if user.departamento == 'Adm' or todo.vendedor.id == user.id %}
+                        <tr>
+                            <td><a href="{% url 'dadosVenda' todo.pk %}" class="text-decoration-none">{{ todo.pk }}</a></td>
+                            <td><a href="{% url 'dadosVenda' todo.pk %}" class="text-decoration-none">{{ todo.cliente }}</a></td>
+                            <td>{{ todo.vendedor }}</td>
+                            <td>{{ todo.cliente.cidade }}</td>
+                            <td>{{ todo.valor }}</td>
+                            <td>{{ todo.situacaoMensal }}</td>
+                            <td>{{ todo.duracao_venda }}</td>
+                            <td>
+                                {% if user.departamento == 'Vend' and todo.vendedor.id == user.id %}
+                                    <a href="{% url 'venda_complete' todo.pk %}?page={{ page_obj.number }}" class="btn btn-primary btn-sm {% if todo.finished_at %}disabled{% endif %}">
+                                        <img src="{% static 'imagens/check.svg' %}" alt="Concluir" style="height: 15px; width: 15px;"> Concluir
+                                    </a>
+                                {% endif %}
+                                <a href="{% url 'venda_atualizar' todo.pk %}?page={{ page_obj.number }}" class="btn btn-secondary btn-sm">
+                                    <img src="{% static 'imagens/edit.svg' %}" alt="Editar" style="height: 15px; width: 15px;"> Editar
+                                </a>
+                                <a href="{% url 'venda_deletar' todo.pk %}?page={{ page_obj.number }}" class="btn btn-danger btn-sm">
+                                    <img src="{% static 'imagens/delete.svg' %}" alt="Excluir" style="height: 15px; width: 15px;"> Excluir
+                                </a>
+                            </td>
+                        </tr>
+                    {% endif %}
                 {% endfor %}
                 </tbody>
             </table>

@@ -311,6 +311,7 @@ class Validar(LoginRequiredMixin, View):
         finalizar = get_object_or_404(Venda, pk=pk)
         finalizar.mark_as_complete()
 
+
         numero_pagina = request.GET.get("page", 1)
 
         url = reverse("ListagemVenda")

@@ -250,7 +250,7 @@ main {
 
 
         {% if user is not None %}
-        {% if 'Adm' in user.departamento or 'Vend' in user.departamento%}
+        {% if 'Adm' in user.departamento or 'Func' in user.departamento%}
         <li>
            <a class="expand" onclick="toggleDropdown(event)">Exportações - Vendas</a>
            <ul class="dropdown">

@@ -34,7 +34,7 @@ class Cliente(models.Model):
     
     sexo_tipo = (("M", "Masculino"), ("F", "Feminino"))
     sexo = models.CharField(max_length=1, choices=sexo_tipo, verbose_name="Sexo")
-    data_nascimento = models.DateField(verbose_name="Data de nascimento", null=True)
+    data_nascimento = models.DateField(verbose_name="Data de nascimento", null=True, blank=True,help_text="Apenas digite os números; este campo possui autoformatação")
     idade = models.IntegerField(null=True, editable=False)
 
     endereco = models.CharField(
