@@ -145,6 +145,8 @@ class Venda(models.Model):
     def calcular_comissao_vendedor(vendedor):
         """Calcula a comissão acumulada para um vendedor específico."""
         total_vendas = Venda.objects.filter(vendedor=vendedor).aggregate(Sum("valor"))["valor__sum"]
+        if total_vendas is None:
+            total_vendas = 0
         comissao = 0
         if vendedor.departamento == "Vend":
             if vendedor.especializacao_funcao == "Despachante":
@@ -155,10 +157,13 @@ class Venda(models.Model):
                 comissao = 0  # Sem comissão
         return round(comissao, 2)
 
+
     @staticmethod
     def calcular_comissao_administrador():
         """Calcula a comissão acumulada para todos os administradores."""
         total_vendas_mensal = Venda.objects.filter(situacaoMensal="Mensal").aggregate(Sum("valor"))["valor__sum"]
+        if total_vendas_mensal is None:
+            total_vendas_mensal = 0
         comissao = round(total_vendas_mensal * 0.30, 2) 
         return comissao
 
