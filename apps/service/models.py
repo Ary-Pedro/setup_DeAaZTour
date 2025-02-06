@@ -153,13 +153,13 @@ class Venda(models.Model):
                 comissao = total_vendas * 0.40
             elif vendedor.especializacao_funcao == "Suporte Whatsapp":
                 comissao = 0  # Sem comissão
-        return comissao
+        return round(comissao, 2)
 
     @staticmethod
     def calcular_comissao_administrador():
         """Calcula a comissão acumulada para todos os administradores."""
         total_vendas_mensal = Venda.objects.filter(situacaoMensal="Mensal").aggregate(Sum("valor"))["valor__sum"]
-        comissao = total_vendas_mensal * 0.30
+        comissao = round(total_vendas_mensal * 0.30, 2) 
         return comissao
 
 @receiver(post_save, sender=Venda)
