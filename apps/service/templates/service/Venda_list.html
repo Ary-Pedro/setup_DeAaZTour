@@ -10,7 +10,7 @@
 <body class="bg-light">
 
 <div class="container mt-5">
-    <h1 class="text-center mb-4">Resultado da Pesquisa</h1>
+    <h1 class="text-center mb-4">Listagem de Vendas</h1>
 
     <div class="row justify-content-center mb-4">
         <div class="col-md-8">
@@ -22,6 +22,10 @@
             </form>
         </div>
     </div>
+    
+    <div id="caixa">
+        <h2 id="infosPesquisa">Você pode pesquisar pelo nome do cliente, cidade, tipo do serviço e tipo de pagamento.</h2>   
+  </div>
 
     {% if user.departamento == 'Vend' %}
     <div class="d-flex justify-content-end mb-3">

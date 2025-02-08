@@ -6,6 +6,15 @@
     <title>Title</title>
     <link href="{% static 'global/css/buscasFuncionario/dados_print.css' %}" rel="stylesheet" type="text/css"/>
 </head>
+
+<style>
+
+  a {
+    text-decoration: none; /* Remove o sublinhado */
+    color: inherit; /* Mantém a cor do texto conforme o estilo do botão */
+  }
+  </style>
+
 <body>
 
 
@@ -20,15 +29,50 @@
 
           <h2>Dados do funcionário</h2>
          <p><strong>Nome: </strong>{{ cadastro.first_name }} {{ cadastro.last_name }}</p>
+
+         {% if cadastro.data_nascimento %}
+         <p><strong>Data de nascimento: </strong> {{ cadastro.data_nascimento }}</p>
+         {% endif %}
+
+         {% if cadastro.idade %}
+         <p><strong>Idade: </strong> {{ cadastro.idade }}</p>
+         {% endif %}
+
+         {% if cadastro.cpf %}
+         <p><strong>CPF: </strong> {{ cadastro.cpf }}</p>
+         {% endif %}
+
         <p><strong>Email: </strong> {{ cadastro.email }}</p>
         <p><strong>Telefone: </strong> {{ cadastro.telefone }}</p>
+
+        {% if cadastro.endereco %}
+        <p><strong>Endereço: </strong> {{ cadastro.endereco }}</p>
+        {% endif %}
+
+        {% if cadastro.cidade %}
+        <p><strong>Cidade: </strong> {{ cadastro.cidade }}</p>
+        {% endif %}
+
+        {% if cadastro.complemento %}
+        <p><strong>Complemento: </strong> {{ cadastro.complemento }}</p>
+        {% endif %}
+
+
+        {% if cadastro.data_nascimento %}
+        <p><strong>Salario: </strong> {{ cadastro.Sub_salario_fixo }}</p>
+        {% endif %}
+
         <p><strong>Cargo: </strong> {{ cadastro.especializacao_funcao }}</p>
-         <p><strong>Salario: </strong> {{ cadastro.salario }}</p>
+
+      
          <p><strong>Departamento: </strong> {{ cadastro.departamento }}</p>
          <p><strong>Situação na empresa: </strong> {{ cadastro.atividade }}</p>
         </div>
 
+
+
         <a href="{% url 'ListagemFuncionario' %}"><button class="btnvoltar">Voltar</button></a>
+
 {% endfor %}
 
 

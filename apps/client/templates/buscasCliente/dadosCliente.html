@@ -7,6 +7,15 @@
     <title>Title</title>
     <link href="{% static 'global/css/buscasFuncionario/dados_print.css' %}" rel="stylesheet" type="text/css"/>
 </head>
+
+<style>
+
+  a {
+    text-decoration: none; /* Remove o sublinhado */
+    color: inherit; /* Mantém a cor do texto conforme o estilo do botão */
+  }
+  </style>
+
 <body>
 
 
@@ -23,14 +32,36 @@
         <h2>Dados do cliente</h2>
         <p><strong>Nome: </strong> {{ cadastro.nome }}</p>
         <p><strong>CPF: </strong> {{ cadastro.cpf }}</p>
+        
         {% if cadastro.rg %}
         <p><strong>RG: </strong> {{ cadastro.rg }}</p>
   {% endif %}
 
         <p><strong>Data de Nascimento: </strong> {{ cadastro.data_nascimento }}</p>
         <p><strong>Idade: </strong> {{ cadastro.idade }}</p>
+      
+        {% if cadastro.email1 %}
+            <p><strong>E-mail 1: </strong> {{ cadastro.email1 }}</p>
+         {% endif %}
+
+         {% if cadastro.email2 %}
+            <p><strong>E-mail 2: </strong> {{ cadastro.email2 }}</p>
+         {% endif %}
+      
+      
         <p><strong>Sexo: </strong> {{ cadastro.get_sexo_display  }}</p>
-        <p><strong>Celular : </strong> {{ cadastro.celular }}</p>
+       
+        {% if cadastro.telefone1 %}
+            <p><strong>Telefone 1: </strong> {{ cadastro.telefone1 }}</p>
+         {% endif %}
+
+        {% if cadastro.telefone2 %}
+            <p><strong>Telefone 2: </strong> {{ cadastro.telefone2 }}</p>
+         {% endif %}
+       
+         {% if cadastro.celular %}
+        <p><strong>Telefone 3 : </strong> {{ cadastro.celular }}</p>
+        {% endif %}
 
 
        {% if cadastro.num_passaporte %}
@@ -87,7 +118,9 @@
 
         </div>
 
-    <button class="btnvoltar"><a href="{% url 'ListagemCliente' %}">Voltar</a></button>
+        <a href="{% url 'ListagemCliente' %}"><button class="btnvoltar">Voltar</button></a>
+
+
 {% endfor %}
 
 

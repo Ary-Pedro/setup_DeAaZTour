@@ -144,6 +144,7 @@ class UpdateView(LoginRequiredMixin, UpdateView):
             initial["cep_cliente"] = venda.cliente.cep
             initial["bairro_cliente"] = venda.cliente.bairro
             initial["estado_cliente"] = venda.cliente.estado
+
         if venda.tipo_servico:
             initial["tipo_servico"] = venda.tipo_servico
             if venda.tipo_servico == "Outros":
@@ -195,8 +196,16 @@ class UpdateView(LoginRequiredMixin, UpdateView):
                 form.instance.cliente = cliente
                 form.instance.vendedor = self.request.user
 
+
                 tipo_servico = self.request.POST.get("tipo_servico")
                 form.instance.tipo_servico = tipo_servico
+
+
+                if tipo_servico == "Outros":
+                   form.instance.tipo_servico_outros = self.request.POST.get("tipo_servico_outros")
+                else:
+                   form.instance.tipo_servico_outros = None
+
 
                 # Lógica condicional para "Passaporte"
                 if tipo_servico == "Passaporte":
