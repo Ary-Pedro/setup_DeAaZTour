@@ -209,6 +209,14 @@ main {
    .welcome-message {
        color: #63833d;
    }
+
+   #finalAdm{
+    margin-top: 16vh; 
+   }
+
+   #finalExe{
+    margin-top: 68vh; 
+   }
 </style>
 
 
@@ -323,9 +331,19 @@ main {
        </li>       
          {% endif %}
            {% endif %}
-           <!--ATUALIZAR NO CSS--->
-           <br><br><br><br><br><br><br><br>
-           <li><a href="{% url 'atualizar_perfil' user.pk %}"> ATUALIZAR PERFIL </a></li>
+           <!--ATUALIZAR NO CSS-->
+
+           {% if user is not None %}
+        {% if 'Adm' in user.departamento or 'Func' in user.departamento%}
+           <li id="finalAdm"><a href="{% url 'atualizar_perfil' user.pk %}"> ATUALIZAR PERFIL </a></li>
+           {% endif %}
+           {% endif %}
+
+           {% if user is not None %}
+           {% if 'Exe' in user.departamento%}
+              <li id="finalExe"><a href="{% url 'atualizar_perfil' user.pk %}"> ATUALIZAR PERFIL </a></li>
+              {% endif %}
+              {% endif %}
    </ul>
    
 
