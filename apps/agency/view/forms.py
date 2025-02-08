@@ -35,15 +35,29 @@ class AgenciaForm(forms.ModelForm):
     telefone3 = forms.CharField(
         label="Telefone 3",
         required=False,  # Adicione esta linha
+=======
+        label="Telefone 1",required=False,
+        widget=forms.TextInput(attrs={"placeholder": "Para customizar use '+' no início"})
+    )
+    telefone2 = forms.CharField(
+        label="Telefone 2",required=False,
+        widget=forms.TextInput(attrs={"placeholder": "Para customizar use '+' no início"})
+    )
+    telefone3 = forms.CharField(
+        label="Telefone 3",required=False,
+>>>>>>> Stashed changes
         widget=forms.TextInput(attrs={"placeholder": "Para customizar use '+' no início"})
     )
     contato_ano = forms.CharField(
+        label="Contato Ano",required=False,
         widget=forms.TextInput(attrs={"placeholder": "Preencha apenas com números, a formatação será automática"})
     )
     cnpj = forms.CharField(
+        label="CNPJ",required=False,
         widget=forms.TextInput(attrs={"placeholder": "Preencha apenas com números, a formatação será automática"})
     )
     cep = forms.CharField(
+        label="CEP",required=False,
         widget=forms.TextInput(attrs={"placeholder": "Preencha apenas com números, a formatação será automática"})
     )
 
@@ -86,21 +100,27 @@ class AgenciaForm(forms.ModelForm):
     
 class AtualizarForm(forms.ModelForm):
     telefone1 = forms.CharField(
+        label="Telefone 1",required=False,
         widget=forms.TextInput(attrs={"placeholder": "Para customizar use '+' no início"})
     )
     telefone2 = forms.CharField(
+        label="Telefone 2",required=False,
         widget=forms.TextInput(attrs={"placeholder": "Para customizar use '+' no início"})
     )
     telefone3 = forms.CharField(
+        label="Telefone 3",required=False,
         widget=forms.TextInput(attrs={"placeholder": "Para customizar use '+' no início"})
     )
     contato_ano = forms.CharField(
+        label="Contato Ano",required=False,
         widget=forms.TextInput(attrs={"placeholder": "Preencha apenas com números, a formatação será automática"})
     )
     cnpj = forms.CharField(
+        label="CNPJ",required=False,
         widget=forms.TextInput(attrs={"placeholder": "Preencha apenas com números, a formatação será automática"})
     )
     cep = forms.CharField(
+        label="CEP",required=False,
         widget=forms.TextInput(attrs={"placeholder": "Preencha apenas com números, a formatação será automática"})
     )
 
