@@ -60,7 +60,7 @@
                             <td>{{ todo.situacaoMensal }}</td>
                             <td>{{ todo.duracao_venda }}</td>
                             <td>
-                                {% if user.departamento == 'Vend' and todo.vendedor.id == user.id %}
+                                {% if todo.vendedor.id == user.id %}
                                     <a href="{% url 'venda_complete' todo.pk %}?page={{ page_obj.number }}" class="btn btn-primary btn-sm {% if todo.finished_at %}disabled{% endif %}">
                                         <img src="{% static 'imagens/check.svg' %}" alt="Concluir" style="height: 15px; width: 15px;"> Concluir
                                     </a>

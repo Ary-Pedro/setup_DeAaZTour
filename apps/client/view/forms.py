@@ -86,12 +86,7 @@ class ClienteForm(forms.ModelForm):
                 raise ValidationError("e-mail 1: Este e-mail já está registrado.")
             return email1
 
-    def clean_email2(self):
-        email2 = self.cleaned_data.get("email2")
-        if Cliente.objects.filter(email1=email2).exists() or \
-        Cliente.objects.filter(email2=email2).exists():
-            raise ValidationError("e-mail 2: Este e-mail já está registrado.")
-        return email2
+   
 
 class AtualizarForm(forms.ModelForm):
     telefone1 = forms.CharField(
@@ -151,16 +146,6 @@ class AtualizarForm(forms.ModelForm):
             validar_cpf(cpf)
             return cpf
 
-    def clean_email1(self):
-            email1 = self.cleaned_data.get("email1")
-            if Cliente.objects.filter(email1=email1).exists() or \
-            Cliente.objects.filter(email2=email1).exists():
-                raise ValidationError("e-mail 1: Este e-mail já está registrado.")
-            return email1
+   
 
-    def clean_email2(self):
-        email2 = self.cleaned_data.get("email2")
-        if Cliente.objects.filter(email1=email2).exists() or \
-        Cliente.objects.filter(email2=email2).exists():
-            raise ValidationError("e-mail 2: Este e-mail já está registrado.")
-        return email2
+    

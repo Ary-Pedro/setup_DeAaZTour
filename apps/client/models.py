@@ -31,7 +31,7 @@ class Cliente(models.Model):
         verbose_name="telefone 3",
     )
     email1 = models.EmailField(unique=True,null=True, blank=True, verbose_name="e-mail 1", max_length=255)
-    email2 = models.EmailField(null=True, blank=True, verbose_name="e-mail 2", max_length=255)
+    email2 = models.EmailField(unique=True, null=True, blank=True, verbose_name="e-mail 2", max_length=255)
     
     sexo_tipo = (("M", "Masculino"), ("F", "Feminino"))
     sexo = models.CharField(max_length=1, choices=sexo_tipo, verbose_name="Sexo")

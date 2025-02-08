@@ -22,7 +22,6 @@ def validar_cnpj(cnpj):
 
 class AgenciaForm(forms.ModelForm):
     telefone1 = forms.CharField(
-<<<<<<< Updated upstream
         label="Telefone 1",
         required=False,  # Adicione esta linha
         widget=forms.TextInput(attrs={"placeholder": "Para customizar use '+' no início"})
@@ -35,17 +34,6 @@ class AgenciaForm(forms.ModelForm):
     telefone3 = forms.CharField(
         label="Telefone 3",
         required=False,  # Adicione esta linha
-=======
-        label="Telefone 1",required=False,
-        widget=forms.TextInput(attrs={"placeholder": "Para customizar use '+' no início"})
-    )
-    telefone2 = forms.CharField(
-        label="Telefone 2",required=False,
-        widget=forms.TextInput(attrs={"placeholder": "Para customizar use '+' no início"})
-    )
-    telefone3 = forms.CharField(
-        label="Telefone 3",required=False,
->>>>>>> Stashed changes
         widget=forms.TextInput(attrs={"placeholder": "Para customizar use '+' no início"})
     )
     contato_ano = forms.CharField(
