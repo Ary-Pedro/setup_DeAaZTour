@@ -27,7 +27,8 @@ class Cliente(models.Model):
     celular = models.CharField(
         max_length=15,
         null=True,
-        verbose_name="celular",
+        blank=True, 
+        verbose_name="telefone 3",
     )
     email1 = models.EmailField(unique=True,null=True, blank=True, verbose_name="e-mail 1", max_length=255)
     email2 = models.EmailField(unique=True, null=True, blank=True, verbose_name="e-mail 2", max_length=255)
@@ -70,7 +71,7 @@ class Cliente(models.Model):
     )
 
 
-    rg = models.CharField(max_length=20, verbose_name="RG", null=False)
+    rg = models.CharField(max_length=20, verbose_name="RG",  null=True, blank=True)
 
     cpf = models.CharField(
         max_length=14,

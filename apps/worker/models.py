@@ -39,7 +39,7 @@ class Funcionario(AbstractUser):
     salario = models.FloatField(default=0, verbose_name="salário total",editable=False)
     comissao_acumulada = models.FloatField(default=0, verbose_name="comissão acumulada")
     telefone = models.CharField(max_length=20, null=True, blank=True,help_text="Apenas digite os números; este campo possui autoformatação")
-    endereço = models.CharField(max_length=255, null=True, blank=True)
+    endereco = models.CharField(max_length=255, null=True, blank=True, verbose_name="Endereço")
     cidade = models.CharField(max_length=255, null=True, blank=True)
     complemento = models.CharField(max_length=255, null=True, blank=True)
     data_nascimento = models.DateField(verbose_name="Data de nascimento", null=True, blank=True,help_text="Apenas digite os números; este campo possui autoformatação")

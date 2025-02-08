@@ -40,6 +40,7 @@
                     <th>Telefone</th>
                     <th>Cargo</th>
                     <th>Comissão</th>
+                    <th>Salário c/ comissão</th>
                     <th>Situação</th>
                     <th>Ações</th>
                 </tr>
@@ -53,6 +54,7 @@
                         <td>{{ cadastro.telefone }}</td>
                         <td>{{ cadastro.departamento }}</td>
                         <td>{{ cadastro.comissao_acumulada }}</td>
+                        <td>{{ cadastro.salario }}</td>
                         <td>{{ cadastro.departamento_empresa }}</td>
                         <td>
                             <a href="{% url 'funcionario_atualizar' pk=cadastro.pk %}" class="btn btn-secondary btn-sm {% if cadastro.finished_at %}disabled{% endif %}">

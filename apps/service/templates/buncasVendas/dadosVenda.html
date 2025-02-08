@@ -7,6 +7,16 @@
     <title>Title</title>
     <link href="{% static 'global/css/buscasFuncionario/dados_print.css' %}" rel="stylesheet" type="text/css"/>
 </head>
+
+
+<style>
+
+    a {
+      text-decoration: none; /* Remove o sublinhado */
+      color: inherit; /* Mantém a cor do texto conforme o estilo do botão */
+    }
+    </style>
+
 <body>
 
 
@@ -83,8 +93,8 @@
 
 
     </div>
+    <a href="{% url 'ListagemVenda' %}"><button class="btnvoltar">Voltar</button></a>
 
-    <button class="btnvoltar"><a href="{% url 'ListagemVenda' %}">Voltar</a></button>
 {% endfor %}
 
 

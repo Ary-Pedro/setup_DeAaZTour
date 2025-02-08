@@ -102,6 +102,7 @@ class Venda(models.Model):
         verbose_name="Tipo de venda",
         help_text="Digite o tido de serviço aqui.",
     )
+    
 
     tipo_pagamento = models.CharField(
         max_length=50,

@@ -23,7 +23,9 @@
             </form>
         </div>
     </div>
-
+    <div id="caixa">
+        <h2 id="infosPesquisa">Você pode pesquisar pelo nome do funcionário.</h2>   
+  </div>
     <div class="d-flex justify-content-end mb-3">
         <button id="toggleStatusBtn" class="btn btn-secondary">DESLIGADOS</button>
     </div>
@@ -39,6 +41,7 @@
                         <th>Telefone</th>
                         <th>Departamento</th>
                         <th>Comissão</th>
+                        <th>Salário c/ comissão</th>
                         <th>Situação</th>
                         <th>Ações</th>
                     </tr>
@@ -52,6 +55,7 @@
                         <td>{{ funcionario.telefone }}</td>
                         <td>{{ funcionario.departamento }}</td>
                         <td>{{ funcionario.comissao_acumulada }}</td>
+                        <td>{{ funcionario.salario }}</td>
                         <td class="status-cell">{{ funcionario.atividade }}</td>
                         <td class="botoestb">
                             <a href="{% url 'funcionario_atualizar' pk=funcionario.pk %}" class="btn btn-secondary btn-sm {% if funcionario.atividade == 'Inativo' %}disabled{% endif %}">
