@@ -95,23 +95,23 @@ class ClienteForm(forms.ModelForm):
 
 class AtualizarForm(forms.ModelForm):
     telefone1 = forms.CharField(
-    label="Telefone 1",
+    label="Telefone 1",required=False,
     widget=forms.TextInput(attrs={"placeholder": "Para customizar use '+' no início"})
     )
     telefone2 = forms.CharField(
-    label="Telefone 2",
+    label="Telefone 2",required=False,
     widget=forms.TextInput(attrs={"placeholder": "Para customizar use '+' no início"})
     )
     data_nascimento = forms.DateField(
-    label="data_nascimento",
+    label="data_nascimento",required=False,
     widget=forms.TextInput(attrs={"placeholder": "Preencha apenas com números, a formatação será automática"})
     )
     cpf = forms.CharField(
-    label="cpf",
+    label="cpf",required=False,
     widget=forms.TextInput(attrs={"placeholder": "Preencha apenas com números, a formatação será automática"})
     )
     cep = forms.CharField(
-    label="CEP",
+    label="CEP",required=False,
     widget=forms.TextInput(attrs={"placeholder": "Preencha apenas com números, a formatação será automática"})
     )
 

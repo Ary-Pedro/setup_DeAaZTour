@@ -22,6 +22,7 @@ def validar_cnpj(cnpj):
 
 class AgenciaForm(forms.ModelForm):
     telefone1 = forms.CharField(
+<<<<<<< Updated upstream
         label="Telefone 1",
         required=False,  # Adicione esta linha
         widget=forms.TextInput(attrs={"placeholder": "Para customizar use '+' no início"})
@@ -37,15 +38,12 @@ class AgenciaForm(forms.ModelForm):
         widget=forms.TextInput(attrs={"placeholder": "Para customizar use '+' no início"})
     )
     contato_ano = forms.CharField(
-        label="Contato Ano",
         widget=forms.TextInput(attrs={"placeholder": "Preencha apenas com números, a formatação será automática"})
     )
     cnpj = forms.CharField(
-        label="CNPJ",
         widget=forms.TextInput(attrs={"placeholder": "Preencha apenas com números, a formatação será automática"})
     )
     cep = forms.CharField(
-        label="CEP",
         widget=forms.TextInput(attrs={"placeholder": "Preencha apenas com números, a formatação será automática"})
     )
 
@@ -88,27 +86,21 @@ class AgenciaForm(forms.ModelForm):
     
 class AtualizarForm(forms.ModelForm):
     telefone1 = forms.CharField(
-        label="Telefone 1",
         widget=forms.TextInput(attrs={"placeholder": "Para customizar use '+' no início"})
     )
     telefone2 = forms.CharField(
-        label="Telefone 2",
         widget=forms.TextInput(attrs={"placeholder": "Para customizar use '+' no início"})
     )
     telefone3 = forms.CharField(
-        label="Telefone 3",
         widget=forms.TextInput(attrs={"placeholder": "Para customizar use '+' no início"})
     )
     contato_ano = forms.CharField(
-        label="Contato Ano",
         widget=forms.TextInput(attrs={"placeholder": "Preencha apenas com números, a formatação será automática"})
     )
     cnpj = forms.CharField(
-        label="CNPJ",
         widget=forms.TextInput(attrs={"placeholder": "Preencha apenas com números, a formatação será automática"})
     )
     cep = forms.CharField(
-        label="CEP",
         widget=forms.TextInput(attrs={"placeholder": "Preencha apenas com números, a formatação será automática"})
     )
 
