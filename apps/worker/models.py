@@ -119,7 +119,11 @@ class Funcionario(AbstractUser):
         # Manipulação do campo is_active de acordo com a atividade
         self.is_active = self.atividade != "Inativo"
 
+        self.salario = (self.Sub_salario_fixo or 0) + (self.comissao_acumulada or 0)
+
         super().save(*args, **kwargs)
+
+
     def __str__(self):
         return self.nome
 
