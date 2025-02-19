@@ -47,9 +47,14 @@
                             <a href="{% url 'cliente_atualizar' pk=todo.pk %}" class="btn btn-secondary btn-sm">
                                 <img src="{% static 'imagens/edit.svg' %}" alt="Editar" style="height: 15px; width: 15px;"> Editar
                             </a>
+
+                            {% if user is not None %}
+                            {% if 'Adm' in user.departamento%}
                             <a href="{% url 'cliente_deletar' pk=todo.pk %}" class="btn btn-danger btn-sm">
                                 <img src="{% static 'imagens/delete.svg' %}" alt="Excluir" style="height: 15px; width: 15px;"> Excluir
                             </a>
+                            {% endif %}
+                            {% endif %}
                         </td>
                     </tr>
                 {% endfor %}

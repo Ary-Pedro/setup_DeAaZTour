@@ -183,3 +183,13 @@ def atualizar_comissao_acumulada(sender, instance, **kwargs):
         for adm in administradores:
             adm.comissao_acumulada = comissao_adm
             adm.save()
+
+
+class Anexo(models.Model):
+    arquivo = models.FileField(upload_to='anexos/')
+    venda = models.ForeignKey('Venda', related_name='anexos', on_delete=models.CASCADE)
+    data_upload = models.DateTimeField(auto_now_add=True)
+
+
+    def __str__(self):
+        return self.arquivo.name

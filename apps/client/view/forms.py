@@ -1,5 +1,6 @@
 from django import forms
-from apps.client.models import Cliente
+from apps.client.widgets import MultipleFileField
+from apps.client.models import Cliente, Anexo
 from django.core.exceptions import ValidationError
 import re
 
@@ -18,6 +19,11 @@ def validar_cpf(cpf):
 
 
 class ClienteForm(forms.ModelForm):
+    arquivos = MultipleFileField(
+        required=False,
+        label="Anexos",
+        help_text="Selecione um ou mais arquivos para anexar."
+    )
     telefone1 = forms.CharField(
     label="Telefone 1",
     required=False,  # Adicione esta linha
@@ -41,8 +47,10 @@ class ClienteForm(forms.ModelForm):
     label="CEP",
     required=False,  # Adicione esta linha
 
+
     widget=forms.TextInput(attrs={"placeholder": "Preencha apenas com números, a formatação será automática"})
     )
+
 
     class Meta:
         model = Cliente
@@ -63,21 +71,30 @@ class ClienteForm(forms.ModelForm):
             "cpf",
             "num_passaporte",
             "cep",
-            "anexo1",
-            "anexo2",
-            "anexo3",
+            'arquivos'
         ]
 
+
+   
+    def save(self, commit=True):
+     cliente = super().save(commit=commit)
+
+
+     return cliente
+   
+   
     def clean_nome(self):
         nome = self.cleaned_data.get("nome")
         if any(char.isdigit() for char in nome):
             raise ValidationError("O nome não pode conter números.")
         return nome
 
+
     def clean_cpf(self):
             cpf = self.cleaned_data.get("cpf")
             validar_cpf(cpf)
             return cpf
+
 
     def clean_email1(self):
             email1 = self.cleaned_data.get("email1")
@@ -86,9 +103,15 @@ class ClienteForm(forms.ModelForm):
                 raise ValidationError("e-mail 1: Este e-mail já está registrado.")
             return email1
 
+
    
 
 class AtualizarForm(forms.ModelForm):
+    arquivos = MultipleFileField(
+        required=False,
+        label="Anexos",
+        help_text="Selecione um ou mais arquivos para anexar."
+    )
     telefone1 = forms.CharField(
     label="Telefone 1",required=False,
     widget=forms.TextInput(attrs={"placeholder": "Para customizar use '+' no início"})
@@ -130,10 +153,19 @@ class AtualizarForm(forms.ModelForm):
             "cpf",
             "num_passaporte",
             "cep",
-            "anexo1",
-            "anexo2",
-            "anexo3",
+            'arquivos'
         ]
+
+    def save(self, commit=True):
+        cliente = super().save(commit=commit)
+
+        # Atualizar arquivos anexados
+        arquivos = self.files.getlist('arquivos')
+        for arquivo in arquivos:
+            if not Anexo.objects.filter(cliente=cliente, arquivo=arquivo.name).exists():
+                Anexo.objects.create(arquivo=arquivo, cliente=cliente)
+
+        return cliente
 
     def clean_nome(self):
         nome = self.cleaned_data.get("nome")

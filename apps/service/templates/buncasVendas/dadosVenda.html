@@ -66,6 +66,21 @@
             <p><strong>Finalizado em: </strong> {{ cadastro.finished_at }}</p>
         {% endif %}
 
+        
+        <h2>Anexos</h2>
+        {% if cadastro.anexos.all %}
+           
+                {% for anexo in cadastro.anexos.all %}
+                   
+                        <a href="{{ anexo.arquivo.url }}" target="_blank">{{ anexo.arquivo.name }}</a>
+                   <br>
+                {% endfor %}
+           
+        {% else %}
+            <p>Não há anexos disponíveis.</p>
+        {% endif %}
+        
+    
         <h2>Dados do Cliente</h2>
         <p><strong>ID: </strong> {{ cadastro.cliente.id }}</p>
         <p><strong>Cliente: </strong> {{ cadastro.cliente }}</p>
@@ -90,6 +105,8 @@
         {% if cadastro.estado %}
             <p><strong>Estado: </strong> {{ cadastro.estado }}</p>
         {% endif %}
+
+
 
 
     </div>
