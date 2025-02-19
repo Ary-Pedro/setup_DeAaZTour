@@ -4,7 +4,7 @@ from django.contrib.auth.mixins import LoginRequiredMixin
 
 # INFO: funções uso geral
 from django.db.models import Q, Sum
-from apps.service.models import Venda
+from apps.service.models import Venda, Anexo
 from apps.client.models import Cliente
 from apps.worker.models import Funcionario
 from django.views.generic import TemplateView
@@ -28,6 +28,9 @@ from django.db.models import Count
 
 from django.shortcuts import render
 
+from .forms import VendaForm
+
+
 
 # INFO: Venda  --------------------------------------------------------------------------------------------------------
 
@@ -35,9 +38,24 @@ from django.shortcuts import render
 class CadVendas(LoginRequiredMixin, CreateView):
     login_url = "log"  # URL para redirecionar para login
     model = Venda
-    fields = ["vendedor", "valor", "tipo_pagamento", "situacaoMensal"]
+    form_class = VendaForm  # Defina a classe do formulário aqui
     template_name = "service/Vendas_form.html"
     success_url = reverse_lazy("home")
+
+
+    def form_valid(self, form):
+        # Salva o cliente primeiro
+        response = super().form_valid(form)
+
+
+        # Obtém os arquivos enviados
+        arquivos = self.request.FILES.getlist('arquivos')
+
+
+        # Cria um anexo para cada arquivo enviado e associa ao cliente
+        for arquivo in arquivos:
+            Anexo.objects.create(arquivo=arquivo, venda=self.object)
+    
 
     def get_initial(self):
         initial = super().get_initial()

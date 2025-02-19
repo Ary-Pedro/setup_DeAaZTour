@@ -34,7 +34,8 @@ document.addEventListener('DOMContentLoaded', function() {
         var situacao = situacaoField.value;
 
         if (situacao === "Adm") {
-            cargoField.innerHTML = '<option value="Financeiro">Financeiro</option>';
+            cargoField.innerHTML = '<option value="Financeiro">Financeiro</option>' +
+            '<option value="Diretor(a)">Diretor(a)</option>'
         } else if (situacao === "Exec") {
             cargoField.innerHTML = '<option value="Executivo contas">Executivo contas</option>';
         } else if (situacao === "Vend") {

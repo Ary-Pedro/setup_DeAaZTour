@@ -58,9 +58,9 @@ class AtualizarForm(forms.ModelForm):
     class Meta:
         model = Funcionario
         fields = [
-            "first_name", "last_name", "email", "telefone", "departamento", 
+            "first_name", "last_name", "email", "telefone", 
             "Sub_salario_fixo", "telefone", "endereco", "cidade","complemento", "data_nascimento", 
-            "cpf", "atividade", "especializacao_funcao",
+            "cpf", "pix","departamento",  "especializacao_funcao","atividade"
         ]
 
     def clean_cpf(self):
@@ -75,7 +75,7 @@ class CompletarCadastro(forms.ModelForm):
 )
     class Meta:
         model = Funcionario
-        fields = [ "username", "first_name", "last_name", "email", "telefone", "endereco", "cidade", "complemento", "data_nascimento", "cpf",]
+        fields = [ "username", "first_name", "last_name", "email", "telefone", "endereco", "cidade", "complemento", "data_nascimento", "cpf","pix"]
 
     def clean_cpf(self):
         cpf = self.cleaned_data.get("cpf")

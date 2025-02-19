@@ -95,26 +95,19 @@
        {% endif %}
 
 
-
-          <h2>Anexos</h2>
-  {% if cadastro.anexo1 or cadastro.anexo2 or cadastro.anexo3 %}
-
-    {% if cadastro.anexo1 %}
-        <a href="{{ cadastro.anexo1.url }}" target="_blank">{{ cadastro.get_anexo1_nome }}</a>
-    {% endif %}
-
-      <br><br>
-      {% if cadastro.anexo2 %}
-        <a href="{{ cadastro.anexo2.url }}" target="_blank">{{ cadastro.get_anexo2_nome }}</a>
-      {% endif %}
-
-<br><br>
-     {% if cadastro.anexo3 %}
-        <a href="{{ cadastro.anexo3.url }}" target="_blank">{{ cadastro.get_anexo3_nome }}</a>
-    {% endif %}
-  {% else %}
-        <p>Não há anexos disponíveis.</p>
-{% endif %}
+       <h2>Anexos</h2>
+       {% if cadastro.anexos.all %}
+          
+               {% for anexo in cadastro.anexos.all %}
+                  
+                       <a href="{{ anexo.arquivo.url }}" target="_blank">{{ anexo.arquivo.name }}</a>
+                  <br>
+               {% endfor %}
+          
+       {% else %}
+           <p>Não há anexos disponíveis.</p>
+       {% endif %}
+       
 
         </div>
 

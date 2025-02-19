@@ -4,7 +4,7 @@ from django.contrib.auth.mixins import LoginRequiredMixin
 
 # INFO: funções uso geral
 from django.db.models import Q
-from apps.client.models import Cliente
+from apps.client.models import Cliente, Anexo
 
 # INFO: funções de endereçamento
 from django.http import Http404, HttpResponseRedirect, JsonResponse, HttpResponseRedirect
@@ -29,10 +29,23 @@ class CadCliente(LoginRequiredMixin, CreateView):
     template_name = "client/Cliente_form.html"
     success_url = reverse_lazy("home")
 
+
     def form_valid(self, form):
+        # Salva o cliente primeiro
         response = super().form_valid(form)
-       
+
+
+        # Obtém os arquivos enviados
+        arquivos = self.request.FILES.getlist('arquivos')
+
+
+        # Cria um anexo para cada arquivo enviado e associa ao cliente
+        for arquivo in arquivos:
+            Anexo.objects.create(arquivo=arquivo, cliente=self.object)
+
+
         return response
+
 
 
 # INFO: Cliente - listar

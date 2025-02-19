@@ -157,5 +157,13 @@ def pre_save_cliente(sender, instance, **kwargs):
 
 
 
+class Anexo(models.Model):
+    arquivo = models.FileField(upload_to='anexos/')
+    cliente = models.ForeignKey('Cliente', related_name='anexos', on_delete=models.CASCADE)
+    data_upload = models.DateTimeField(auto_now_add=True)
+
+
+    def __str__(self):
+        return self.arquivo.name
 
 

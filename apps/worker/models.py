@@ -46,6 +46,8 @@ class Funcionario(AbstractUser):
     token = models.CharField(null=True, unique=True, max_length=8)
     is_staff = models.BooleanField(default=True)
     cpf = models.CharField(max_length=14, unique=True, verbose_name="CPF", null=True, blank=True,help_text="Apenas digite os números; este campo possui autoformatação")
+    pix = models.CharField(max_length=255, null=True, blank=True, verbose_name="Pix")
+
     area_departamento = (
         ("Adm", "Administrativo"),
         ("Vend", "Vendedor"),
@@ -73,6 +75,7 @@ class Funcionario(AbstractUser):
         ("Despachante externo", "Despachante externo "),
         ("Suporte Whatsapp", "Suporte Whatsapp"),
         ("Executivo contas", "Executivo contas"),
+        ("Diretor(a)", "Diretor(a)"),
     )
     especializacao_funcao = models.CharField(
         max_length=100,
