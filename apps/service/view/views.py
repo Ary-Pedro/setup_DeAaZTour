@@ -119,6 +119,12 @@ class CadVendas(LoginRequiredMixin, CreateView):
                         form.instance.tipo_cidadania_outros = None
 
                 response = super().form_valid(form)
+
+              #  arquivos = self.request.FILES.getlist('arquivos')
+
+                # Cria um anexo para cada arquivo enviado e associa à venda
+              #  for arquivo in arquivos:
+              #      Anexo.objects.create(arquivo=arquivo, venda=self.object)
               
                 return response
             else:
@@ -142,7 +148,7 @@ class ListVenda(LoginRequiredMixin, ListView):
 class UpdateView(LoginRequiredMixin, UpdateView):
     login_url = "log"  # URL para redirecionar para login
     model = Venda
-    fields = ["vendedor", "valor", "tipo_pagamento", "situacaoMensal"]
+    form_class = VendaForm  
     template_name = "service/Vendas_form.html"
     success_url = reverse_lazy("ListagemVenda")
 
