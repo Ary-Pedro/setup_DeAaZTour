@@ -15,5 +15,8 @@ urlpatterns = [
     #remover
 
     path(f"btn-complete/cliente/-<int:pk>", views.Validar.as_view(), name="cliente_complete"),
+
+    path('excluir-anexo/<int:anexo_id>/', views.excluir_anexo, name='excluir_anexo'),
+
     # -------------------------------------------------------------------------------------------------------------------
 ]

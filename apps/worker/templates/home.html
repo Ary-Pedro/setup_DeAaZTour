@@ -244,8 +244,11 @@ main {
        {% if 'Adm' in user.departamento %}
        <li><a href="{% url 'rank' %}">Ranking</a></li>
        <li><a href="{% url 'ListagemFuncionario' %}">Lista Funcionários</a></li>
+       <li><a href="{% url 'contas' %}">Fluxo de caixa</a></li>
+
            {% endif %}
        {% endif %}
+
        {% if user is not None %}
         {% if 'Exec' in user.departamento %}
        <li><a href="{% url 'Agencia' %}">Cadastrar Agência</a></li>

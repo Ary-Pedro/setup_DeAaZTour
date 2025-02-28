@@ -1,7 +1,30 @@
 from django import forms
 from phonenumber_field.formfields import PhoneNumberField
 from django.core.exceptions import ValidationError
-from apps.worker.models import Funcionario  # Use o modelo de usuário personalizado
+from apps.worker.models import Funcionario, ContasMensal  # Use o modelo de usuário personalizado
+
+
+
+class ContasForm(forms.ModelForm):
+
+
+    class Meta:
+        model = ContasMensal
+        fields = [
+            "entrada",
+            "saida",
+            "observacao"
+        ]
+
+
+    def save(self, commit=True):
+     contas = super().save(commit=commit)
+
+
+     return contas
+   
+   
+
 
 
 def validar_cpf(cpf):

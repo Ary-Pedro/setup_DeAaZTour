@@ -39,6 +39,19 @@ urlpatterns = [
         views.salvar_csvClientes,
         name="salvarCliente",
     ),
+
+
+    path(
+        "export-csv-contas/",
+        views.salvar_csvContas,
+        name="salvarContas",
+    ),
+
+    path(f"resumoMensal/", views.contas.as_view() , name="contas"),
+
+    path('resetar-contas/', views.resetar_contas, name='resetar_contas'),
+
+
 ]
 
 if settings.DEBUG:
