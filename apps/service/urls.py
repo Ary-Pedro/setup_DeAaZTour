@@ -11,6 +11,8 @@ urlpatterns = [
     path(f"buscar/", views.Procurar.as_view(), name="procurarVenda"),
     path('buscar/dados/<int:dados_id>/', views.DadosCadastros.as_view(), name='dadosVenda'),
     path(f"btn-complete/venda/-<int:pk>", views.Validar.as_view(), name="venda_complete"),
+    path('excluir-anexo/<int:anexo_id>/', views.excluir_anexo, name='excluir_anexo'),
+
 
     # -------------------------------------------------------------------------------------------------------------------
 

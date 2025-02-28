@@ -5,6 +5,7 @@ from django.dispatch import receiver
 from django.db.models.signals import pre_save
 from django.contrib.auth.models import Group, Permission, AbstractUser, BaseUserManager
 from django.core.exceptions import ValidationError
+from django.db.models import Sum
 
 
 class CustomUserManager(BaseUserManager):
@@ -160,4 +161,19 @@ class Funcionario(AbstractUser):
 @receiver(pre_save, sender=Funcionario)
 def update_nome(sender, instance, **kwargs):
     instance.nome = f"{instance.first_name} {instance.last_name}"
+
+
+
+
+class ContasMensal(models.Model):
+    observacao = models.CharField(max_length=500, null=True, blank=True, verbose_name="Observação")
+    entrada = models.FloatField(null=True, blank=True, default=0)
+    saida = models.FloatField(null=True, blank=True, default=0)
+    created_at = models.DateTimeField(auto_now_add=True)
+
+    @staticmethod
+    def calcular_saldo():
+        total_entrada = ContasMensal.objects.aggregate(Sum('entrada'))['entrada__sum'] or 0
+        total_saida = ContasMensal.objects.aggregate(Sum('saida'))['saida__sum'] or 0
+        return total_entrada - total_saida
 

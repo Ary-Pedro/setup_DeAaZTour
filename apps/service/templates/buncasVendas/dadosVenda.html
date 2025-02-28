@@ -73,6 +73,12 @@
                 {% for anexo in cadastro.anexos.all %}
                    
                         <a href="{{ anexo.arquivo.url }}" target="_blank">{{ anexo.arquivo.name }}</a>
+
+                        <form action="{% url 'excluir_anexo' anexo.id %}" method="POST" style="display:inline;">
+                            {% csrf_token %}
+                            <button type="submit" onclick="return confirm('Tem certeza que deseja excluir este anexo?');">Excluir</button>
+                        </form>
+                        
                    <br>
                 {% endfor %}
            

@@ -10,7 +10,7 @@ from django.core.mail import send_mail
 import uuid
 from django.urls import reverse_lazy
 from .forms import RegisterForm
-from apps.worker.models import Funcionario
+from apps.worker.models import Funcionario, ContasMensal
 from setup_DeAaZTour import settings
 from apps.client.models import Cliente
 from apps.service.models import Venda
@@ -26,9 +26,62 @@ from .forms import AtualizarForm, CompletarCadastro
 from django.utils.timezone import now
 from dateutil.relativedelta import relativedelta  # Usando relativedelta para manipulação de meses
 from django.db.models import Count
+from .forms import ContasForm
 
 User = get_user_model()
 
+
+def salvar_csvContas(request):
+    response = HttpResponse(content_type="text/csv")
+    response["Content-Disposition"] = (
+        "attachment; filename=dadosClientes_" + str(datetime.datetime.now()) + ".csv"
+    )
+
+    writer = csv.writer(response)
+    writer.writerow(
+        [
+            "Data",
+            "Observação",
+            "Entrada",
+            "Saída",
+         
+        ]
+    )  # Cabeçalho do CSV
+
+   
+    contas = ContasMensal.objects.all()
+
+    for contas in contas:
+       
+        writer.writerow(
+            [
+                contas.created_at.strftime("%d/%m/%Y") if contas.created_at else "Sem Data",
+                contas.observacao if contas.observacao else "Sem observação",
+                contas.entrada,
+                contas.saida,
+            
+                 
+            ]
+        )
+    return response
+
+
+class contas(LoginRequiredMixin, CreateView): 
+    model = ContasMensal
+    form_class = ContasForm  # Defina a classe do formulário aqui
+    template_name = "contas/contas.html"
+    success_url = reverse_lazy("contas")
+    
+
+    def get_context_data(self, **kwargs):
+        context = super().get_context_data(**kwargs)
+        context["saldo_total"] = ContasMensal.calcular_saldo()
+        context["contas"] = ContasMensal.objects.all()  # Para listar todas as entradas e saídas
+        return context
+     
+def resetar_contas(request):
+    ContasMensal.objects.all().delete()
+    return redirect("contas") 
 
 # IDEA: Dados Cadastrais ----------------------------------------------------------------------------------------------------
 # INFO: Campo de login da conta

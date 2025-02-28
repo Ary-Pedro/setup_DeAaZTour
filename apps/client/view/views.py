@@ -7,8 +7,9 @@ from django.db.models import Q
 from apps.client.models import Cliente, Anexo
 
 # INFO: funções de endereçamento
-from django.http import Http404, HttpResponseRedirect, JsonResponse, HttpResponseRedirect
+from django.http import Http404, HttpResponseRedirect, JsonResponse
 from django.urls import reverse_lazy, reverse
+from django.shortcuts import redirect, get_object_or_404
 
 # INFO: funções de direcionar e configurar
 from django.shortcuts import get_object_or_404
@@ -19,6 +20,12 @@ from django import forms
 
 from django.shortcuts import render
 from .forms import ClienteForm, AtualizarForm
+
+
+def excluir_anexo(request, anexo_id):
+    anexo = get_object_or_404(Anexo, id=anexo_id)
+    anexo.delete()
+    return redirect(request.META.get("HTTP_REFERER", "ListagemCliente"))
 
 # INFO: Cliente --------------------------------------------------------------------------------------------------------
 # INFO: Cliente - Cadastrar

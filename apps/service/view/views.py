@@ -20,6 +20,7 @@ from django.shortcuts import get_object_or_404
 # INFO: funções uso geral
 from django.views.generic import CreateView, DeleteView, ListView, UpdateView, View
 from django import forms
+from django.shortcuts import redirect, get_object_or_404
 
 # INFO: Data
 from django.utils.timezone import now
@@ -31,6 +32,10 @@ from django.shortcuts import render
 from .forms import VendaForm
 
 
+def excluir_anexo(request, anexo_id):
+    anexo = get_object_or_404(Anexo, id=anexo_id)
+    anexo.delete()
+    return redirect(request.META.get("HTTP_REFERER", "ListagemCliente"))
 
 # INFO: Venda  --------------------------------------------------------------------------------------------------------
 
