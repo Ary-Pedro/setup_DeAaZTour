@@ -10,7 +10,7 @@ from django.core.mail import send_mail
 import uuid
 from django.urls import reverse_lazy
 from .forms import RegisterForm
-from apps.worker.models import Funcionario, ContasMensal
+from apps.worker.models import Funcionario, ContasMensal, FluxoMensal
 from setup_DeAaZTour import settings
 from apps.client.models import Cliente
 from apps.service.models import Venda
@@ -59,12 +59,11 @@ def salvar_csvContas(request):
                 contas.observacao if contas.observacao else "Sem observação",
                 contas.entrada,
                 contas.saida,
-            
-                 
+                  
+           
             ]
         )
     return response
-
 
 class contas(LoginRequiredMixin, CreateView): 
     model = ContasMensal
@@ -83,6 +82,36 @@ def resetar_contas(request):
     ContasMensal.objects.all().delete()
     return redirect("contas") 
 
+
+
+def concluir_fluxo_mensal(request):
+    total_entrada = ContasMensal.objects.aggregate(Sum('entrada'))['entrada__sum'] or 0
+    total_saida = ContasMensal.objects.aggregate(Sum('saida'))['saida__sum'] or 0
+    saldo_total = total_entrada - total_saida
+
+    # Criar um registro do fluxo mensal
+    fluxo = FluxoMensal.objects.create(
+        mes_referencia=now(),
+        saldo_total=saldo_total,
+        total_entrada=total_entrada,
+        total_saida=total_saida
+    )
+
+    # Limpar os registros após concluir o fluxo
+    ContasMensal.objects.all().delete()
+
+    return redirect('listagemFluxoMensal')  # Redirecionar para a página onde os fluxos são listados # Redireciona para a página de fluxos
+
+
+class ListarFluxosMensais(LoginRequiredMixin, ListView):
+    model = FluxoMensal
+    template_name = "contas/listagemFluxo.html"
+    context_object_name = "fluxos"
+
+class DetalhesFluxoMensal(LoginRequiredMixin, DetailView):
+    model = FluxoMensal
+    template_name = "contas/detalhesFluxo.html"
+    context_object_name = "fluxo"
 # IDEA: Dados Cadastrais ----------------------------------------------------------------------------------------------------
 # INFO: Campo de login da conta
 
