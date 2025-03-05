@@ -6,6 +6,8 @@ from django.db.models.signals import pre_save
 from django.contrib.auth.models import Group, Permission, AbstractUser, BaseUserManager
 from django.core.exceptions import ValidationError
 from django.db.models import Sum
+from django.utils.timezone import now
+from datetime import timedelta
 
 
 class CustomUserManager(BaseUserManager):
@@ -163,7 +165,14 @@ def update_nome(sender, instance, **kwargs):
     instance.nome = f"{instance.first_name} {instance.last_name}"
 
 
+class FluxoMensal(models.Model):
+    mes_referencia = models.DateField(default=now)  # Para armazenar o mês do fluxo
+    saldo_total = models.FloatField(default=0)
+    total_entrada = models.FloatField(default=0)
+    total_saida = models.FloatField(default=0)
 
+    def __str__(self):
+        return self.mes_referencia.strftime("%m/%Y")
 
 class ContasMensal(models.Model):
     observacao = models.CharField(max_length=500, null=True, blank=True, verbose_name="Observação")
@@ -176,4 +185,3 @@ class ContasMensal(models.Model):
         total_entrada = ContasMensal.objects.aggregate(Sum('entrada'))['entrada__sum'] or 0
         total_saida = ContasMensal.objects.aggregate(Sum('saida'))['saida__sum'] or 0
         return total_entrada - total_saida
-

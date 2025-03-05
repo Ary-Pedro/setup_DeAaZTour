@@ -27,7 +27,7 @@ urlpatterns = [
 
 
 
-    path('funcionario/ranking/', views.Rank.as_view(), name='rank'),
+    path('adm/ranking/', views.Rank.as_view(), name='rank'),
     path("export-csv-vendas/<str:periodo>/", views.salvar_csvVenda, name="salvarVenda"),
     path(
         "export-csv-vendas/<str:periodo>/<str:forma_pagamento>/",
@@ -47,11 +47,14 @@ urlpatterns = [
         name="salvarContas",
     ),
 
-    path(f"resumoMensal/", views.contas.as_view() , name="contas"),
+    path(f"fluxoMensal/", views.contas.as_view() , name="contas"),
 
     path('resetar-contas/', views.resetar_contas, name='resetar_contas'),
 
 
+    path("concluir_fluxo/", views.concluir_fluxo_mensal, name="concluir_fluxo"),
+    path("fluxos/", views.ListarFluxosMensais.as_view(), name="listagemFluxoMensal"),
+    path("fluxo/<int:pk>/",views.DetalhesFluxoMensal.as_view(), name="detalhesFluxo"),
 ]
 
 if settings.DEBUG:

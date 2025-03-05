@@ -64,8 +64,14 @@
             <button type="submit" class="btn btn-danger mt-3">Zerar Registros</button>
         </form>
 
-       
+      
         <a href="{% url 'salvarContas' %}" class="btn btn-success mt-3">Exportar para Excel</a>
+
+        <form action="{% url 'concluir_fluxo' %}" method="post" onsubmit="return confirm('Tem certeza que deseja concluir este mês?')">
+            {% csrf_token %}
+            <button type="submit" class="btn btn-warning mt-3">Concluir Fluxo Mensal</button>
+        </form>
+        
 
         <br><br>
 
