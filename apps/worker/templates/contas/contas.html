@@ -27,7 +27,7 @@
   <thead>
       <tr>
           <th>Data</th>
-          <th>Observação</th>
+          <th>Descrição</th>
           <th>Entrada (R$)</th>
           <th>Saída (R$)</th>
       </tr>
@@ -55,7 +55,7 @@
         <form class="form" action="{% url 'contas' %}" method="POST">
             {% csrf_token %}
             {{ form|crispy }}
-            <button type="submit" class="btn btn-primary">Salvar dados</button>
+            <button type="submit" class="btn btn-primary">Adicionar valor</button>
         </form>
 
 
@@ -65,11 +65,10 @@
         </form>
 
       
-        <a href="{% url 'salvarContas' %}" class="btn btn-success mt-3">Exportar para Excel</a>
 
         <form action="{% url 'concluir_fluxo' %}" method="post" onsubmit="return confirm('Tem certeza que deseja concluir este mês?')">
             {% csrf_token %}
-            <button type="submit" class="btn btn-warning mt-3">Concluir Fluxo Mensal</button>
+            <button type="submit" class="btn btn-success mt-3">Concluir Fluxo Mensal</button>
         </form>
         
 

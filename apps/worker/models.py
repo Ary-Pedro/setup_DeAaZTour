@@ -166,22 +166,29 @@ def update_nome(sender, instance, **kwargs):
 
 
 class FluxoMensal(models.Model):
-    mes_referencia = models.DateField(default=now)  # Para armazenar o mês do fluxo
-    saldo_total = models.FloatField(default=0)
-    total_entrada = models.FloatField(default=0)
-    total_saida = models.FloatField(default=0)
+    mes_referencia = models.DateField(default=now, verbose_name="Mês de Referência")
+    saldo_total = models.FloatField(verbose_name="Saldo Total")
+    total_entrada = models.FloatField(verbose_name="Total de Entradas")
+    total_saida = models.FloatField(verbose_name="Total de Saídas")
 
     def __str__(self):
-        return self.mes_referencia.strftime("%m/%Y")
+        return f"Fluxo de {self.mes_referencia.strftime('%B %Y')}"
 
 class ContasMensal(models.Model):
-    observacao = models.CharField(max_length=500, null=True, blank=True, verbose_name="Observação")
+    observacao = models.CharField(max_length=500, null=True, blank=True, verbose_name="Descrição")
     entrada = models.FloatField(null=True, blank=True, default=0)
     saida = models.FloatField(null=True, blank=True, default=0)
     created_at = models.DateTimeField(auto_now_add=True)
+    fluxo_mensal = models.ForeignKey('FluxoMensal', on_delete=models.SET_NULL, null=True, blank=True, related_name='contas')
+
+    def __str__(self):
+        return f"{self.observacao} - {self.created_at}"
 
     @staticmethod
     def calcular_saldo():
-        total_entrada = ContasMensal.objects.aggregate(Sum('entrada'))['entrada__sum'] or 0
-        total_saida = ContasMensal.objects.aggregate(Sum('saida'))['saida__sum'] or 0
+        registros_fluxo_atual = ContasMensal.objects.filter(fluxo_mensal__isnull=True)
+        
+        total_entrada = registros_fluxo_atual.aggregate(Sum('entrada'))['entrada__sum'] or 0
+        total_saida = registros_fluxo_atual.aggregate(Sum('saida'))['saida__sum'] or 0
+        
         return total_entrada - total_saida

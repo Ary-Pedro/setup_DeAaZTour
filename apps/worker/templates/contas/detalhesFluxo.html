@@ -18,15 +18,43 @@
 
 <body>
   <div class="container mt-5">
-    <h2>Detalhes do Fluxo de {{ fluxo.mes_referencia|date:"m/Y" }}</h2>
+    <h2>Detalhes do Fluxo Mensal - {{ fluxo.mes_referencia|date:"F Y" }}</h2>
+    <div class="card mt-4">
+        <div class="card-body">
+            <h5 class="card-title">Saldo Final: R$ {{ fluxo.saldo_total }}</h5><br>
+            <p class="card-text">Total de Entradas: R$ {{ fluxo.total_entrada }}</p>
+            <p class="card-text">Total de Saídas: R$ {{ fluxo.total_saida }}</p>
+        </div>
+    </div>
 
-    <p><strong>Total Entrada:</strong> R$ {{ fluxo.total_entrada }}</p>
-    <p><strong>Total Saída:</strong> R$ {{ fluxo.total_saida }}</p>
-    <p><strong>Saldo Final:</strong> R$ {{ fluxo.saldo_total }}</p>
+    <h3 class="mt-4">Movimentações</h3>
+    <table class="table table-striped mt-4">
+        <thead>
+            <tr>
+                <th>Data</th>
+                <th>Descrição</th>
+                <th>Entrada (R$)</th>
+                <th>Saída (R$)</th>
+            </tr>
+        </thead>
+        <tbody>
+            {% for conta in contas %}
+            <tr>
+                <td>{{ conta.created_at|date:"d/m/Y" }}</td>
+                <td>{{ conta.observacao }}</td>
+                <td>{{ conta.entrada|default:"0.00" }}</td>
+                <td>{{ conta.saida|default:"0.00" }}</td>
+            </tr>
+            {% empty %}
+            <tr>
+                <td colspan="4" class="text-center">Nenhuma movimentação registrada</td>
+            </tr>
+            {% endfor %}
+        </tbody>
+    </table>
 
-    <a class="btn btn-primary" href="{% url 'listagemFluxoMensal' %}">Voltar</a>
+    <a href="{% url 'listagemFluxoMensal' %}" class="btn btn-primary mt-3">Voltar</a>
 </div>
-</div>
+
 </body>
 </html>
-
