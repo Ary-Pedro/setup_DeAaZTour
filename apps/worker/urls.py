@@ -41,17 +41,10 @@ urlpatterns = [
     ),
 
 
-    path(
-        "export-csv-contas/",
-        views.salvar_csvContas,
-        name="salvarContas",
-    ),
+    path('exportar-fluxo-concluido/<int:fluxo_id>/', views.salvar_csvFluxoConcluido, name='exportarFluxoConcluido'),
 
-      path(f"fluxoMensal/", views.contas.as_view() , name="contas"),
-
+    path(f"fluxoMensal/", views.contas.as_view() , name="contas"),
     path('resetar-contas/', views.resetar_contas, name='resetar_contas'),
-
-
     path("concluir_fluxo/", views.concluir_fluxo_mensal, name="concluir_fluxo"),
     path("fluxos/", views.ListarFluxosMensais.as_view(), name="listagemFluxoMensal"),
     path("fluxo/<int:pk>/",views.DetalhesFluxoMensal.as_view(), name="detalhesFluxo"),

@@ -31,66 +31,84 @@ from .forms import ContasForm
 User = get_user_model()
 
 
-def salvar_csvContas(request):
+def salvar_csvFluxoConcluido(request, fluxo_id):
+    fluxo = get_object_or_404(FluxoMensal, id=fluxo_id)
+
+
     response = HttpResponse(content_type="text/csv")
     response["Content-Disposition"] = (
-        "attachment; filename=dadosClientes_" + str(datetime.datetime.now()) + ".csv"
+        f"attachment; filename=fluxo_concluido_{fluxo.mes_referencia.strftime('%Y%m')}.csv"
     )
 
-    writer = csv.writer(response)
+    writer = csv.writer(response, delimiter=";")
+
+
     writer.writerow(
         [
             "Data",
             "Observação",
-            "Entrada",
-            "Saída",
-         
+            "Entrada (R$)",
+            "Saída (R$)",
         ]
-    )  # Cabeçalho do CSV
+    )
 
-   
-    contas = ContasMensal.objects.all()
 
-    for contas in contas:
-       
+    contas = fluxo.contas.all()
+
+  
+    total_entrada = 0.0
+    total_saida = 0.0
+
+  
+    for conta in contas:
         writer.writerow(
             [
-                contas.created_at.strftime("%d/%m/%Y") if contas.created_at else "Sem Data",
-                contas.observacao if contas.observacao else "Sem observação",
-                contas.entrada,
-                contas.saida,
-            
-                 
+                conta.created_at.strftime("%d/%m/%Y") if conta.created_at else "Sem Data",
+                conta.observacao if conta.observacao else "Sem observação",
+                conta.entrada,
+                conta.saida,
             ]
         )
+     
+        total_entrada += conta.entrada
+        total_saida += conta.saida
+
+    
+    saldo_total = total_entrada - total_saida
+
+   
+    writer.writerow([])
+
+    writer.writerow(["Total Entrada", total_entrada])
+    writer.writerow(["Total Saída", total_saida])
+    writer.writerow(["Saldo Final", saldo_total])
+
     return response
 
 
 class contas(LoginRequiredMixin, CreateView): 
     model = ContasMensal
-    form_class = ContasForm  # Defina a classe do formulário aqui
+    form_class = ContasForm
     template_name = "contas/contas.html"
     success_url = reverse_lazy("contas")
     
-
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
+        context["contas"] = ContasMensal.objects.filter(fluxo_mensal__isnull=True)
         context["saldo_total"] = ContasMensal.calcular_saldo()
-        context["contas"] = ContasMensal.objects.all()  # Para listar todas as entradas e saídas
         return context
      
 def resetar_contas(request):
-    ContasMensal.objects.all().delete()
-    return redirect("contas") 
-
-
+    ContasMensal.objects.filter(fluxo_mensal__isnull=True).delete()
+    return redirect("contas")
 
 def concluir_fluxo_mensal(request):
-    total_entrada = ContasMensal.objects.aggregate(Sum('entrada'))['entrada__sum'] or 0
-    total_saida = ContasMensal.objects.aggregate(Sum('saida'))['saida__sum'] or 0
+    registros_fluxo_atual = ContasMensal.objects.filter(fluxo_mensal__isnull=True)
+
+    total_entrada = registros_fluxo_atual.aggregate(Sum('entrada'))['entrada__sum'] or 0
+    total_saida = registros_fluxo_atual.aggregate(Sum('saida'))['saida__sum'] or 0
     saldo_total = total_entrada - total_saida
 
-    # Criar um registro do fluxo mensal
     fluxo = FluxoMensal.objects.create(
         mes_referencia=now(),
         saldo_total=saldo_total,
@@ -98,21 +116,27 @@ def concluir_fluxo_mensal(request):
         total_saida=total_saida
     )
 
-    # Limpar os registros após concluir o fluxo
-    ContasMensal.objects.all().delete()
+    registros_fluxo_atual.update(fluxo_mensal=fluxo)
 
-    return redirect('listagemFluxoMensal')  # Redirecionar para a página onde os fluxos são listados # Redireciona para a página de fluxos
-
+    return redirect('listagemFluxoMensal')
 
 class ListarFluxosMensais(LoginRequiredMixin, ListView):
     model = FluxoMensal
     template_name = "contas/listagemFluxo.html"
+    paginate_by = 12
     context_object_name = "fluxos"
+
 
 class DetalhesFluxoMensal(LoginRequiredMixin, DetailView):
     model = FluxoMensal
     template_name = "contas/detalhesFluxo.html"
     context_object_name = "fluxo"
+
+    def get_context_data(self, **kwargs):
+        context = super().get_context_data(**kwargs)
+        context["contas"] = self.object.contas.all()
+        return context
+    
 # IDEA: Dados Cadastrais ----------------------------------------------------------------------------------------------------
 # INFO: Campo de login da conta
 
