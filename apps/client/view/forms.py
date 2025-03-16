@@ -121,7 +121,7 @@ class AtualizarForm(forms.ModelForm):
     widget=forms.TextInput(attrs={"placeholder": "Para customizar use '+' no início"})
     )
     data_nascimento = forms.DateField(
-    label="data_nascimento",required=False,
+    label="data_nascimento",
     widget=forms.TextInput(attrs={"placeholder": "Preencha apenas com números, a formatação será automática"})
     )
     cpf = forms.CharField(

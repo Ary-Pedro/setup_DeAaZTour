@@ -86,6 +86,23 @@ class AtualizarForm(forms.ModelForm):
             "cpf", "pix","departamento",  "especializacao_funcao","atividade"
         ]
 
+    def clean_especializacao_funcao(self):
+        data = self.cleaned_data.get("especializacao_funcao")
+        departamento = self.cleaned_data.get("departamento")
+        
+        opcoes_permitidas = {
+            "Adm": ["Financeiro", "Diretor(a)"],
+            "Vend": ["Despachante", "Suporte Whatsapp"],
+            "Exec": ["Despachante externo", "Executivo contas"]
+        }
+
+        if departamento in opcoes_permitidas:
+            choices = opcoes_permitidas[departamento]
+            if data not in choices:
+                raise ValidationError(f"Escolha uma especialização válida para o departamento '{departamento}'.")
+        
+        return data
+
     def clean_cpf(self):
         cpf = self.cleaned_data.get("cpf")
         validar_cpf(cpf)

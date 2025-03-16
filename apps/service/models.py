@@ -32,6 +32,8 @@ class Venda(models.Model):
     )
     
     situacaoMensal_dataApoio = models.DateField(auto_now_add=True)
+    Agencia_recomendada = models.CharField(null=True, verbose_name="Agencia Recomendada",help_text="Digite o nome da agência que recomendou.",max_length=1000)
+    recomendação_da_Venda = models.CharField(null=True, verbose_name="recomendação de Venda", help_text="Digite o nome da pessoa que recomendou.",max_length=1000)
     data_venda = models.DateField(auto_now_add=True)
     finished_at = models.DateField(null=True, verbose_name="Data finalizado")
     duracao_venda = models.CharField(null=True, max_length=20, verbose_name="Duração da venda em dias")
@@ -157,8 +159,11 @@ class Venda(models.Model):
             elif vendedor.especializacao_funcao == "Suporte Whatsapp":
                 comissao = 0  # Sem comissão
         return round(comissao, 2)
-
-
+   
+    @staticmethod
+    def calcular_comissao_vendedor(vendedor):
+        pass
+'''
     @staticmethod
     def calcular_comissao_administrador():
         """Calcula a comissão acumulada para todos os administradores."""
@@ -167,6 +172,8 @@ class Venda(models.Model):
             total_vendas_mensal = 0
         comissao = round(total_vendas_mensal * 0.30, 2) 
         return comissao
+'''
+    
 
 @receiver(post_save, sender=Venda)
 def atualizar_comissao_acumulada(sender, instance, **kwargs):
