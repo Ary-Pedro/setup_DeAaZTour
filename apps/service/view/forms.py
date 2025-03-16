@@ -9,12 +9,22 @@ class VendaForm(forms.ModelForm):
         label="Anexos",
         help_text="Selecione um ou mais arquivos para anexar."
     )
-   
+    Agencia_recomendada = forms.CharField(
+        required=False,
+        label="Agencia Recomendada",
+        help_text="Digite o nome da agência que recomendou."
+    )
+
+    recomendação_da_Venda = forms.CharField(
+        required=False,
+        label="Recomendação da Venda",
+        help_text="Digite o nome da pessoa que recomendou."
+    )
 
     class Meta:
         model = Venda
         fields = [
-            "vendedor", "valor", "tipo_pagamento", "situacaoMensal", "arquivos"
+            "vendedor", "situacaoMensal", "valor", "tipo_pagamento", "Agencia_recomendada", "recomendação_da_Venda", "arquivos"
         ]
    
     def save(self, commit=True):

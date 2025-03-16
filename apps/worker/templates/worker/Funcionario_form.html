@@ -35,12 +35,13 @@ document.addEventListener('DOMContentLoaded', function() {
 
         if (situacao === "Adm") {
             cargoField.innerHTML = '<option value="Financeiro">Financeiro</option>' +
-            '<option value="Diretor(a)">Diretor(a)</option>'
+                                    '<option value="Despachante externo">Diretor(a)</option>';
         } else if (situacao === "Exec") {
-            cargoField.innerHTML = '<option value="Executivo contas">Executivo contas</option>';
+            cargoField.innerHTML = '<option value="Executivo contas">Executivo contas</option>'+
+                                   '<option value="Despachante externo">Despachante externo</option>'; 
+
         } else if (situacao === "Vend") {
             cargoField.innerHTML = '<option value="Despachante">Despachante</option>' +
-                                   '<option value="Despachante externo">Despachante externo</option>' +
                                    '<option value="Suporte Whatsapp">Suporte Whatsapp</option>';
         } else {
             cargoField.innerHTML = '<option value="">---</option>';
