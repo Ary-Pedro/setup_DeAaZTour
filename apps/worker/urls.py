@@ -47,7 +47,7 @@ urlpatterns = [
         name="salvarContas",
     ),
 
-    path(f"fluxoMensal/", views.contas.as_view() , name="contas"),
+      path(f"fluxoMensal/", views.contas.as_view() , name="contas"),
 
     path('resetar-contas/', views.resetar_contas, name='resetar_contas'),
 

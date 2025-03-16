@@ -59,11 +59,12 @@ def salvar_csvContas(request):
                 contas.observacao if contas.observacao else "Sem observação",
                 contas.entrada,
                 contas.saida,
-                  
-           
+            
+                 
             ]
         )
     return response
+
 
 class contas(LoginRequiredMixin, CreateView): 
     model = ContasMensal
