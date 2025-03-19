@@ -25,30 +25,47 @@
 </div>
 
 <script>
-    // Javascript para atualizar dinamicamente as opções de 'cargo_atual'
-document.addEventListener('DOMContentLoaded', function() {
-    var situacaoField = document.getElementById('id_departamento');
-    var cargoField = document.getElementById('id_especializacao_funcao');
-
-    situacaoField.addEventListener('change', function() {
-        var situacao = situacaoField.value;
-
-        if (situacao === "Adm") {
-            cargoField.innerHTML = '<option value="Financeiro">Financeiro</option>' +
-                                    '<option value="Despachante externo">Diretor(a)</option>';
-        } else if (situacao === "Exec") {
-            cargoField.innerHTML = '<option value="Executivo contas">Executivo contas</option>'+
-                                   '<option value="Despachante externo">Despachante externo</option>'; 
-
-        } else if (situacao === "Vend") {
-            cargoField.innerHTML = '<option value="Despachante">Despachante</option>' +
-                                   '<option value="Suporte Whatsapp">Suporte Whatsapp</option>';
-        } else {
-            cargoField.innerHTML = '<option value="">---</option>';
+    document.addEventListener('DOMContentLoaded', function() {
+        const departamentoField = document.getElementById('id_departamento');
+        const especializacaoField = document.getElementById('id_especializacao_funcao');
+        
+        // Opções originais para recuperação posterior
+        const opcoesOriginais = especializacaoField.innerHTML;
+    
+        function atualizarEspecializacoes() {
+            const departamento = departamentoField.value;
+            
+            // Mantém as opções originais se não for um departamento filtrado
+            if (!["Adm", "Exec", "Vend"].includes(departamento)) {
+                especializacaoField.innerHTML = opcoesOriginais;
+                return;
+            }
+    
+            // Define novas opções conforme departamento
+            let novasOpcoes = '';
+            switch(departamento) {
+                case 'Adm':
+                    novasOpcoes = '<option value="Financeiro">Financeiro</option>' +
+                                   '<option value="Diretor(a)">Diretor(a)</option>';
+                    break;
+                case 'Exec':
+                    novasOpcoes = '<option value="Executivo contas">Executivo contas</option>' +
+                                  '<option value="Despachante externo">Despachante externo</option>';
+                    break;
+                case 'Vend':
+                    novasOpcoes = '<option value="Despachante">Despachante</option>' +
+                                  '<option value="Suporte Whatsapp">Suporte Whatsapp</option>';
+                    break;
+            }
+            
+            especializacaoField.innerHTML = novasOpcoes;
         }
+    
+        // Executa ao carregar a página e sempre que o departamento mudar
+        departamentoField.addEventListener('change', atualizarEspecializacoes);
+        atualizarEspecializacoes(); // Atualiza imediatamente se já houver valor selecionado
     });
-});
-</script>
+    </script>
 
 <script src="{% static 'js/format.js' %}" defer></script>
 

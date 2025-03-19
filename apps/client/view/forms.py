@@ -1,12 +1,12 @@
+from datetime import datetime
 from django import forms
 from apps.client.widgets import MultipleFileField
 from apps.client.models import Cliente, Anexo
 from django.core.exceptions import ValidationError
-import re
 
 def validar_cpf(cpf):
     if not cpf:
-        raise ValidationError("O CPF não pode ser nulo!")
+        raise ValidationError("O CPF não pode ficar vazio!")
     if len(cpf) != 14:
         raise ValidationError("O CPF deve ter 14 caracteres!")
     for i, char in enumerate(cpf):
@@ -25,32 +25,31 @@ class ClienteForm(forms.ModelForm):
         help_text="Selecione um ou mais arquivos para anexar."
     )
     telefone1 = forms.CharField(
-    label="Telefone 1",
-    required=False,  # Adicione esta linha
-    widget=forms.TextInput(attrs={"placeholder": "Para customizar use '+' no início"})
+        label="Telefone 1",
+        required=False,
+        widget=forms.TextInput(attrs={"placeholder": "Para customizar use '+' no início"})
     )
     telefone2 = forms.CharField(
-    label="Telefone 2",
-    required=False,  # Adicione esta linha
-    widget=forms.TextInput(attrs={"placeholder": "Para customizar use '+' no início"})
+        label="Telefone 2",
+        required=False,
+        widget=forms.TextInput(attrs={"placeholder": "Para customizar use '+' no início"})
     )
-    data_nascimento = forms.DateField(
-    label="data_nascimento",
+    data_nascimento = forms.CharField(
+    label="Data nascimento",
+    required=False,
     widget=forms.TextInput(attrs={"placeholder": "Preencha apenas com números, a formatação será automática"})
     )
     cpf = forms.CharField(
-    label="cpf",
-    required=False,  # Adicione esta linha
-    widget=forms.TextInput(attrs={"placeholder": "Preencha apenas com números, a formatação será automática"})
+        label="CPF",
+        required=False,
+        widget=forms.TextInput(attrs={"placeholder": "Preencha apenas com números, a formatação será automática"}),
+        help_text="Para evitar erros, esse campo não pode ser vazio."
     )
     cep = forms.CharField(
-    label="CEP",
-    required=False,  # Adicione esta linha
-
-
-    widget=forms.TextInput(attrs={"placeholder": "Preencha apenas com números, a formatação será automática"})
+        label="CEP",
+        required=False,
+        widget=forms.TextInput(attrs={"placeholder": "Preencha apenas com números, a formatação será automática"})
     )
-
 
     class Meta:
         model = Cliente
@@ -74,34 +73,17 @@ class ClienteForm(forms.ModelForm):
             'arquivos'
         ]
 
-
-   
-    def save(self, commit=True):
-     cliente = super().save(commit=commit)
-
-
-     return cliente
-   
-   
     def clean_nome(self):
         nome = self.cleaned_data.get("nome")
         if any(char.isdigit() for char in nome):
             raise ValidationError("O nome não pode conter números.")
-        return nome
-
+        return nome.upper()
 
     def clean_cpf(self):
-            cpf = self.cleaned_data.get("cpf")
-            validar_cpf(cpf)
-            return cpf
+        cpf = self.cleaned_data.get("cpf")
+        validar_cpf(cpf)
+        return cpf
 
-
-    def clean_email1(self):
-            email1 = self.cleaned_data.get("email1")
-            if Cliente.objects.filter(email1=email1).exists() or \
-            Cliente.objects.filter(email2=email1).exists():
-                raise ValidationError("e-mail 1: Este e-mail já está registrado.")
-            return email1
 
 
    
@@ -120,13 +102,16 @@ class AtualizarForm(forms.ModelForm):
     label="Telefone 2",required=False,
     widget=forms.TextInput(attrs={"placeholder": "Para customizar use '+' no início"})
     )
-    data_nascimento = forms.DateField(
-    label="data_nascimento",
+    data_nascimento = forms.CharField(
+    label="Data nascimento",
+    required=False,
     widget=forms.TextInput(attrs={"placeholder": "Preencha apenas com números, a formatação será automática"})
     )
     cpf = forms.CharField(
-    label="cpf",required=False,
-    widget=forms.TextInput(attrs={"placeholder": "Preencha apenas com números, a formatação será automática"})
+    label="CPF",required=False,
+    widget=forms.TextInput(attrs={"placeholder": "Preencha apenas com números, a formatação será automática"}),
+    help_text="Para evitar erros, esse campo não pode ser vazio.",
+
     )
     cep = forms.CharField(
     label="CEP",required=False,
@@ -171,12 +156,13 @@ class AtualizarForm(forms.ModelForm):
         nome = self.cleaned_data.get("nome")
         if any(char.isdigit() for char in nome):
             raise ValidationError("O nome não pode conter números.")
-        return nome
+        return nome.upper()
 
     def clean_cpf(self):
             cpf = self.cleaned_data.get("cpf")
             validar_cpf(cpf)
             return cpf
+    
 
    
 

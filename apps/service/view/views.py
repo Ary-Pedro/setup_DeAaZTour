@@ -29,7 +29,7 @@ from django.db.models import Count
 
 from django.shortcuts import render
 
-from .forms import VendaForm
+from .forms import VendaAtualizar, VendaForm
 
 
 def excluir_anexo(request, anexo_id):
@@ -75,7 +75,6 @@ class CadVendas(LoginRequiredMixin, CreateView):
     def get_form(self, form_class=None):
         form = super().get_form(form_class)
         # Desabilita os campos 'vendedor' e 'situacao'
-        form.fields["vendedor"].widget.attrs["disabled"] = True
         form.fields["situacaoMensal"].widget.attrs["disabled"] = True
         return form
 
@@ -153,7 +152,7 @@ class ListVenda(LoginRequiredMixin, ListView):
 class UpdateView(LoginRequiredMixin, UpdateView):
     login_url = "log"  # URL para redirecionar para login
     model = Venda
-    form_class = VendaForm  
+    form_class = VendaAtualizar  
     template_name = "service/Vendas_form.html"
     success_url = reverse_lazy("ListagemVenda")
 

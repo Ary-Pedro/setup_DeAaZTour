@@ -339,7 +339,7 @@ main {
            <!--ATUALIZAR NO CSS-->
 
            {% if user is not None %}
-        {% if 'Adm' in user.departamento or 'Func' in user.departamento%}
+        {% if 'Adm' in user.departamento or 'Vend' in user.departamento%}
            <li id="finalAdm"><a href="{% url 'atualizar_perfil' user.pk %}"> ATUALIZAR PERFIL </a></li>
            {% endif %}
            {% endif %}

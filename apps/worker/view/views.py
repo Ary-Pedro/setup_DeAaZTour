@@ -320,14 +320,12 @@ class ListFuncionario(LoginRequiredMixin, ListView):
             if funcionario.departamento == "Vend":
                 # Atualiza a comissão do vendedor
                 funcionario.comissao_acumulada = Venda.calcular_comissao_vendedor(funcionario)
-        
-
+            elif funcionario.departamento == "Adm":
+                # Atualiza a comissão do administrador
+                funcionario.comissao_acumulada = Venda.calcular_comissao_administrador()
             funcionario.save()
         return queryset
 
-''' elif funcionario.departamento == "Adm":
-        # Atualiza a comissão do administrador
-        funcionario.comissao_acumulada = Venda.calcular_comissao_administrador()'''
 
 # INFO: Funcionário - Atualizar
 class UpdateView(LoginRequiredMixin, UpdateView):

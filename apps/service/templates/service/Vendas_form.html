@@ -10,7 +10,17 @@
    <script src="https://cdn.jsdelivr.net/npm/axios/dist/axios.min.js"></script> <!-- Biblioteca Axios para requisições HTTP -->
    <link rel="stylesheet" href="{% static 'global/css/form.css' %}"> 
    <link rel="stylesheet" href="{% static 'css/vendaList.css' %}"> 
+    
+   {% if user.departamento != 'Adm' or not venda.pk  %}
 
+   <style>
+     #div_id_vendedor, #div_id_situacaoMensal,#div_id_data_venda, #div_id_finished_at {
+        visibility: hidden;
+        display: none;
+    }
+
+    </style>
+{% endif %}
 </head>
 <body>
 <div class="container mt-5">
@@ -34,9 +44,13 @@
 
 
 
+        
+    {% if user.departamento == 'Adm' and venda.pk %}
+    <div class="mb-3">
+        
+    {% endif %}
 
-
-
+</div>
 
     <div class="mb-3">
    <label for="tipo_servico" class="form-label">Tipo de Serviço</label>
@@ -106,22 +120,22 @@
 <div id="cidadania_fields" style="display: {% if form.initial.tipo_servico == 'Cidadania' %}block{% else %}none{% endif %};">
     <label>Tipo de Cidadania</label>
     <div>
-        <label>
+        <label  style="padding-inline: 10px 20px;">
             <input type="radio" name="tipo_cidadania" value="Pai para filho" onchange="toggleCidadania()"
             {% if form.initial.tipo_cidadania == 'Pai para filho' %}checked{% endif %}>
             Pai para filho
         </label>
-        <label>
+        <label style="padding-inline: 10px 20px;">
             <input type="radio" name="tipo_cidadania" value="Cônjuge" onchange="toggleCidadania()"
             {% if form.initial.tipo_cidadania == 'Cônjuge' %}checked{% endif %}>
             Cônjuge
         </label>
-        <label>
+        <label style="padding-inline: 10px 20px;">
             <input type="radio" name="tipo_cidadania" value="Avô para neto" onchange="toggleCidadania()"
             {% if form.initial.tipo_cidadania == 'Avô para neto' %}checked{% endif %}>
             Avô para neto
         </label>
-        <label>
+        <label style="padding-inline: 10px 20px;">
             <input type="radio" name="tipo_cidadania" value="Outros" onchange="toggleCidadania()"
             {% if form.initial.tipo_cidadania == 'Outros' %}checked{% endif %}>
             Outros
@@ -137,12 +151,16 @@
 </div>
 
 
-
-           <div class="mb-3">
-               <label for="pk_cliente" class="form-label">ID do Cliente:</label>
-               <input type="text" name="pk_cliente" id="pk_cliente" class="form-control" value="{{ pk_cliente }}">
-               <button type="button" class="btn btn-primary mt-2" onclick="buscarCliente()">Buscar Cliente</button>
-           </div>
+            <div name="campo_cliente" style="background-color:rgba(0, 0, 0, 0.09); padding: 20px; border-radius: 10px;">
+                <div class="mb-3">
+                    <label for="pk_cliente" class="form-label">ID do Cliente:</label>
+                    <input type="text" placeholder="Use identificador de cliente" name="pk_cliente" id="pk_cliente" 
+                        class="form-control" value="{{ pk_cliente }}">
+                    <span class="form-text" style="font-size: 0.8em; color: #6c757d; display: block; margin-top: 4px;">
+                        ID disponível em listagem
+                    </span>
+                    <button type="button" class="btn btn-primary mt-2" onclick="buscarCliente()">Buscar Cliente</button>
+                </div>
 
 
             <div class="mb-3">
@@ -195,7 +213,7 @@
    <input type="text" name="estado_cliente" id="estado_cliente" class="form-control" value="{{ estado_cliente }}">
 </div>
 
-
+</div>
 
            {{ form|crispy }}
 

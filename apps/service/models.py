@@ -34,10 +34,11 @@ class Venda(models.Model):
     situacaoMensal_dataApoio = models.DateField(auto_now_add=True)
     Agencia_recomendada = models.CharField(null=True, verbose_name="Agencia Recomendada",help_text="Digite o nome da agência que recomendou.",max_length=1000)
     recomendação_da_Venda = models.CharField(null=True, verbose_name="recomendação de Venda", help_text="Digite o nome da pessoa que recomendou.",max_length=1000)
-    data_venda = models.DateField(auto_now_add=True)
-    finished_at = models.DateField(null=True, verbose_name="Data finalizado")
+    data_venda = models.CharField(default=date.today().strftime('%d/%m/%Y'), editable=True, max_length=15)#temporario  deve ser 
+    finished_at = models.CharField(null=True, verbose_name="Data finalizado",editable=True, max_length=15)
     duracao_venda = models.CharField(null=True, max_length=20, verbose_name="Duração da venda em dias")
-    valor = models.FloatField()
+    valor = models.FloatField(help_text="Digite o Valor padrão da venda.",null=True, blank=True)
+    desconto = models.FloatField(null=True, blank=True,help_text="Digite o valor do desconto para a venda.")
     nacionalidade = models.CharField(
         max_length=20,
         choices=[
@@ -144,7 +145,7 @@ class Venda(models.Model):
             delta = finished_at_date - situacaoMensal_dataApoio_date
             self.duracao_venda = f"{delta.days} Dias"
             self.save()
-                
+
     def calcular_comissao_vendedor(vendedor):
         """Calcula a comissão acumulada para um vendedor específico."""
         total_vendas = Venda.objects.filter(vendedor=vendedor).aggregate(Sum("valor"))["valor__sum"]
@@ -159,11 +160,8 @@ class Venda(models.Model):
             elif vendedor.especializacao_funcao == "Suporte Whatsapp":
                 comissao = 0  # Sem comissão
         return round(comissao, 2)
-   
-    @staticmethod
-    def calcular_comissao_vendedor(vendedor):
-        pass
-'''
+
+
     @staticmethod
     def calcular_comissao_administrador():
         """Calcula a comissão acumulada para todos os administradores."""
@@ -172,7 +170,7 @@ class Venda(models.Model):
             total_vendas_mensal = 0
         comissao = round(total_vendas_mensal * 0.30, 2) 
         return comissao
-'''
+
     
 
 @receiver(post_save, sender=Venda)
