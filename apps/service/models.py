@@ -195,6 +195,5 @@ class Anexo(models.Model):
     venda = models.ForeignKey('Venda', related_name='anexos', on_delete=models.CASCADE)
     data_upload = models.DateTimeField(auto_now_add=True)
 
-
     def __str__(self):
         return self.arquivo.name

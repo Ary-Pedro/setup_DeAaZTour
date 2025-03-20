@@ -21,7 +21,7 @@
 
 
 <div class="container mt-5">
-    <div class="right-section">
+    <div class="right-saection">
         <h2>Registrar</h2><br>
 
 
@@ -30,6 +30,24 @@
         <form method="POST" enctype="multipart/form-data">
             {% csrf_token %}
             {{ form|crispy }}
+
+            <div class="mb-3">
+                <label for="sexo" class="form-label">Sexo</label>
+                <select class="form-control" name="sexo" id="sexo" onchange="toggleFields()">
+                    <option value="F" {% if form.initial.sexo == 'F' %}selected{% endif %}>Feminino</option>
+                    <option value="M" {% if form.initial.sexo == 'M' %}selected{% endif %}>Masculino</option>
+                   
+                    
+                    <option value="O" {% if form.initial.sexo == 'O' %}selected{% endif %}>Outros</option>
+                </select>
+             </div>
+             
+             <!-- Campo para digitar outro tipo de serviço -->
+             <div id="sexo_outros_div" style="display: {% if form.initial.sexo == 'O' %}block{% else %}none{% endif %};">
+                 <label for="id_sexo_outros">Especifique o sexo</label>
+                 <input type="text" id="id_sexo_outros" name="sexo_outros" value="{{ form.initial.sexo_outros }}">
+             </div>
+             <br>
             <button type="submit" class="btn btn-primary" >Salvar dados do Cliente</button>
         </form>
 
@@ -43,6 +61,27 @@
 </div>
 
 <script src="{% static 'js/format_client.js' %}" defer></script>
+<script>
+    document.addEventListener("DOMContentLoaded", function() {
+        function toggleFields() {
+            let sexo = document.getElementById("sexo").value;
+            let outrosDiv = document.getElementById("sexo_outros_div");
+
+            if (sexo === "O") {
+                outrosDiv.style.display = "block";
+            } else {
+                outrosDiv.style.display = "none";
+                document.getElementById("id_sexo_outros").value = ""; // Limpa o campo
+            }
+        }
+
+        // Garante que o campo aparece corretamente ao carregar a página
+        toggleFields();
+
+        // Adiciona o evento de mudança no select
+        document.getElementById("sexo").addEventListener("change", toggleFields);
+    });
+</script>
 
 </body>
 </html>

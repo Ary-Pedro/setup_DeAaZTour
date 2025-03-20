@@ -10,6 +10,8 @@ class Cliente(models.Model):
     nome = models.CharField(
         max_length=101,
         verbose_name="nome",
+        null=True,
+        blank=True,
     )
 
     telefone1 = models.CharField(
@@ -33,14 +35,32 @@ class Cliente(models.Model):
     email1 = models.EmailField(null=True, blank=True, verbose_name="e-mail 1", max_length=255)
     email2 = models.EmailField(null=True, blank=True, verbose_name="e-mail 2", max_length=255)
     
-    sexo_tipo = (("M", "Masculino"), ("F", "Feminino"),("O", "Outro"))
-    sexo = models.CharField(max_length=1, choices=sexo_tipo, verbose_name="Sexo")
+
+    sexo = models.CharField(
+        max_length=50,
+        choices=[
+            ("M", "Masculino"), ("F", "Feminino"),("O", "Outro")
+        ],
+        blank=True,
+        null=True,
+    )
+
+    sexo_outros = models.CharField(
+        max_length=5000,
+        blank=True,
+        null=True,
+        verbose_name="Tipo sexo",
+        help_text="Digite o sexo aqui.",
+    )
+
+
     data_nascimento = models.CharField(
         max_length=15,
         null=True,
         blank=True,
         verbose_name="Data de nascimento",
         help_text="Digite no formato dd/mm/aaaa")
+    
     idade = models.IntegerField(null=True, editable=False)
 
     endereco = models.CharField(
@@ -158,12 +178,10 @@ def pre_save_cliente(sender, instance, **kwargs):
         instance.idade = None
 
 
-
 class Anexo(models.Model):
     arquivo = models.FileField(upload_to='anexos/')
     cliente = models.ForeignKey('Cliente', related_name='anexos', on_delete=models.CASCADE)
     data_upload = models.DateTimeField(auto_now_add=True)
-
 
     def __str__(self):
         return self.arquivo.name

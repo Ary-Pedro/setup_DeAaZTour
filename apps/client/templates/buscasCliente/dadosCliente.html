@@ -30,15 +30,26 @@
 
         <div class="apenasp_cliente">
         <h2>Dados do cliente</h2>
+     
+        {% if cadastro.nome %}
         <p><strong>Nome: </strong> {{ cadastro.nome }}</p>
+     {% endif %}
+
+        {% if cadastro.cpf %}
         <p><strong>CPF: </strong> {{ cadastro.cpf }}</p>
-        
+     {% endif %}
+                
         {% if cadastro.rg %}
         <p><strong>RG: </strong> {{ cadastro.rg }}</p>
   {% endif %}
+        
+        {% if cadastro.data_nascimento %}
+            <p><strong>Data de Nascimento: </strong> {{ cadastro.data_nascimento }}</p>
+         {% endif %}
 
-        <p><strong>Data de Nascimento: </strong> {{ cadastro.data_nascimento }}</p>
-        <p><strong>Idade: </strong> {{ cadastro.idade }}</p>
+         {% if cadastro.idade %}
+         <p><strong>Idade: </strong> {{ cadastro.idade }}</p>
+      {% endif %}
       
         {% if cadastro.email1 %}
             <p><strong>E-mail 1: </strong> {{ cadastro.email1 }}</p>
@@ -48,8 +59,16 @@
             <p><strong>E-mail 2: </strong> {{ cadastro.email2 }}</p>
          {% endif %}
       
-      
-        <p><strong>Sexo: </strong> {{ cadastro.get_sexo_display  }}</p>
+         
+         {% if cadastro.sexo == 'O' %}
+         <p><strong>Sexo: </strong> {{ cadastro.sexo_outros }}</p>
+      {% else %}
+      {% if cadastro.sexo %}
+       <p><strong>Sexo: </strong> {{ cadastro.get_sexo_display|capfirst }}</p>
+      {% endif %}
+       {% endif %}
+
+       
        
         {% if cadastro.telefone1 %}
             <p><strong>Telefone 1: </strong> {{ cadastro.telefone1 }}</p>
@@ -102,7 +121,7 @@
                   
                        <a href="{{ anexo.arquivo.url }}" target="_blank">{{ anexo.arquivo.name }}</a>
 
-                       <form action="{% url 'excluir_anexo' anexo.id %}" method="POST" style="display:inline;">
+                       <form action="{% url 'excluir_anexo_cliente' anexo.id %}" method="POST" style="display:inline;">
                         {% csrf_token %}
                         <button type="submit" onclick="return confirm('Tem certeza que deseja excluir este anexo?');">Excluir</button>
                     </form>
