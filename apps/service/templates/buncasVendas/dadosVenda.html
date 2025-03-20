@@ -31,9 +31,15 @@
 
         <h2>Dados da venda</h2>
         <p><strong>Vendedor: </strong> {{ cadastro.vendedor }}</p>
-        <p><strong>Valor da venda: </strong> {{ cadastro.valor }}</p>
 
+        {% if cadastro.valor %}
+        <p><strong>Valor da venda: </strong> {{ cadastro.valor }}</p>
+        {% endif %}
+
+        {% if cadastro.tipo_pagamento %}
         <p><strong>Forma de pagamento: </strong> {{ cadastro.tipo_pagamento }}</p>
+        {% endif %}
+        
 
        {% if cadastro.tipo_servico == 'Outros' %}
           <p><strong>Tipo de Serviço: </strong> {{ cadastro.tipo_servico_outros }}</p>
@@ -88,21 +94,35 @@
         
     
         <h2>Dados do Cliente</h2>
+      
+        {% if cadastro.cliente.id %}
         <p><strong>ID: </strong> {{ cadastro.cliente.id }}</p>
+        {% endif %}
+
+        {% if cadastro.cliente %}
         <p><strong>Cliente: </strong> {{ cadastro.cliente }}</p>
+        {% endif %}
+
+        {% if cadastro.cliente.cpf %}
         <p><strong>CPF: </strong> {{ cadastro.cliente.cpf }}</p>
+        {% endif %}
+
+        {% if cadastro.cliente.data_nascimento %}
         <p><strong>Data de nascimento: </strong> {{ cadastro.cliente.data_nascimento }}</p>
+        {% endif %}
+
         {% if cadastro.num_passaporte %}
             <p><strong>Passaporte: </strong> {{ cadastro.num_passaporte }}</p>
         {% endif %}
 
-
         {% if cadastro.endereco %}
             <p><strong>Endereco: </strong> {{ cadastro.endereco }}</p>
         {% endif %}
+
         {% if cadastro.cep %}
             <p><strong>Cep: </strong> {{ cadastro.cep }}</p>
         {% endif %}
+        
         {% if cadastro.bairro %}
             <p><strong>Bairro: </strong> {{ cadastro.bairro }}</p>
         {% endif %}

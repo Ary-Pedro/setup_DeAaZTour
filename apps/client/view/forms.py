@@ -60,7 +60,6 @@ class ClienteForm(forms.ModelForm):
             "celular",
             "email1",
             "email2",
-            "sexo",
             "data_nascimento",
             "endereco",
             "cidade",

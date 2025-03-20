@@ -35,7 +35,7 @@ from .forms import VendaAtualizar, VendaForm
 def excluir_anexo(request, anexo_id):
     anexo = get_object_or_404(Anexo, id=anexo_id)
     anexo.delete()
-    return redirect(request.META.get("HTTP_REFERER", "ListagemCliente"))
+    return redirect(request.META.get("HTTP_REFERER", "ListagemVenda"))
 
 # INFO: Venda  --------------------------------------------------------------------------------------------------------
 

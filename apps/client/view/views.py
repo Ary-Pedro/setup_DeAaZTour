@@ -22,7 +22,7 @@ from django.shortcuts import render
 from .forms import ClienteForm, AtualizarForm
 
 
-def excluir_anexo(request, anexo_id):
+def excluir_anexo_cliente(request, anexo_id):
     anexo = get_object_or_404(Anexo, id=anexo_id)
     anexo.delete()
     return redirect(request.META.get("HTTP_REFERER", "ListagemCliente"))
@@ -39,12 +39,20 @@ class CadCliente(LoginRequiredMixin, CreateView):
 
     def form_valid(self, form):
         # Salva o cliente primeiro
+
+           # Ajusta o valor do campo sexo antes de salvar o cliente
+        sexo = self.request.POST.get("sexo")
+        form.instance.sexo = sexo
+
+        if sexo == "O":  
+            form.instance.sexo_outros = self.request.POST.get("sexo_outros")
+        else:
+            form.instance.sexo_outros = None
+            
         response = super().form_valid(form)
-
-
+                    
         # Obtém os arquivos enviados
         arquivos = self.request.FILES.getlist('arquivos')
-
 
         # Cria um anexo para cada arquivo enviado e associa ao cliente
         for arquivo in arquivos:
