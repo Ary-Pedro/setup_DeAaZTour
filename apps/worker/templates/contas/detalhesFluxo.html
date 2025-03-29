@@ -35,8 +35,10 @@
                 <th>Descrição</th>
                 <th>Entrada (R$)</th>
                 <th>Saída (R$)</th>
+                <th>Ações</th> <!-- Nova coluna -->
             </tr>
         </thead>
+        
         <tbody>
             {% for conta in contas %}
             <tr>
@@ -44,10 +46,15 @@
                 <td>{{ conta.observacao }}</td>
                 <td>{{ conta.entrada|default:"0.00" }}</td>
                 <td>{{ conta.saida|default:"0.00" }}</td>
-            </tr>
-            {% empty %}
-            <tr>
-                <td colspan="4" class="text-center">Nenhuma movimentação registrada</td>
+                <td>
+                    <form action="{% url 'deletar_conta_mensal' conta.id %}" method="post" 
+                          onsubmit="return confirm('Tem certeza que deseja excluir este registro?');">
+                        {% csrf_token %}
+                        <button type="submit" class="btn btn-danger btn-sm">
+                            <i class="fas fa-trash"></i> Excluir
+                        </button>
+                    </form>
+                </td>
             </tr>
             {% endfor %}
         </tbody>

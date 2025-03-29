@@ -27,6 +27,7 @@ from django.utils.timezone import now
 from dateutil.relativedelta import relativedelta  # Usando relativedelta para manipulação de meses
 from django.db.models import Count
 from .forms import ContasForm
+from django.utils import timezone
 
 User = get_user_model()
 
@@ -103,23 +104,51 @@ def resetar_contas(request):
     return redirect("contas")
 
 def concluir_fluxo_mensal(request):
-    registros_fluxo_atual = ContasMensal.objects.filter(fluxo_mensal__isnull=True)
-
-    total_entrada = registros_fluxo_atual.aggregate(Sum('entrada'))['entrada__sum'] or 0
-    total_saida = registros_fluxo_atual.aggregate(Sum('saida'))['saida__sum'] or 0
-    saldo_total = total_entrada - total_saida
-
-    fluxo = FluxoMensal.objects.create(
-        mes_referencia=now(),
-        saldo_total=saldo_total,
-        total_entrada=total_entrada,
-        total_saida=total_saida
+    # Define o mês de referência como o primeiro dia do mês atual
+    current_date = timezone.now().date()
+    mes_referencia = date(current_date.year, current_date.month, 1)
+    
+    # Obtém ou cria o FluxoMensal para o mês atual
+    fluxo, created = FluxoMensal.objects.get_or_create(
+        mes_referencia=mes_referencia,
+        defaults={
+            'saldo_total': 0,
+            'total_entrada': 0,
+            'total_saida': 0,
+        }
     )
-
+    
+    # Atualiza os registros não vinculados e recalcula totais
+    registros_fluxo_atual = ContasMensal.objects.filter(fluxo_mensal__isnull=True)
     registros_fluxo_atual.update(fluxo_mensal=fluxo)
-
+    
+    # Recalcula totais baseado em todas as contas vinculadas
+    contas_do_fluxo = ContasMensal.objects.filter(fluxo_mensal=fluxo)
+    total_entrada = contas_do_fluxo.aggregate(Sum('entrada'))['entrada__sum'] or 0
+    total_saida = contas_do_fluxo.aggregate(Sum('saida'))['saida__sum'] or 0
+    
+    fluxo.total_entrada = total_entrada
+    fluxo.total_saida = total_saida
+    fluxo.saldo_total = total_entrada - total_saida
+    fluxo.save()
+    
     return redirect('listagemFluxoMensal')
 
+def deletar_conta_mensal(request, pk):
+    conta = get_object_or_404(ContasMensal, pk=pk)
+    fluxo_id = conta.fluxo_mensal.id  # Captura o ID antes de deletar
+    conta.delete()
+    
+    # Atualiza os totais do fluxo
+    fluxo = get_object_or_404(FluxoMensal, id=fluxo_id)
+    contas_do_fluxo = ContasMensal.objects.filter(fluxo_mensal=fluxo)
+    
+    fluxo.total_entrada = contas_do_fluxo.aggregate(Sum('entrada'))['entrada__sum'] or 0
+    fluxo.total_saida = contas_do_fluxo.aggregate(Sum('saida'))['saida__sum'] or 0
+    fluxo.saldo_total = fluxo.total_entrada - fluxo.total_saida
+    fluxo.save()
+    
+    return redirect(f'/fluxo/{fluxo_id}/')
 class ListarFluxosMensais(LoginRequiredMixin, ListView):
     model = FluxoMensal
     template_name = "contas/listagemFluxo.html"
