@@ -32,6 +32,16 @@
         <h2>Dados da venda</h2>
         <p><strong>Vendedor: </strong> {{ cadastro.vendedor }}</p>
 
+
+        {% if cadastro.data_venda %}
+        <p><strong>Inicio da venda: </strong> {{ cadastro.data_venda }}</p>
+        {% endif %}
+
+        {% if cadastro.finished_at %}
+        <p><strong>Término da venda: </strong> {{ cadastro.finished_at|slice:"8:10" }}/{{ cadastro.finished_at|slice:"5:7" }}/{{ cadastro.finished_at|slice:"0:4" }}</p>
+        {% endif %}
+    
+
         {% if cadastro.valor %}
         <p><strong>Valor da venda: </strong> {{ cadastro.valor }}</p>
         {% endif %}
