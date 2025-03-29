@@ -48,6 +48,7 @@ urlpatterns = [
     path("concluir_fluxo/", views.concluir_fluxo_mensal, name="concluir_fluxo"),
     path("fluxos/", views.ListarFluxosMensais.as_view(), name="listagemFluxoMensal"),
     path("fluxo/<int:pk>/",views.DetalhesFluxoMensal.as_view(), name="detalhesFluxo"),
+    
 ]
 
 if settings.DEBUG:
