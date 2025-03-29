@@ -6,7 +6,6 @@ from math import floor
 from datetime import date
 
 from django.dispatch import receiver
-from django.db.models.signals import post_save
 from apps.worker.models import Funcionario
 from apps.client.models import Cliente
 
@@ -21,16 +20,17 @@ class Venda(models.Model):
     ]
 
     cliente = models.ForeignKey(Cliente, on_delete=models.CASCADE)
-    vendedor = models.ForeignKey(
-        Funcionario, on_delete=models.CASCADE, null=True, blank=True)
+    vendedor = models.ForeignKey(Funcionario, on_delete=models.CASCADE, null=True, blank=True)
+    executivo = models.ForeignKey(Funcionario, on_delete=models.CASCADE, null=True, blank=True, related_name="executivo_vendas")
+    status_executivo = models.BooleanField(default=False, null=True, blank=True, verbose_name="Status do Executivo", help_text="Marque se o executivo estiver ativo.")
     situacaoMensal = models.CharField(
         max_length=10,
         choices=tipo_mensal,
         default="Mensal",
         null=True,
-        blank=True,
+        blank=True
     )
-    
+
     situacaoMensal_dataApoio = models.DateField(auto_now_add=True)
     Agencia_recomendada = models.CharField(null=True, verbose_name="Agencia Recomendada",help_text="Digite o nome da agência que recomendou.",max_length=1000)
     recomendação_da_Venda = models.CharField(null=True, verbose_name="recomendação de Venda", help_text="Digite o nome da pessoa que recomendou.",max_length=1000)
@@ -120,10 +120,15 @@ class Venda(models.Model):
         null=True,
         verbose_name="Forma de pagamento:",
 
-    )
+    )   
+    def save(self, *args, **kwargs):
+        """Aplica o desconto ao valor da venda antes de salvar."""
+        if self.valor and self.desconto:
+            self.valor *= (1 - self.desconto / 100)
+        super().save(*args, **kwargs)
 
-    def _str_(self):
-        return f"Venda {self.id} - {self.cliente.nome} para {self.vendedor.username}"
+    def __str__(self):
+        return f"Venda {self.id} - {self.cliente.nome} para {self.vendedor.username if self.vendedor else 'Sem vendedor'}"
 
     
     def mark_as_complete(self):
@@ -145,9 +150,23 @@ class Venda(models.Model):
             delta = finished_at_date - situacaoMensal_dataApoio_date
             self.duracao_venda = f"{delta.days} Dias"
             self.save()
+    
 
+
+    """
+    @staticmethod
+    def calcular_comissao_administrador():
+            #Calcula a comissão acumulada para todos os administradores.
+        total_vendas_mensal = Venda.objects.filter(situacaoMensal="Mensal").aggregate(Sum("valor"))["valor__sum"]
+        if total_vendas_mensal is None:
+            total_vendas_mensal = 0
+        comissao = round(total_vendas_mensal * 0.30, 2) 
+        return comissao
+        """
+
+"""
     def calcular_comissao_vendedor(vendedor):
-        """Calcula a comissão acumulada para um vendedor específico."""
+            #Calcula a comissão acumulada para um vendedor específico.
         total_vendas = Venda.objects.filter(vendedor=vendedor).aggregate(Sum("valor"))["valor__sum"]
         if total_vendas is None:
             total_vendas = 0
@@ -158,21 +177,28 @@ class Venda(models.Model):
             elif vendedor.especializacao_funcao == "Despachante externo":
                 comissao = total_vendas * 0.40
             elif vendedor.especializacao_funcao == "Suporte Whatsapp":
-                comissao = 0  # Sem comissão
+                comissao = 0  # OPCIONAL, já zera acima
         return round(comissao, 2)
-
-
-    @staticmethod
-    def calcular_comissao_administrador():
-        """Calcula a comissão acumulada para todos os administradores."""
-        total_vendas_mensal = Venda.objects.filter(situacaoMensal="Mensal").aggregate(Sum("valor"))["valor__sum"]
-        if total_vendas_mensal is None:
-            total_vendas_mensal = 0
-        comissao = round(total_vendas_mensal * 0.30, 2) 
-        return comissao
-
+   
+    def calcular_comissao_executivo(executivo):
+            #Calcula a comissão acumulada para um executivo específico.
+        total_vendas = Venda.objects.filter(vendedor=executivo).aggregate(Sum("valor"))["valor__sum"]
+        if total_vendas is None:
+            total_vendas = 0
+        comissao = 0
+        if executivo.departamento == "Vend":
+            if executivo.especializacao_funcao == "Executivo":
+                comissao = total_vendas * 0.15
+            elif executivo.especializacao_funcao == "Executivo externo":
+                comissao = total_vendas * 0.40
+            elif executivo.especializacao_funcao == "Suporte Whatsapp":
+                comissao = 0
+"""
+    
     
 
+    
+'''
 @receiver(post_save, sender=Venda)
 def atualizar_comissao_acumulada(sender, instance, **kwargs):
     """Atualiza a comissão acumulada do vendedor e dos administradores sempre que uma venda for salva."""
@@ -182,13 +208,20 @@ def atualizar_comissao_acumulada(sender, instance, **kwargs):
         vendedor.comissao_acumulada = Venda.calcular_comissao_vendedor(vendedor)
         vendedor.save()
 
+        # Atualiza a comissão do executivo
+        executivo = Funcionario.objects.filter(departamento="Exec")
+        executivo = instance.vendedor
+        executivo.comissao_acumulada = Venda.calcular_comissao_executivo(vendedor)
+        executivo.save()
+'''
+'''
         # Atualiza a comissão dos administradores
         administradores = Funcionario.objects.filter(departamento="Adm")
         comissao_adm = Venda.calcular_comissao_administrador()
         for adm in administradores:
             adm.comissao_acumulada = comissao_adm
             adm.save()
-
+'''
 
 class Anexo(models.Model):
     arquivo = models.FileField(upload_to='anexos/')

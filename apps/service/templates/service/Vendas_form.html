@@ -18,9 +18,18 @@
         visibility: hidden;
         display: none;
     }
-
     </style>
 {% endif %}
+
+{% if user.departamento != 'Adm' or not venda.pk or not venda.status_executivo%}
+    <style>
+       #div_id_executivo {
+        visibility: hidden;
+        display: none;
+    }
+    </style>
+   {% endif %}
+
 </head>
 <body>
 <div class="container mt-5">

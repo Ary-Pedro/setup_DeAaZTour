@@ -200,8 +200,8 @@ class UpdateView(LoginRequiredMixin, UpdateView):
 
     def get_form(self, form_class=None):
         form = super().get_form(form_class)
-        # Desabilita os campos 'vendedor' e 'situacaoMensal'
-        form.fields["vendedor"].widget.attrs["disabled"] = True
+        # Desabilita os campos e 'situacaoMensal'
+        form.fields["situacaoMensal"].widget.attrs["disabled"] = True
         return form
 
     def form_valid(self, form):

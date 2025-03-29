@@ -78,6 +78,9 @@ class Funcionario(AbstractUser):
         ("Despachante externo", "Despachante externo "),
         ("Suporte Whatsapp", "Suporte Whatsapp"),
         ("Executivo contas", "Executivo contas"),
+        ("Despachante externo e Executivo contas", "Despachante externo e Executivo contas"),
+
+        
         ("Diretor(a)", "Diretor(a)"),
     )
     especializacao_funcao = models.CharField(

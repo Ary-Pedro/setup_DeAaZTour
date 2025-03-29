@@ -93,7 +93,7 @@ class AtualizarForm(forms.ModelForm):
         opcoes_permitidas = {
             "Adm": ["Financeiro", "Diretor(a)"],
             "Vend": ["Despachante", "Suporte Whatsapp"],
-            "Exec": ["Despachante externo", "Executivo contas"]
+            "Exec": ["Despachante externo", "Executivo contas","Despachante externo e Executivo contas"]
         }
 
         if departamento in opcoes_permitidas:
