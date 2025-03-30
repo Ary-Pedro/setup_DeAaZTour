@@ -31,6 +31,31 @@ from django.utils import timezone
 
 User = get_user_model()
 
+def vendasDoFunc(request, pk):
+    funcionario = Funcionario.objects.get(pk=pk)
+    vendas = Venda.objects.filter(vendedor=funcionario)  
+    vendas = Venda.objects.filter(executivo=funcionario)  
+    vendas = Venda.objects.filter(Q(vendedor=funcionario) | Q(executivo=funcionario)) 
+    
+    fluxo_mensal = FluxoMensal.objects.first()  
+    if fluxo_mensal:  
+       mes_referencia = fluxo_mensal.mes_referencia
+    else:
+       mes_referencia = None
+
+    if mes_referencia:
+        vendas = vendas.filter(
+            situacaoMensal_dataApoio__month=mes_referencia.month,
+            situacaoMensal_dataApoio__year=mes_referencia.year
+    )
+    return render(request, 'contas/vendasDoFunc.html', {
+        'funcionario': funcionario,
+        'vendas': vendas,
+        'mes_referencia': mes_referencia
+    })
+
+
+
 
 def salvar_csvFluxoConcluido(request, fluxo_id):
     fluxo = get_object_or_404(FluxoMensal, id=fluxo_id)

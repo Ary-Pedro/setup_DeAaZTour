@@ -48,7 +48,13 @@ urlpatterns = [
     path("concluir_fluxo/", views.concluir_fluxo_mensal, name="concluir_fluxo"),
     path("fluxos/", views.ListarFluxosMensais.as_view(), name="listagemFluxoMensal"),
     path("fluxo/<int:pk>/",views.DetalhesFluxoMensal.as_view(), name="detalhesFluxo"),
-    path('fluxo/deletar-conta/<int:pk>/', views.deletar_conta_mensal, name='deletar_conta_mensal'),    
+    path('fluxo/deletar-conta/<int:pk>/', views.deletar_conta_mensal, name='deletar_conta_mensal'),   
+
+    path('listagemVendasFunc/', views.listVendasFuncionario.as_view(), name='listVendasFuncionario'),    
+    path('vendasDoFunc/<int:pk>/', views.vendasDoFunc, name='vendasDoFunc'), 
+
+
+
 ]
 
 if settings.DEBUG:

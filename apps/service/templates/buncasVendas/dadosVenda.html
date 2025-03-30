@@ -146,8 +146,12 @@
 
 
     </div>
-    <a href="{% url 'ListagemVenda' %}"><button class="btnvoltar">Voltar</button></a>
 
+{% if 'vendasDoFunc' in request.META.HTTP_REFERER %}
+    <a href="{% url 'vendasDoFunc' cadastro.vendedor.id %}"><button class="btnvoltar">Voltar</button></a>
+{% else %}
+    <a href="{% url 'ListagemVenda' %}"><button class="btnvoltar">Voltar</button></a>
+{% endif %}
 {% endfor %}
 
 
