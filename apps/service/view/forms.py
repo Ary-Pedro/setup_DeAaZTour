@@ -1,5 +1,5 @@
 from datetime import datetime
-from apps.service.models import Venda, Anexo
+from apps.service.models import OPC_SERVICES, Venda, Anexo
 from apps.service.widgets import MultipleFileField
 from django import forms
 from django.db.models import Q
@@ -24,9 +24,10 @@ class VendaForm(forms.ModelForm):
         label="Recomendação da Venda",
         help_text="Digite o nome da pessoa que recomendou."
     )
-    valor = forms.FloatField(
+    custo_padrao_venda = forms.FloatField(
         required=False,
-        label="Valor",
+        help_text="Valor bruto da venda.",
+        label="Custo padrão venda",
         widget=forms.TextInput(attrs={"placeholder": "Digite o Valor padrão da venda."})
     )
     desconto = forms.FloatField(
@@ -34,22 +35,30 @@ class VendaForm(forms.ModelForm):
         label="Desconto",
         widget=forms.TextInput(attrs={"placeholder": "Digite o desconto, será considerada em porcentagem (%)."})
     )
+    custo_sobre_venda = forms.FloatField(
+        required=False,
+        label="Custo sobre Venda",
+        widget=forms.TextInput(attrs={"placeholder": "Digite o custo sobre a venda decorrido da agencia ou afins."})
+    )
 
     class Meta:
         model = Venda
         fields = [
-            "vendedor", "situacaoMensal", "valor", "desconto", "tipo_pagamento", 
-            "Agencia_recomendada", "recomendação_da_Venda", "arquivos"
+            "vendedor", "situacaoMensal", "custo_padrao_venda", "desconto", "custo_sobre_venda",
+            "tipo_pagamento", "Agencia_recomendada", "recomendação_da_Venda", "arquivos"
         ]
 
     def clean(self):
-        """Validação personalizada para o status executivo"""
         cleaned_data = super().clean()
         agencia = cleaned_data.get("Agencia_recomendada")
         recomendacao = cleaned_data.get("recomendação_da_Venda")
+        tipo_servico = self.data.get("tipo_servico")  # Pegando o valor do POST
 
         # Se algum dos campos estiver preenchido, define status_executivo como True
         if agencia or recomendacao:
+            self.instance.status_executivo = True
+        # Nova condição: se o tipo de serviço estiver em OPC_SERVICES
+        elif tipo_servico and tipo_servico.strip() in [item.strip() for item in OPC_SERVICES]:
             self.instance.status_executivo = True
         else:
             self.instance.status_executivo = False
@@ -57,16 +66,14 @@ class VendaForm(forms.ModelForm):
         return cleaned_data
 
     def save(self, commit=True):
-        """Salva a venda e os anexos"""
         venda = super().save(commit=commit)
-
-        # Atualizar arquivos anexados
         arquivos = self.files.getlist("arquivos")
         for arquivo in arquivos:
             if not Anexo.objects.filter(venda=venda, arquivo=arquivo.name).exists():
                 Anexo.objects.create(arquivo=arquivo, venda=venda)
-
         return venda
+    
+    
 class VendaAtualizar(forms.ModelForm):
     arquivos = MultipleFileField(
         required=False,
@@ -84,10 +91,17 @@ class VendaAtualizar(forms.ModelForm):
         label="Recomendação da Venda",
         help_text="Digite o nome da pessoa que recomendou."
     )
-    
+    custo_padrao_venda = forms.FloatField(
+        required=False,
+        label="Custo da venda",
+        help_text="Valor bruto da venda.",
+        widget=forms.TextInput(attrs={"placeholder": "Digite o Valor padrão da venda."})
+    )
+
     valor = forms.FloatField(
         required=False,
         label="Valor",
+        help_text="Valor liquido da venda.",
         widget=forms.TextInput(attrs={"placeholder": "Digite o Valor padrão da venda."})
         
     )
@@ -106,18 +120,24 @@ class VendaAtualizar(forms.ModelForm):
     label="Desconto",
     widget=forms.TextInput(attrs={"placeholder": "Digite o desconto, será considerada em porcentagem (%)."}),
     )
+    custo_sobre_venda = forms.FloatField(
+    required=False,
+    label="Custo sobre Venda",
+    widget=forms.TextInput(attrs={"placeholder": "Digite o custo sobre a venda decorrido da agencia ou afins."}),
+    )
     class Meta:
         model = Venda
         fields = [
-            "vendedor","executivo", "situacaoMensal", "data_venda" ,"finished_at", "valor", "desconto", "tipo_pagamento", "Agencia_recomendada", "recomendação_da_Venda", "arquivos"
+            "vendedor", "executivo", "situacaoMensal", "data_venda", "finished_at", "custo_padrao_venda", "valor", "desconto", "custo_sobre_venda", "tipo_pagamento", "Agencia_recomendada", "recomendação_da_Venda", "arquivos"
         ]
     def clean(self):
         """Validação personalizada para o status executivo"""
         cleaned_data = super().clean()
         agencia = cleaned_data.get("Agencia_recomendada")
         recomendacao = cleaned_data.get("recomendação_da_Venda")
-        
-        if agencia or recomendacao:
+        tipo_servico = self.data.get("tipo_servico")  # Pegando o valor do POST
+
+        if agencia or recomendacao or tipo_servico and tipo_servico.strip() in [item.strip() for item in OPC_SERVICES]:
             self.instance.status_executivo = True
         else:
             self.instance.status_executivo = False

@@ -4,7 +4,7 @@ from django.contrib.auth.mixins import LoginRequiredMixin
 
 # INFO: funções uso geral
 from django.db.models import Q, Sum
-from apps.service.models import Venda, Anexo
+from apps.service.models import OPC_SERVICES, Venda, Anexo
 from apps.client.models import Cliente
 from apps.worker.models import Funcionario
 from django.views.generic import TemplateView
@@ -41,26 +41,11 @@ def excluir_anexo(request, anexo_id):
 
 # INFO: Venda - Cadastar
 class CadVendas(LoginRequiredMixin, CreateView):
-    login_url = "log"  # URL para redirecionar para login
+    login_url = "log"
     model = Venda
-    form_class = VendaForm  # Defina a classe do formulário aqui
+    form_class = VendaForm
     template_name = "service/Vendas_form.html"
     success_url = reverse_lazy("home")
-
-
-    def form_valid(self, form):
-        # Salva o cliente primeiro
-        response = super().form_valid(form)
-
-
-        # Obtém os arquivos enviados
-        arquivos = self.request.FILES.getlist('arquivos')
-
-
-        # Cria um anexo para cada arquivo enviado e associa ao cliente
-        for arquivo in arquivos:
-            Anexo.objects.create(arquivo=arquivo, venda=self.object)
-    
 
     def get_initial(self):
         initial = super().get_initial()
@@ -74,7 +59,6 @@ class CadVendas(LoginRequiredMixin, CreateView):
 
     def get_form(self, form_class=None):
         form = super().get_form(form_class)
-        # Desabilita os campos 'vendedor' e 'situacao'
         form.fields["situacaoMensal"].widget.attrs["disabled"] = True
         return form
 
@@ -101,12 +85,19 @@ class CadVendas(LoginRequiredMixin, CreateView):
                 tipo_servico = self.request.POST.get("tipo_servico")
                 form.instance.tipo_servico = tipo_servico
 
+                # Verifica se o tipo de serviço está na lista OPC_SERVICES
+                # Utilizamos strip() para evitar problemas com espaços em branco
+                if tipo_servico and tipo_servico.strip() in [item.strip() for item in OPC_SERVICES]:
+                    form.instance.status_executivo = True
+                # Se desejar, pode definir False caso não esteja
+                else:
+                    form.instance.status_executivo = False
+
                 if tipo_servico == "Outros":
                     form.instance.tipo_servico_outros = self.request.POST.get("tipo_servico_outros")
                 else:
                     form.instance.tipo_servico_outros = None
 
-                # Lógica condicional para "Passaporte"
                 if tipo_servico == "Passaporte":
                     form.instance.nacionalidade = self.request.POST.get("nacionalidade")
                     if form.instance.nacionalidade == "Outros":
@@ -114,7 +105,6 @@ class CadVendas(LoginRequiredMixin, CreateView):
                     else:
                         form.instance.nacionalidade_outros = None
 
-                # Lógica condicional para "Cidadania"
                 elif tipo_servico == "Cidadania":
                     form.instance.tipo_cidadania = self.request.POST.get("tipo_cidadania")
                     if form.instance.tipo_cidadania == "Outros":
@@ -123,13 +113,6 @@ class CadVendas(LoginRequiredMixin, CreateView):
                         form.instance.tipo_cidadania_outros = None
 
                 response = super().form_valid(form)
-
-              #  arquivos = self.request.FILES.getlist('arquivos')
-
-                # Cria um anexo para cada arquivo enviado e associa à venda
-              #  for arquivo in arquivos:
-              #      Anexo.objects.create(arquivo=arquivo, venda=self.object)
-              
                 return response
             else:
                 messages.error(self.request, 'Cliente não encontrado ou dados do Cliente inválidos.')
@@ -137,7 +120,6 @@ class CadVendas(LoginRequiredMixin, CreateView):
         else:
             messages.error(self.request, 'Informe o nome do Cliente.')
             return self.form_invalid(form)
-
 
 # INFO: Venda - Listar
 class ListVenda(LoginRequiredMixin, ListView):
@@ -200,18 +182,16 @@ class UpdateView(LoginRequiredMixin, UpdateView):
 
     def get_form(self, form_class=None):
         form = super().get_form(form_class)
-        # Desabilita os campos e 'situacaoMensal'
-        form.fields["situacaoMensal"].widget.attrs["disabled"] = True
+        # Desabilita os campos 'vendedor' e 'situacaoMensal'
+        form.fields['vendedor'].initial = self.object.vendedor
+        if 'vendedor' in form.fields:
+            form.fields['vendedor'].widget.attrs.pop('disabled', None)
         return form
 
     def form_valid(self, form):
         cliente_input = self.request.POST.get("cliente")
         cpf_input = self.request.POST.get("cpf_cliente")
         id_input = self.request.POST.get("pk_cliente")
-
-        print(f"Cliente Input: {cliente_input}")
-        print(f"CPF Input: {cpf_input}")
-        print(f"ID Input: {id_input}")
 
         if cliente_input:
             cliente_nome = cliente_input.strip()
@@ -222,7 +202,10 @@ class UpdateView(LoginRequiredMixin, UpdateView):
             if cliente and (not cpf_input or cliente.cpf == cpf_input) and (
                     not id_input or cliente.pk == int(id_input)):
                 form.instance.cliente = cliente
-                form.instance.vendedor = self.request.user
+                if 'vendedor' in form.cleaned_data and form.cleaned_data['vendedor']:
+                    form.instance.vendedor = form.cleaned_data['vendedor']
+                else:
+                    form.instance.vendedor = self.object.vendedor
 
 
                 tipo_servico = self.request.POST.get("tipo_servico")
@@ -273,7 +256,14 @@ class UpdateView(LoginRequiredMixin, UpdateView):
         else:
             messages.error(self.request, 'Informe o nome do Cliente.')
             return self.form_invalid(form)
-
+    
+    ''' Caso deseje que apenas o vendedor possa ser associado a uma venda usar a função abaixo
+    def clean_vendedor(self):
+        vendedor = self.cleaned_data.get('vendedor')
+        if not vendedor:
+            return self.instance.vendedor  # Mantém o original se não for fornecido
+        return vendedor
+'''
 
 # INFO: Venda - Deletar
 class DeleteView(LoginRequiredMixin, DeleteView):

@@ -11,7 +11,14 @@ from apps.worker.models import Funcionario
 from apps.client.models import Cliente
 
 
-# WARNING -- ---- --- --- -----
+# WARNING -- ---- --- Mudar campos de executivo com 40% --- -----
+OPC_SERVICES = [
+    "Representação ",
+    "Retirada de Documento",
+    "Atendimento Domiciliar",
+    "Serviços para brasileiros residentes no exterior",
+]
+
 # INFO: Dados de Venda (funcionário - Cliente)
 class Venda(models.Model):
     tipo_mensal = [
@@ -33,13 +40,17 @@ class Venda(models.Model):
     )
 
     situacaoMensal_dataApoio = models.DateField(auto_now_add=True)
-    Agencia_recomendada = models.CharField(null=True, verbose_name="Agencia Recomendada",help_text="Digite o nome da agência que recomendou.",max_length=1000)
-    recomendação_da_Venda = models.CharField(null=True, verbose_name="recomendação de Venda", help_text="Digite o nome da pessoa que recomendou.",max_length=1000)
+    Agencia_recomendada = models.CharField(null=True, blank=True, verbose_name="Agencia Recomendada",help_text="Digite o nome da agência que recomendou.",max_length=1000)
+    recomendação_da_Venda = models.CharField(null=True,blank=True, verbose_name="recomendação de Venda", help_text="Digite o nome da pessoa que recomendou.",max_length=1000)
     data_venda = models.CharField(default=date.today().strftime('%d/%m/%Y'), editable=True, max_length=15)#temporario  deve ser 
     finished_at = models.CharField(null=True, verbose_name="Data finalizado",editable=True, max_length=15)
     duracao_venda = models.CharField(null=True, max_length=20, verbose_name="Duração da venda em dias")
-    valor = models.FloatField(help_text="Digite o Valor padrão da venda.",null=True, blank=True)
+   
+    custo_padrao_venda = models.FloatField(null=True, blank=True, help_text="Digite o Valor padrão da venda.", verbose_name="Custo da Venda")
+    valor = models.FloatField(null=True, blank=True)
     desconto = models.FloatField(null=True, blank=True,help_text="Digite o valor do desconto para a venda.")
+    custo_sobre_venda = models.FloatField(null=True, blank=True, help_text="Digite o custo sobre a venda.",verbose_name="Custo sobre Venda")
+    
     nacionalidade = models.CharField(
         max_length=20,
         choices=[
@@ -94,6 +105,7 @@ class Venda(models.Model):
             ("Identidade", "Identidade"),
             ("Global Visa", "Global Visa"),
             ("Atendimento Domiciliar", "Atendimento Domiciliar"),
+            ("Serviços para brasileiros residentes no exterior", "Serviços para brasileiros residentes no exterior"),
         ],
         blank=True,
         null=True,
@@ -123,9 +135,14 @@ class Venda(models.Model):
 
     )   
     def save(self, *args, **kwargs):
+        if self.custo_padrao_venda:
+            self.valor = self.custo_padrao_venda
         """Aplica o desconto ao valor da venda antes de salvar."""
         if self.valor and self.desconto:
             self.valor *= (1 - self.desconto / 100)
+        
+        if self.valor and self.custo_sobre_venda:
+            self.valor -= self.custo_sobre_venda
         super().save(*args, **kwargs)
 
     def __str__(self):
@@ -152,44 +169,72 @@ class Venda(models.Model):
             self.duracao_venda = f"{delta.days} Dias"
             self.save()
     
-#   calcular_comissao_vendedor  calcular_comissao_executivo  calcular_comissao_administrador
+    @staticmethod
     def calcular_comissao_vendedor(vendedor):
-        pass
-    
-    
-    def calcular_comissao_executivo(vendedor):
-        pass
-    
+        """Calcula a comissão do vendedor baseada em cada venda individualmente."""
+        comissao = 0.0
+        vendas = Venda.objects.filter(vendedor=vendedor)
+        
+        if vendedor.departamento != "Vend" or vendedor.especializacao_funcao != "Despachante":
+            return round(comissao, 2)
+        
+        for venda in vendas:
+            valor_venda = venda.valor or 0
+        
+            # Verifica serviços OPC com executivo
+            if venda.executivo and venda.tipo_servico in OPC_SERVICES:
+                continue  # Vendedor não recebe
+            
+            else:
+                comissao += valor_venda * 0.15
+        
+        return round(comissao, 2)
 
+
+    @staticmethod
+    def calcular_comissao_executivo(executivo):
+        """Calcula a comissão do executivo baseada em cada venda individualmente."""
+        comissao = 0.0
+        vendas = Venda.objects.filter(executivo=executivo)
+        
+        if executivo.departamento != "Exec":
+            return round(comissao, 2)
+        
+        for venda in vendas:
+            valor_venda = venda.valor or 0
+        
+            if venda.tipo_servico in OPC_SERVICES:
+                comissao += valor_venda * 0.40
+            elif venda.Agencia_recomendada or venda.recomendação_da_Venda:
+                comissao += (valor_venda * 0.85) * 0.02  # 2% do valor após 15% do vendedor
+        
+        return round(comissao, 2)
+
+
+    @staticmethod
     def calcular_comissao_administrador():
-        pass
+        """Calcula a comissão dos administradores baseada no total de vendas mensais."""
+        comissao = 0.0  
+        return round(comissao, 2)
 
-
-    
 
 @receiver(post_save, sender=Venda)
 def atualizar_comissao_acumulada(sender, instance, **kwargs):
-    """Atualiza a comissão acumulada do vendedor e dos administradores sempre que uma venda for salva."""
+    """Atualiza as comissões de forma otimizada após cada venda."""
+    # Atualiza vendedor
     if instance.vendedor:
-        # Atualiza a comissão do vendedor
-        vendedor = instance.vendedor
-        vendedor.comissao_acumulada = Venda.calcular_comissao_vendedor(vendedor)
-        vendedor.save()
-
-        # Atualiza a comissão do executivo
-        executivo = Funcionario.objects.filter(departamento="Exec")
-        executivo = instance.vendedor
-        executivo.comissao_acumulada = Venda.calcular_comissao_executivo(executivo)
-        executivo.save()
-
-
-        # Atualiza a comissão dos administradores
-        administradores = Funcionario.objects.filter(departamento="Adm")
-        comissao_adm = Venda.calcular_comissao_administrador()
-        for adm in administradores:
-            adm.comissao_acumulada = comissao_adm
-            adm.save()
-
+        instance.vendedor.comissao_acumulada = Venda.calcular_comissao_vendedor(instance.vendedor)
+        instance.vendedor.save()
+    
+    # Atualiza executivo
+    if instance.executivo:
+        instance.executivo.comissao_acumulada = Venda.calcular_comissao_executivo(instance.executivo)
+        instance.executivo.save()
+    
+    # Atualiza administradores
+    comissao_adm = Venda.calcular_comissao_administrador()
+    Funcionario.objects.filter(departamento="Adm").update(comissao_acumulada=comissao_adm)
+    
 
 class Anexo(models.Model):
     arquivo = models.FileField(upload_to='anexos/')
