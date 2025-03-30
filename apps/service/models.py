@@ -6,6 +6,7 @@ from math import floor
 from datetime import date
 
 from django.dispatch import receiver
+from django.db.models.signals import post_save
 from apps.worker.models import Funcionario
 from apps.client.models import Cliente
 
@@ -151,54 +152,21 @@ class Venda(models.Model):
             self.duracao_venda = f"{delta.days} Dias"
             self.save()
     
-
-
-    """
-    @staticmethod
-    def calcular_comissao_administrador():
-            #Calcula a comissão acumulada para todos os administradores.
-        total_vendas_mensal = Venda.objects.filter(situacaoMensal="Mensal").aggregate(Sum("valor"))["valor__sum"]
-        if total_vendas_mensal is None:
-            total_vendas_mensal = 0
-        comissao = round(total_vendas_mensal * 0.30, 2) 
-        return comissao
-        """
-
-"""
+#   calcular_comissao_vendedor  calcular_comissao_executivo  calcular_comissao_administrador
     def calcular_comissao_vendedor(vendedor):
-            #Calcula a comissão acumulada para um vendedor específico.
-        total_vendas = Venda.objects.filter(vendedor=vendedor).aggregate(Sum("valor"))["valor__sum"]
-        if total_vendas is None:
-            total_vendas = 0
-        comissao = 0
-        if vendedor.departamento == "Vend":
-            if vendedor.especializacao_funcao == "Despachante":
-                comissao = total_vendas * 0.15
-            elif vendedor.especializacao_funcao == "Despachante externo":
-                comissao = total_vendas * 0.40
-            elif vendedor.especializacao_funcao == "Suporte Whatsapp":
-                comissao = 0  # OPCIONAL, já zera acima
-        return round(comissao, 2)
-   
-    def calcular_comissao_executivo(executivo):
-            #Calcula a comissão acumulada para um executivo específico.
-        total_vendas = Venda.objects.filter(vendedor=executivo).aggregate(Sum("valor"))["valor__sum"]
-        if total_vendas is None:
-            total_vendas = 0
-        comissao = 0
-        if executivo.departamento == "Vend":
-            if executivo.especializacao_funcao == "Executivo":
-                comissao = total_vendas * 0.15
-            elif executivo.especializacao_funcao == "Executivo externo":
-                comissao = total_vendas * 0.40
-            elif executivo.especializacao_funcao == "Suporte Whatsapp":
-                comissao = 0
-"""
+        pass
     
+    
+    def calcular_comissao_executivo(vendedor):
+        pass
     
 
+    def calcular_comissao_administrador():
+        pass
+
+
     
-'''
+
 @receiver(post_save, sender=Venda)
 def atualizar_comissao_acumulada(sender, instance, **kwargs):
     """Atualiza a comissão acumulada do vendedor e dos administradores sempre que uma venda for salva."""
@@ -211,17 +179,17 @@ def atualizar_comissao_acumulada(sender, instance, **kwargs):
         # Atualiza a comissão do executivo
         executivo = Funcionario.objects.filter(departamento="Exec")
         executivo = instance.vendedor
-        executivo.comissao_acumulada = Venda.calcular_comissao_executivo(vendedor)
+        executivo.comissao_acumulada = Venda.calcular_comissao_executivo(executivo)
         executivo.save()
-'''
-'''
+
+
         # Atualiza a comissão dos administradores
         administradores = Funcionario.objects.filter(departamento="Adm")
         comissao_adm = Venda.calcular_comissao_administrador()
         for adm in administradores:
             adm.comissao_acumulada = comissao_adm
             adm.save()
-'''
+
 
 class Anexo(models.Model):
     arquivo = models.FileField(upload_to='anexos/')

@@ -38,9 +38,11 @@ class Funcionario(AbstractUser):
     idade = models.IntegerField(null=True, editable=False)
     username = models.CharField(max_length=255, unique=True, verbose_name="apelido")
     email = models.EmailField(unique=True, verbose_name="e-mail",max_length=255)
+    
     Sub_salario_fixo = models.FloatField(default=0, verbose_name="salário fixo",help_text="Um valor fixo pago ao funcionario", null=True, blank=True)
     salario = models.FloatField(default=0, verbose_name="salário total",editable=False)
     comissao_acumulada = models.FloatField(default=0, verbose_name="comissão acumulada")
+  
     telefone = models.CharField(max_length=20, null=True, blank=True,help_text="Apenas digite os números; este campo possui autoformatação")
     endereco = models.CharField(max_length=255, null=True, blank=True, verbose_name="Endereço")
     cidade = models.CharField(max_length=255, null=True, blank=True)
