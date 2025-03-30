@@ -6,6 +6,7 @@ from math import floor
 from datetime import date
 
 from django.dispatch import receiver
+from django.db.models.signals import post_save
 from apps.worker.models import Funcionario
 from apps.client.models import Cliente
 
@@ -151,6 +152,18 @@ class Venda(models.Model):
             self.duracao_venda = f"{delta.days} Dias"
             self.save()
     
+#   calcular_comissao_vendedor  calcular_comissao_executivo  calcular_comissao_administrador
+    def calcular_comissao_vendedor(vendedor):
+        pass
+    
+    
+    def calcular_comissao_executivo(vendedor):
+        pass
+    
+
+    def calcular_comissao_administrador():
+        pass
+
 
 
     """
@@ -198,7 +211,7 @@ class Venda(models.Model):
     
 
     
-'''
+
 @receiver(post_save, sender=Venda)
 def atualizar_comissao_acumulada(sender, instance, **kwargs):
     """Atualiza a comissão acumulada do vendedor e dos administradores sempre que uma venda for salva."""
@@ -213,15 +226,15 @@ def atualizar_comissao_acumulada(sender, instance, **kwargs):
         executivo = instance.vendedor
         executivo.comissao_acumulada = Venda.calcular_comissao_executivo(vendedor)
         executivo.save()
-'''
-'''
+
+
         # Atualiza a comissão dos administradores
         administradores = Funcionario.objects.filter(departamento="Adm")
         comissao_adm = Venda.calcular_comissao_administrador()
         for adm in administradores:
             adm.comissao_acumulada = comissao_adm
             adm.save()
-'''
+
 
 class Anexo(models.Model):
     arquivo = models.FileField(upload_to='anexos/')
