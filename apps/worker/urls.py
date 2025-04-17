@@ -50,7 +50,6 @@ urlpatterns = [
     path("fluxo/<int:pk>/",views.DetalhesFluxoMensal.as_view(), name="detalhesFluxo"),
     path('fluxo/deletar-conta/<int:pk>/', views.deletar_conta_mensal, name='deletar_conta_mensal'),   
 
-    path('listagemVendasFunc/', views.listFuncionario.as_view(), name='listFuncionario'),    
     path('vendasDoFunc/<int:pk>/', views.vendasDoFunc, name='vendasDoFunc'), 
 
 
