@@ -3,11 +3,20 @@ from phonenumber_field.formfields import PhoneNumberField
 from django.core.exceptions import ValidationError
 from apps.worker.models import Funcionario, ContasMensal  # Use o modelo de usuário personalizado
 
-
+def validar_cpf(cpf):
+    if not cpf:
+        return
+    if len(cpf) != 14:
+        raise ValidationError("O CPF deve ter 14 caracteres!")
+    for i, char in enumerate(cpf):
+        if i in [3, 7] and char != ".":
+            raise ValidationError(f"O caracter na posição {i + 1} deve ser '.'")
+        elif i == 11 and char != "-":
+            raise ValidationError(f"O caracter na posição {i + 1} deve ser '-'")
+        elif i not in [3, 7, 11] and not char.isdigit():
+            raise ValidationError(f"O caracter na posição {i + 1} deve ser um dígito.")
 
 class ContasForm(forms.ModelForm):
-
-
     class Meta:
         model = ContasMensal
         fields = [
@@ -24,21 +33,6 @@ class ContasForm(forms.ModelForm):
      return contas
    
    
-
-
-
-def validar_cpf(cpf):
-    if not cpf:
-        return
-    if len(cpf) != 14:
-        raise ValidationError("O CPF deve ter 14 caracteres!")
-    for i, char in enumerate(cpf):
-        if i in [3, 7] and char != ".":
-            raise ValidationError(f"O caracter na posição {i + 1} deve ser '.'")
-        elif i == 11 and char != "-":
-            raise ValidationError(f"O caracter na posição {i + 1} deve ser '-'")
-        elif i not in [3, 7, 11] and not char.isdigit():
-            raise ValidationError(f"O caracter na posição {i + 1} deve ser um dígito.")
 
 
 # telefone = PhoneNumberField(label="Telefone", region="BR")
@@ -75,6 +69,7 @@ class RegisterForm(forms.Form):
 class AtualizarForm(forms.ModelForm):
     telefone = forms.CharField(
     label="Telefone",
+    required=False,
     widget=forms.TextInput(attrs={"placeholder": "Para customizar use '+' no início"})
 )
 
@@ -109,17 +104,76 @@ class AtualizarForm(forms.ModelForm):
         return cpf
 
 class CompletarCadastro(forms.ModelForm):
-    telefone = forms.CharField(
-    label="Telefone",
-    widget=forms.TextInput(attrs={"placeholder": "Para customizar use '+' no início"})
-)
     class Meta:
         model = Funcionario
-        fields = [ "username", "first_name", "last_name", "email", "telefone", "endereco", "cidade", "complemento", "data_nascimento", "cpf","pix"]
+        fields = [
+            "username", "first_name", "last_name", "email", "telefone",
+            "endereco", "cidade", "complemento", "data_nascimento", "cpf", "pix"
+        ]
+
+    username = forms.CharField(
+        label="Nome de Usuário",
+        required=False,
+        widget=forms.TextInput(attrs={"placeholder": "Digite seu nome de usuário"})
+    )
+
+    first_name = forms.CharField(
+        label="Primeiro Nome",
+        required=False,
+        widget=forms.TextInput(attrs={"placeholder": "Digite seu primeiro nome"})
+    )
+
+    last_name = forms.CharField(
+        label="Sobrenome",
+        required=False,
+        widget=forms.TextInput(attrs={"placeholder": "Digite seu sobrenome"})
+    )
+
+    email = forms.EmailField(
+        label="Email",
+        required=False,
+        widget=forms.EmailInput(attrs={"placeholder": "Digite seu e-mail"})
+    )
+
+    telefone = forms.CharField(
+        label="Telefone",
+        required=False,
+        widget=forms.TextInput(attrs={"placeholder": "Para customizar use '+' no início"})
+    )
+
+    endereco = forms.CharField(
+        label="Endereço",
+        required=False,
+        widget=forms.TextInput(attrs={"placeholder": "Rua, número, bairro"})
+    )
+
+    cidade = forms.CharField(
+        label="Cidade",
+        required=False,
+        widget=forms.TextInput(attrs={"placeholder": "Digite sua cidade"})
+    )
+
+    complemento = forms.CharField(
+        label="Complemento",
+        required=False,
+        widget=forms.TextInput(attrs={"placeholder": "Complemento do endereço"})
+    )
+
+    data_nascimento = forms.CharField(
+        label="Data de Nascimento",
+        required=False,
+    )
+
+    pix = forms.CharField(
+        label="Chave PIX",
+        required=False,
+        widget=forms.TextInput(attrs={"placeholder": "Digite sua chave PIX"})
+    )
 
     def clean_cpf(self):
         cpf = self.cleaned_data.get("cpf")
-        validar_cpf(cpf)
-        if Funcionario.objects.filter(cpf=cpf).exclude(pk=self.instance.pk).exists():
-            raise ValidationError("Este CPF já está registrado.")
+        if cpf:
+            validar_cpf(cpf)
+            if Funcionario.objects.filter(cpf=cpf).exclude(pk=self.instance.pk).exists():
+                raise ValidationError("Este CPF já está registrado.")
         return cpf

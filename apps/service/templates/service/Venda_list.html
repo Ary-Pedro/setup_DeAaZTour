@@ -65,9 +65,16 @@
                                         <img src="{% static 'imagens/check.svg' %}" alt="Concluir" style="height: 15px; width: 15px;"> Concluir
                                     </a>
                                 {% endif %}
-                                <a href="{% url 'venda_atualizar' todo.pk %}?page={{ page_obj.number }}" class="btn btn-secondary btn-sm">
-                                    <img src="{% static 'imagens/edit.svg' %}" alt="Editar" style="height: 15px; width: 15px;"> Editar
-                                </a>
+                                
+                             
+                                <a href="{% url 'venda_atualizar' todo.pk %}?page={{ page_obj.number }}"
+                                class="btn {% if todo.pode_editar_exec and todo.status_executivo %}btn-success{% else %}btn-secondary{% endif %} btn-sm">
+                                 <img src="{% static 'imagens/edit.svg' %}"
+                                      alt="Editar"
+                                      style="height: 15px; width: 15px;">
+                                 Editar
+                             </a>
+
                                 <a href="{% url 'venda_deletar' todo.pk %}?page={{ page_obj.number }}" class="btn btn-danger btn-sm">
                                     <img src="{% static 'imagens/delete.svg' %}" alt="Excluir" style="height: 15px; width: 15px;"> Excluir
                                 </a>

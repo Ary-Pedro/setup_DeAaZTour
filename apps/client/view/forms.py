@@ -50,7 +50,10 @@ class ClienteForm(forms.ModelForm):
         required=False,
         widget=forms.TextInput(attrs={"placeholder": "Preencha apenas com números, a formatação será automática"})
     )
-
+    nome = forms.CharField(
+        label="Nome",
+        required=False,
+        widget=forms.TextInput(attrs={"placeholder": "Digite o nome completo"}))
     class Meta:
         model = Cliente
         fields = [
@@ -116,7 +119,10 @@ class AtualizarForm(forms.ModelForm):
     label="CEP",required=False,
     widget=forms.TextInput(attrs={"placeholder": "Preencha apenas com números, a formatação será automática"})
     )
-
+    nome = forms.CharField(
+        label="Nome",
+        required=False,
+        widget=forms.TextInput(attrs={"placeholder": "Digite o nome completo"}))
     class Meta:
         model = Cliente
         fields = [

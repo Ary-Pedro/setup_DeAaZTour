@@ -60,6 +60,7 @@ class VendaForm(forms.ModelForm):
         # Nova condição: se o tipo de serviço estiver em OPC_SERVICES
         elif tipo_servico and tipo_servico.strip() in [item.strip() for item in OPC_SERVICES]:
             self.instance.status_executivo = True
+
         else:
             self.instance.status_executivo = False
         

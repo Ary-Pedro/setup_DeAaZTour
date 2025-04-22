@@ -134,15 +134,25 @@ class Venda(models.Model):
         verbose_name="Forma de pagamento:",
 
     )   
+    @property
+    def pode_editar_exec(self):
+        # só permite quando status_executivo é True/1 e existe um executivo associado
+        if self.status_executivo is True and self.executivo is not None:
+            return False
+        else: return True
+        
+    
+    #TODO NA HORA VER A ORDEM DE VALOR RESULTANTE
     def save(self, *args, **kwargs):
         if self.custo_padrao_venda:
             self.valor = self.custo_padrao_venda
+        if self.valor and self.custo_sobre_venda:
+            self.valor -= self.custo_sobre_venda
         """Aplica o desconto ao valor da venda antes de salvar."""
         if self.valor and self.desconto:
             self.valor *= (1 - self.desconto / 100)
         
-        if self.valor and self.custo_sobre_venda:
-            self.valor -= self.custo_sobre_venda
+        
         super().save(*args, **kwargs)
 
     def __str__(self):
@@ -169,6 +179,8 @@ class Venda(models.Model):
             self.duracao_venda = f"{delta.days} Dias"
             self.save()
     
+
+    #TODO: comissão do vendedor executivo e administrador
     @staticmethod
     def calcular_comissao_vendedor(vendedor):
         """Calcula a comissão do vendedor baseada em cada venda individualmente."""

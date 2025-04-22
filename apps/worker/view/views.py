@@ -30,7 +30,7 @@ from .forms import ContasForm
 from django.utils import timezone
 
 User = get_user_model()
-
+1
 def vendasDoFunc(request, pk):
     funcionario = Funcionario.objects.get(pk=pk)
     vendas = Venda.objects.filter(vendedor=funcionario)  

@@ -1,4 +1,4 @@
-from datetime import date
+from datetime import date, datetime
 from math import floor
 from django.db import models
 from django.dispatch import receiver
@@ -47,7 +47,7 @@ class Funcionario(AbstractUser):
     endereco = models.CharField(max_length=255, null=True, blank=True, verbose_name="Endereço")
     cidade = models.CharField(max_length=255, null=True, blank=True)
     complemento = models.CharField(max_length=255, null=True, blank=True)
-    data_nascimento = models.DateField(verbose_name="Data de nascimento", null=True, blank=True,help_text="Apenas digite os números; este campo possui autoformatação")
+    data_nascimento = models.CharField(max_length=10,verbose_name="Data de nascimento", null=True, blank=True,help_text="Apenas digite os números; este campo possui autoformatação")
     token = models.CharField(null=True, unique=True, max_length=8)
     is_staff = models.BooleanField(default=True)
     cpf = models.CharField(max_length=14, unique=True, verbose_name="CPF", null=True, blank=True,help_text="Apenas digite os números; este campo possui autoformatação")
@@ -81,8 +81,6 @@ class Funcionario(AbstractUser):
         ("Suporte Whatsapp", "Suporte Whatsapp"),
         ("Executivo contas", "Executivo contas"),
         ("Despachante externo e Executivo contas", "Despachante externo e Executivo contas"),
-
-        
         ("Diretor(a)", "Diretor(a)"),
     )
     especializacao_funcao = models.CharField(
@@ -141,12 +139,17 @@ class Funcionario(AbstractUser):
     objects = CustomUserManager()
 
     
+ 
     def calcular_idade(self):
         if self.data_nascimento:
+            data_nascimento_aux = datetime.strptime(self.data_nascimento, "%d/%m/%Y").date()
+        
+            # Calcule a idade:
             hoje = date.today()
-            resto = hoje.month - self.data_nascimento.month
-            idade = ((hoje.year - self.data_nascimento.year) * 12 + resto) / 12
+            resto = hoje.month - data_nascimento_aux.month
+            idade = ((hoje.year - data_nascimento_aux.year) * 12 + resto) / 12
             idade = floor(idade)
+
             return idade
         else:
             return None

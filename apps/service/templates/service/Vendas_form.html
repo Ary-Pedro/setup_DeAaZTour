@@ -36,14 +36,8 @@
    <div class="right-section">
        <h2>Registro</h2><br>
 
-
-
        <form method="post" enctype="multipart/form-data">
-
            {% csrf_token %}
-
-
-
         
     {% if user.departamento == 'Adm' and venda.pk %}
     <div class="mb-3">
@@ -223,8 +217,12 @@
        </form>
    <br><br> 
 
-       <p><a class="btn btn-primary" href="{% url 'home' %}">Voltar</a></p>
-   </div>
+   <p>
+    <a class="btn btn-primary" href="{% if venda.pk %}{% url 'ListagemVenda' %}{% else %}{% url 'home' %}{% endif %}">
+      Voltar
+    </a>
+  </p>
+     </div>
 </div>
 
 <script src="{% static 'js/format_service.js' %}" defer></script>
