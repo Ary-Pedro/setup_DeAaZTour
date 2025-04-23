@@ -228,14 +228,9 @@ class Venda(models.Model):
         return comissao
 
 
-    @staticmethod
-    def calcular_comissao_administrador():
-        """Calcula a comissão dos administradores baseada no total de vendas mensais."""
-        comissao = 0.0  
-        
-        return comissao
 
 
+#TODO: comissão do administrador
 @receiver(post_save, sender=Venda)
 def atualizar_comissao_acumulada(sender, instance, **kwargs):
     """Atualiza as comissões de forma otimizada após cada venda."""

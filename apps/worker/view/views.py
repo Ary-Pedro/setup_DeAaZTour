@@ -13,7 +13,7 @@ from .forms import RegisterForm
 from apps.worker.models import Funcionario, ContasMensal, FluxoMensal
 from setup_DeAaZTour import settings
 from apps.client.models import Cliente
-from apps.service.models import Venda
+from apps.service.models import OPC_SERVICES, Venda
 from datetime import date, timedelta
 from django.db.models.functions import datetime
 from django.http import HttpResponse  
@@ -30,7 +30,7 @@ from .forms import ContasForm
 from django.utils import timezone
 
 User = get_user_model()
-1
+
 def vendasDoFunc(request, pk):
     funcionario = Funcionario.objects.get(pk=pk)
     vendas = Venda.objects.filter(vendedor=funcionario)  
@@ -48,7 +48,7 @@ def vendasDoFunc(request, pk):
             situacaoMensal_dataApoio__month=mes_referencia.month,
             situacaoMensal_dataApoio__year=mes_referencia.year
     )
-    return render(request, 'contas/vendasDoFunc.html', {
+    return render(request, 'contas/detalhes_fluxo_completo.html', {
         'funcionario': funcionario,
         'vendas': vendas,
         'mes_referencia': mes_referencia
@@ -181,15 +181,72 @@ class ListarFluxosMensais(LoginRequiredMixin, ListView):
     context_object_name = "fluxos"
 
 
-class DetalhesFluxoMensal(LoginRequiredMixin, DetailView):
+class DetalhesFluxoMensalCompleto(LoginRequiredMixin, DetailView):
     model = FluxoMensal
-    template_name = "contas/detalhesFluxo.html"
+    template_name = "contas/detalhes_fluxo_completo.html"
     context_object_name = "fluxo"
 
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
-        context["contas"] = self.object.contas.all()
+        fluxo = self.object
+
+        # Filtrar vendas do mês
+        mes_ref = fluxo.mes_referencia
+        month_year_str = f"/{mes_ref.month:02d}/{mes_ref.year}"
+        vendas_mes = Venda.objects.filter(data_venda__endswith=month_year_str)
+
+        # Processar dados dos funcionários
+        funcionarios_data = []
+        total_vendas_brutas = 0
+        total_comissoes = 0
+
+        # Salários fixos de funcionários ativos
+        total_salarios_fixos = Funcionario.objects.filter(is_active=True).aggregate(
+            total=Sum('Sub_salario_fixo')
+        )['total'] or 0
+
+        for funcionario in Funcionario.objects.all():
+            # Ignorar comissão de ADMs
+            if funcionario.departamento == 'Adm':
+                comissao = 0
+            else:
+                comissao = funcionario.comissao_acumulada or 0
+                total_comissoes += comissao
+
+            vendas_vendedor = vendas_mes.filter(vendedor=funcionario).exclude(tipo_servico__in=OPC_SERVICES)
+            vendas_executivo = vendas_mes.filter(executivo=funcionario, tipo_servico__in=OPC_SERVICES)
+            vendas_funcionario = list(vendas_vendedor) + list(vendas_executivo)
+            total_funcionario = sum(v.valor for v in vendas_funcionario if v.valor)
+
+            funcionarios_data.append({
+                'funcionario': funcionario,
+                'vendas': vendas_funcionario,
+                'total_vendas': total_funcionario,
+                'comissao': comissao,
+            })
+            total_vendas_brutas += total_funcionario
+
+        # Cálculos financeiros
+        subliquido = (fluxo.total_entrada + total_vendas_brutas) - (fluxo.total_saida + total_comissoes)
+        liquido_real = subliquido - total_salarios_fixos
+
+         # Salvar valores no modelo
+        fluxo.subtotal_liquido = subliquido
+        fluxo.total_liquido = liquido_real
+        fluxo.save()
+
+        context.update({
+            'contas': fluxo.contas.all(),
+            'funcionarios_data': funcionarios_data,
+            'total_vendas_brutas': total_vendas_brutas,
+            'total_comissoes': total_comissoes,
+            'total_salarios_fixos': total_salarios_fixos,
+            'subliquido': subliquido,
+            'liquido_real': liquido_real,
+            'OPC_SERVICES': OPC_SERVICES,
+        })
         return context
+
     
 # IDEA: Dados Cadastrais ----------------------------------------------------------------------------------------------------
 # INFO: Campo de login da conta
@@ -375,11 +432,12 @@ class ListFuncionario(LoginRequiredMixin, ListView):
                 # Atualiza a comissão do vendedor
                 funcionario.comissao_acumulada = Venda.calcular_comissao_vendedor(funcionario)
 
-            if funcionario.departamento == "Executivo":
+            if funcionario.departamento == "Exec":
                 # Atualiza a comissão do executivo
                 funcionario.comissao_acumulada = Venda.calcular_comissao_executivo(funcionario)
+            if funcionario.departamento == "Adm" and funcionario.especializacao_funcao == "Financeiro":
+                funcionario.comissao_acumulada = Funcionario.calcular_comissao_administrador(funcionario)
             funcionario.save()
-            #fazer comissão de adm!!!!
         return queryset
 
 
