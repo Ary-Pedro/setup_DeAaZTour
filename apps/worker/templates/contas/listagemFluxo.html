@@ -33,11 +33,11 @@
                 {% for fluxo in fluxos %}
                 <tr>
                     <td>{{ fluxo.mes_referencia|date:"F Y" }}</td>
-                    <td>R$ {{ fluxo.saldo_total }}</td>
-                    <td>R$ {{ fluxo.total_entrada }}</td>
-                    <td>R$ {{ fluxo.total_saida }}</td>
+                    <td>R$ {{ fluxo.saldo_total|floatformat:2 }}</td>
+                    <td>R$ {{ fluxo.total_entrada|floatformat:2 }}</td>
+                    <td>R$ {{ fluxo.total_saida|floatformat:2 }}</td>
                     <td>
-                        <a href="{% url 'detalhesFluxo' fluxo.pk %}" class="btn btn-primary">Detalhes</a>
+                        <a href="{% url 'fluxo_completo' fluxo.pk %}" class="btn btn-primary">Detalhes</a>
                         <a href="{% url 'exportarFluxoConcluido' fluxo.pk %}" class="btn btn-success btn-sm">Exportar</a>
                     </td>
                 </tr>

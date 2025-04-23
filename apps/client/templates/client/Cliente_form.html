@@ -53,7 +53,7 @@
 
         <br>
 
-       <a class="btn btn-primary" href="{% url 'home' %}">Voltar</a>
+       <a class="btn btn-primary" href="{% if cliente.pk %}{% url 'ListagemCliente' %}{% else %}{% url 'home' %}{% endif %}">Voltar</a>
 
     </div>
 

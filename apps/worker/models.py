@@ -1,4 +1,4 @@
-from datetime import date
+from datetime import date, datetime
 from math import floor
 from django.db import models
 from django.dispatch import receiver
@@ -47,7 +47,7 @@ class Funcionario(AbstractUser):
     endereco = models.CharField(max_length=255, null=True, blank=True, verbose_name="Endereço")
     cidade = models.CharField(max_length=255, null=True, blank=True)
     complemento = models.CharField(max_length=255, null=True, blank=True)
-    data_nascimento = models.DateField(verbose_name="Data de nascimento", null=True, blank=True,help_text="Apenas digite os números; este campo possui autoformatação")
+    data_nascimento = models.CharField(max_length=10,verbose_name="Data de nascimento", null=True, blank=True,help_text="Apenas digite os números; este campo possui autoformatação")
     token = models.CharField(null=True, unique=True, max_length=8)
     is_staff = models.BooleanField(default=True)
     cpf = models.CharField(max_length=14, unique=True, verbose_name="CPF", null=True, blank=True,help_text="Apenas digite os números; este campo possui autoformatação")
@@ -81,8 +81,6 @@ class Funcionario(AbstractUser):
         ("Suporte Whatsapp", "Suporte Whatsapp"),
         ("Executivo contas", "Executivo contas"),
         ("Despachante externo e Executivo contas", "Despachante externo e Executivo contas"),
-
-        
         ("Diretor(a)", "Diretor(a)"),
     )
     especializacao_funcao = models.CharField(
@@ -141,12 +139,17 @@ class Funcionario(AbstractUser):
     objects = CustomUserManager()
 
     
+ 
     def calcular_idade(self):
         if self.data_nascimento:
+            data_nascimento_aux = datetime.strptime(self.data_nascimento, "%d/%m/%Y").date()
+        
+            # Calcule a idade:
             hoje = date.today()
-            resto = hoje.month - self.data_nascimento.month
-            idade = ((hoje.year - self.data_nascimento.year) * 12 + resto) / 12
+            resto = hoje.month - data_nascimento_aux.month
+            idade = ((hoje.year - data_nascimento_aux.year) * 12 + resto) / 12
             idade = floor(idade)
+
             return idade
         else:
             return None
@@ -160,7 +163,43 @@ class Funcionario(AbstractUser):
             self.save()
         except Funcionario.DoesNotExist:
             raise ValidationError("erro inesperado")
-      
+          #TODO: comissão do vendedor executivo e administrador
+          
+    @staticmethod
+    def calcular_comissao_administrador(funcionario):
+        """
+        Calcula a comissão do administrador baseado no fluxo mensal líquido do mês corrente.
+
+        - Só executa se o funcionário for do departamento 'Adm' e especialização 'Financeiro'.
+        - Busca o registro de FluxoMensal cujo mes_referencia corresponda ao mês/ano atual.
+        - Calcula o total líquido: total_entrada - total_saida - soma dos salários fixos de funcionários ativos.
+        - Retorna 5% desse valor como comissão.
+        """
+        # Validações iniciais
+        if funcionario.departamento != "Adm" or funcionario.especializacao_funcao != "Financeiro":
+            return 0.0
+
+        # Determina mês e ano atuais
+        hoje = now()
+        mes_atual = hoje.month
+        ano_atual = hoje.year
+
+        # Tenta obter o fluxo mensal referente ao mês/ano atual
+        try:
+            fluxo = FluxoMensal.objects.get(
+                mes_referencia__year=ano_atual,
+                mes_referencia__month=mes_atual
+            )
+        except FluxoMensal.DoesNotExist:
+            return 0.0
+
+        # Montante líquido: entradas menos saídas e salários fixos
+        
+        liquido = fluxo.subtotal_liquido or 0.0
+
+        # Comissão de 5%
+        comissao = liquido * 0.05
+        return comissao
     
         
 
@@ -175,7 +214,8 @@ class FluxoMensal(models.Model):
     saldo_total = models.FloatField(verbose_name="Saldo Total")
     total_entrada = models.FloatField(verbose_name="Total de Entradas")
     total_saida = models.FloatField(verbose_name="Total de Saídas")
-
+    subtotal_liquido = models.FloatField(null= True, blank=True,verbose_name="Sub Líquido")
+    total_liquido = models.FloatField(null= True, blank=True,verbose_name="Total Líquido")
     def __str__(self):
         return f"Fluxo de {self.mes_referencia.strftime('%B %Y')}"
 
@@ -189,6 +229,16 @@ class ContasMensal(models.Model):
     def __str__(self):
         return f"{self.observacao} - {self.created_at}"
 
+    def save(self, *args, **kwargs):
+        # Garante que, antes de salvar, os valores sejam positivos
+        if self.entrada is not None:
+            self.entrada = abs(self.entrada)
+        if self.saida is not None:
+            self.saida = abs(self.saida)
+        if self.observacao is None:
+            self.observacao = "Sem descrição"
+        super().save(*args, **kwargs)
+
     @staticmethod
     def calcular_saldo():
         registros_fluxo_atual = ContasMensal.objects.filter(fluxo_mensal__isnull=True)
@@ -197,3 +247,7 @@ class ContasMensal(models.Model):
         total_saida = registros_fluxo_atual.aggregate(Sum('saida'))['saida__sum'] or 0
         
         return total_entrada - total_saida
+    
+
+
+    

@@ -46,7 +46,7 @@ class Cliente(models.Model):
     )
 
     sexo_outros = models.CharField(
-        max_length=5000,
+        max_length=15,
         blank=True,
         null=True,
         verbose_name="Tipo sexo",
