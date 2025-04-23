@@ -49,8 +49,8 @@ urlpatterns = [
     path("fluxos/", views.ListarFluxosMensais.as_view(), name="listagemFluxoMensal"),
     path('fluxo-completo/<int:pk>/', views.DetalhesFluxoMensalCompleto.as_view(), name='fluxo_completo'),    path('fluxo/deletar-conta/<int:pk>/', views.deletar_conta_mensal, name='deletar_conta_mensal'),   
 
-    path('listagemVendasFunc/', views.ListFuncionario.as_view(), name='ListFuncionario'),    
-    path('vendasDoFunc/<int:pk>/', views.vendasDoFunc, name='vendasDoFunc'), 
+  
+  
 
 
 
