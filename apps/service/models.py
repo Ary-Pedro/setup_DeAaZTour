@@ -2,7 +2,6 @@ from django.db import models
 from django.db.models import Sum
 
 # INFO: funções uso geral
-from math import floor
 from datetime import date
 
 from django.dispatch import receiver
@@ -13,7 +12,7 @@ from apps.client.models import Cliente
 
 # WARNING -- ---- --- Mudar campos de executivo com 40% --- -----
 OPC_SERVICES = [
-    "Representação ",
+    "Representação",
     "Retirada de Documento",
     "Atendimento Domiciliar",
     "Serviços para brasileiros residentes no exterior",
@@ -146,8 +145,10 @@ class Venda(models.Model):
     def save(self, *args, **kwargs):
         if self.custo_padrao_venda:
             self.valor = self.custo_padrao_venda
+
         if self.valor and self.custo_sobre_venda:
             self.valor -= self.custo_sobre_venda
+
         """Aplica o desconto ao valor da venda antes de salvar."""
         if self.valor and self.desconto:
             self.valor *= (1 - self.desconto / 100)
@@ -184,50 +185,55 @@ class Venda(models.Model):
     @staticmethod
     def calcular_comissao_vendedor(vendedor):
         """Calcula a comissão do vendedor baseada em cada venda individualmente."""
-        comissao = 0.0
+        comissao = 0.00
         vendas = Venda.objects.filter(vendedor=vendedor)
         
         if vendedor.departamento != "Vend" or vendedor.especializacao_funcao != "Despachante":
-            return round(comissao, 2)
+            return comissao
         
         for venda in vendas:
             valor_venda = venda.valor or 0
         
             # Verifica serviços OPC com executivo
-            if venda.executivo and venda.tipo_servico in OPC_SERVICES:
+            if venda.tipo_servico in OPC_SERVICES:
                 continue  # Vendedor não recebe
-            
+
+            if venda.executivo != "" and venda.tipo_servico not in OPC_SERVICES:
+                #caso houve venda com executivo, para alteração futura
+                comissao += valor_venda * 0.15
             else:
                 comissao += valor_venda * 0.15
         
-        return round(comissao, 2)
+        return comissao
 
 
     @staticmethod
     def calcular_comissao_executivo(executivo):
         """Calcula a comissão do executivo baseada em cada venda individualmente."""
-        comissao = 0.0
+        comissao = 0.00
         vendas = Venda.objects.filter(executivo=executivo)
         
         if executivo.departamento != "Exec":
-            return round(comissao, 2)
-        
+            return comissao
+        #TODO: ver se são as porcentagens corretas
         for venda in vendas:
             valor_venda = venda.valor or 0
         
             if venda.tipo_servico in OPC_SERVICES:
                 comissao += valor_venda * 0.40
-            elif venda.Agencia_recomendada or venda.recomendação_da_Venda:
+            
+            if venda.Agencia_recomendada or venda.recomendação_da_Venda:
                 comissao += (valor_venda * 0.85) * 0.02  # 2% do valor após 15% do vendedor
         
-        return round(comissao, 2)
+        return comissao
 
 
     @staticmethod
     def calcular_comissao_administrador():
         """Calcula a comissão dos administradores baseada no total de vendas mensais."""
         comissao = 0.0  
-        return round(comissao, 2)
+        
+        return comissao
 
 
 @receiver(post_save, sender=Venda)

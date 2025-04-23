@@ -49,7 +49,7 @@
 </table>
 
 
- <h3 class="mt-4">Saldo Total: R$ {{ saldo_total }}</h3>
+ <h3 class="mt-4">Saldo Total: R$ {{ saldo_total|floatformat:2 }}</h3>
 
 
         <form class="form" action="{% url 'contas' %}" method="POST">

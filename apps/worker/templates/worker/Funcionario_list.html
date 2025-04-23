@@ -54,8 +54,8 @@
                         <td>{{ funcionario.email }}</td>
                         <td>{{ funcionario.telefone }}</td>
                         <td>{{ funcionario.departamento }}</td>
-                        <td>{{ funcionario.comissao_acumulada }}</td>
-                        <td>{{ funcionario.salario }}</td>
+                        <td>{{ funcionario.comissao_acumulada|floatformat:2 }}</td>
+                        <td>{{ funcionario.salario|floatformat:2 }}</td>
                         <td class="status-cell">{{ funcionario.atividade }}</td>
                         <td class="botoestb">
                             <a href="{% url 'funcionario_atualizar' pk=funcionario.pk %}" class="btn btn-secondary btn-sm {% if funcionario.atividade == 'Inativo' %}disabled{% endif %}">

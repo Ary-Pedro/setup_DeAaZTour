@@ -378,12 +378,8 @@ class ListFuncionario(LoginRequiredMixin, ListView):
             if funcionario.departamento == "Executivo":
                 # Atualiza a comissão do executivo
                 funcionario.comissao_acumulada = Venda.calcular_comissao_executivo(funcionario)
-            
-            elif funcionario.departamento == "Adm":
-                # Atualiza a comissão do administrador
-                funcionario.comissao_acumulada = Venda.calcular_comissao_administrador()
-
             funcionario.save()
+            #fazer comissão de adm!!!!
         return queryset
 
 
@@ -700,22 +696,3 @@ class Rank(LoginRequiredMixin, TemplateView):
         except Exception as e:
             # Logar o erro ou tratar de outra forma
             print(f"Erro ao atualizar situação da venda: {e}")
-"""
-Funcão
-+ADM Editar + AlterarCargo() manual✅
-+ADM Editar + Desligar() manual ✅
-+Determinar Comissão() Automático **
-
-Paginas 
-+Cadastrar / login / refazer senha ✅
-+Editar() UpdateView ✅
-+Visualizar() DadosCadastrosFuncionario ✅
-listar() ListFuncionario ✅
-+Filtrar(nome,cpf...) ProcurarFuncionario ✅
-+Editar atualizar cargo()✅
-
-extras
-Rank - venda ✅
-Salvar_csv -Venda
-Salvar_csv - Cliente
-"""

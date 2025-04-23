@@ -68,10 +68,10 @@ class RegisterForm(forms.Form):
 
 class AtualizarForm(forms.ModelForm):
     telefone = forms.CharField(
-    label="Telefone",
-    required=False,
-    widget=forms.TextInput(attrs={"placeholder": "Para customizar use '+' no início"})
-)
+        label="Telefone",
+        required=False,
+        widget=forms.TextInput(attrs={"placeholder": "Para customizar use '+' no início"})
+    )
 
     class Meta:
         model = Funcionario

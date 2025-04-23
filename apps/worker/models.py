@@ -192,6 +192,16 @@ class ContasMensal(models.Model):
     def __str__(self):
         return f"{self.observacao} - {self.created_at}"
 
+    def save(self, *args, **kwargs):
+        # Garante que, antes de salvar, os valores sejam positivos
+        if self.entrada is not None:
+            self.entrada = abs(self.entrada)
+        if self.saida is not None:
+            self.saida = abs(self.saida)
+        if self.observacao is None:
+            self.observacao = "Sem descrição"
+        super().save(*args, **kwargs)
+
     @staticmethod
     def calcular_saldo():
         registros_fluxo_atual = ContasMensal.objects.filter(fluxo_mensal__isnull=True)
