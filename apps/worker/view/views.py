@@ -159,13 +159,16 @@ def concluir_fluxo_mensal(request):
     
     return redirect('listagemFluxoMensal')
 
+
+
 def deletar_conta_mensal(request, pk):
     conta = get_object_or_404(ContasMensal, pk=pk)
-    fluxo_id = conta.fluxo_mensal.id  # Captura o ID antes de deletar
-    conta.delete()
+    fluxo = conta.fluxo_mensal  
+    fluxo_id = fluxo.id  
     
-    # Atualiza os totais do fluxo
-    fluxo = get_object_or_404(FluxoMensal, id=fluxo_id)
+    conta.delete()  
+
+    
     contas_do_fluxo = ContasMensal.objects.filter(fluxo_mensal=fluxo)
     
     fluxo.total_entrada = contas_do_fluxo.aggregate(Sum('entrada'))['entrada__sum'] or 0
@@ -173,7 +176,8 @@ def deletar_conta_mensal(request, pk):
     fluxo.saldo_total = fluxo.total_entrada - fluxo.total_saida
     fluxo.save()
     
-    return redirect(f'/fluxo/{fluxo_id}/')
+    return redirect('fluxo_completo', pk=fluxo_id)
+    
 class ListarFluxosMensais(LoginRequiredMixin, ListView):
     model = FluxoMensal
     template_name = "contas/listagemFluxo.html"

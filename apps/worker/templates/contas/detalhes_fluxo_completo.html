@@ -149,7 +149,8 @@
                             <tbody>
                                 {% for venda in data.vendas %}
                                 <tr>
-                                    <td><a href="{% url 'dadosVenda' venda.pk %}" class="text-decoration-none">#{{ venda.id }}</a></td>
+
+                                    <td><a href="{% url 'dadosVenda' venda.id %}?from_fluxo={{ fluxo.id }}">#{{ venda.id }}</a></td>
                                     <td>{{ venda.data_venda }}</td>
                                     <td>R$ {{ venda.valor|floatformat:2 }}</td>
                                     <td>{{ venda.cliente }}</td>
