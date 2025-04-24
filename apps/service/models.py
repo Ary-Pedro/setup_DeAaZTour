@@ -244,10 +244,6 @@ def atualizar_comissao_acumulada(sender, instance, **kwargs):
         instance.executivo.comissao_acumulada = Venda.calcular_comissao_executivo(instance.executivo)
         instance.executivo.save()
     
-    # Atualiza administradores
-    comissao_adm = Venda.calcular_comissao_administrador()
-    Funcionario.objects.filter(departamento="Adm").update(comissao_acumulada=comissao_adm)
-    
 
 class Anexo(models.Model):
     arquivo = models.FileField(upload_to='anexos/')

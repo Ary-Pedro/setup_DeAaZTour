@@ -121,13 +121,26 @@ class CadVendas(LoginRequiredMixin, CreateView):
             messages.error(self.request, 'Informe o nome do Cliente.')
             return self.form_invalid(form)
 
+
 # INFO: Venda - Listar
 class ListVenda(LoginRequiredMixin, ListView):
-    login_url = "log"  # URL para redirecionar para login
+    login_url = "log"
     model = Venda
     paginate_by = 20
     template_name = "service/Venda_list.html"
     context_object_name = "cadastro_list"
+
+    def get_queryset(self):
+        if self.request.user.departamento == 'Adm':
+            queryset = Venda.objects.all()
+        else:
+            queryset = Venda.objects.filter(vendedor=self.request.user)
+        
+        order = self.request.GET.get('order', 'desc')
+        if order == 'asc':
+            return queryset.order_by('id')
+        return queryset.order_by('-id')
+
 
 
 # INFO: Venda - Atualizar
@@ -326,7 +339,37 @@ class DadosCadastros(LoginRequiredMixin, ListView):
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
         context["title"] = "Detalhes do Cadastro"
+        
+        # Abordagem 1: Verificar parâmetro GET explícito
+        fluxo_id = self.request.GET.get('from_fluxo')
+        if fluxo_id:
+            context["from_fluxo"] = fluxo_id
+            return context
+        
+        # Abordagem 2: Verificar referer (backup)
+        referer = self.request.META.get("HTTP_REFERER", "")
+        context["from_fluxo_completo"] = any(
+            keyword in referer 
+            for keyword in ["fluxo-completo", "detalhes-fluxo"]
+        )
+        
+        # Se veio do fluxo, tentar extrair o ID
+        if context["from_fluxo_completo"]:
+            try:
+                path = urlparse(referer).path
+                parts = [p for p in path.split('/') if p]
+                # Supondo que a URL seja algo como /fluxo-completo/123/
+                if len(parts) >= 2 and parts[-2].isdigit():
+                    context["fluxo_id"] = parts[-2]
+                elif parts[-1].isdigit():
+                    context["fluxo_id"] = parts[-1]
+            except Exception as e:
+                print(f"Erro ao extrair fluxo_id do referer: {e}")
+        
         return context
+
+
+
 
 
 # INFO: Venda - Validar

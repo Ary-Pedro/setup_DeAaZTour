@@ -147,11 +147,15 @@
 
     </div>
 
-{% if 'vendasDoFunc' in request.META.HTTP_REFERER %}
-    <a href="{% url 'vendasDoFunc' cadastro.vendedor.id %}"><button class="btnvoltar">Voltar</button></a>
+    {% if from_fluxo %}
+    <a href="{% url 'fluxo_completo' from_fluxo %}"><button class="btnvoltar">Voltar</button></a>
+{% elif fluxo_id %}
+    <a href="{% url 'fluxo_completo' fluxo_id %}"><button class="btnvoltar">Voltar</button></a>
 {% else %}
     <a href="{% url 'ListagemVenda' %}"><button class="btnvoltar">Voltar</button></a>
 {% endif %}
+  
+  
 {% endfor %}
 
 
