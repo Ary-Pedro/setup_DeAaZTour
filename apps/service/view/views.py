@@ -71,54 +71,56 @@ class CadVendas(LoginRequiredMixin, CreateView):
         print(f"CPF Input: {cpf_input}")
         print(f"ID Input: {id_input}")
 
-        if cliente_input:
-            cliente_nome = cliente_input.strip()
-            cliente = Cliente.objects.filter(
-                nome__iexact=cliente_nome, cpf=cpf_input
-            ).first()
+        # Limpa os campos
+        cliente_nome = cliente_input.strip() if cliente_input else None
+        cpf_input = cpf_input.strip() if cpf_input else None
 
-            if cliente and (not cpf_input or cliente.cpf == cpf_input) and (
-                    not id_input or cliente.pk == int(id_input)):
-                form.instance.cliente = cliente
-                form.instance.vendedor = self.request.user
+        # Busca cliente com base nos dados fornecidos
+        cliente = None
+        if id_input:
+            cliente = Cliente.objects.filter(pk=id_input).first()
+        elif cpf_input and cliente_nome:
+            cliente = Cliente.objects.filter(nome__iexact=cliente_nome, cpf=cpf_input).first()
+        elif cpf_input:
+            cliente = Cliente.objects.filter(cpf=cpf_input).first()
+        elif cliente_nome:
+            cliente = Cliente.objects.filter(nome__iexact=cliente_nome).first()
 
-                tipo_servico = self.request.POST.get("tipo_servico")
-                form.instance.tipo_servico = tipo_servico
+        # Validação da existência do cliente
+        if cliente:
+            form.instance.cliente = cliente
+            form.instance.vendedor = self.request.user
 
-                # Verifica se o tipo de serviço está na lista OPC_SERVICES
-                # Utilizamos strip() para evitar problemas com espaços em branco
-                if tipo_servico and tipo_servico.strip() in [item.strip() for item in OPC_SERVICES]:
-                    form.instance.status_executivo = True
-                # Se desejar, pode definir False caso não esteja
-                else:
-                    form.instance.status_executivo = False
+            tipo_servico = self.request.POST.get("tipo_servico")
+            form.instance.tipo_servico = tipo_servico
 
-                if tipo_servico == "Outros":
-                    form.instance.tipo_servico_outros = self.request.POST.get("tipo_servico_outros")
-                else:
-                    form.instance.tipo_servico_outros = None
-
-                if tipo_servico == "Passaporte":
-                    form.instance.nacionalidade = self.request.POST.get("nacionalidade")
-                    if form.instance.nacionalidade == "Outros":
-                        form.instance.nacionalidade_outros = self.request.POST.get("nacionalidade_outros")
-                    else:
-                        form.instance.nacionalidade_outros = None
-
-                elif tipo_servico == "Cidadania":
-                    form.instance.tipo_cidadania = self.request.POST.get("tipo_cidadania")
-                    if form.instance.tipo_cidadania == "Outros":
-                        form.instance.tipo_cidadania_outros = self.request.POST.get("tipo_cidadania_outros")
-                    else:
-                        form.instance.tipo_cidadania_outros = None
-
-                response = super().form_valid(form)
-                return response
+            if tipo_servico and tipo_servico.strip() in [item.strip() for item in OPC_SERVICES]:
+                form.instance.status_executivo = True
             else:
-                messages.error(self.request, 'Cliente não encontrado ou dados do Cliente inválidos.')
-                return self.form_invalid(form)
+                form.instance.status_executivo = False
+
+            if tipo_servico == "Outros":
+                form.instance.tipo_servico_outros = self.request.POST.get("tipo_servico_outros")
+            else:
+                form.instance.tipo_servico_outros = None
+
+            if tipo_servico == "Passaporte":
+                form.instance.nacionalidade = self.request.POST.get("nacionalidade")
+                if form.instance.nacionalidade == "Outros":
+                    form.instance.nacionalidade_outros = self.request.POST.get("nacionalidade_outros")
+                else:
+                    form.instance.nacionalidade_outros = None
+
+            elif tipo_servico == "Cidadania":
+                form.instance.tipo_cidadania = self.request.POST.get("tipo_cidadania")
+                if form.instance.tipo_cidadania == "Outros":
+                    form.instance.tipo_cidadania_outros = self.request.POST.get("tipo_cidadania_outros")
+                else:
+                    form.instance.tipo_cidadania_outros = None
+
+            return super().form_valid(form)
         else:
-            messages.error(self.request, 'Informe o nome do Cliente.')
+            messages.error(self.request, 'Cliente não encontrado ou dados insuficientes.')
             return self.form_invalid(form)
 
 
@@ -206,68 +208,56 @@ class UpdateView(LoginRequiredMixin, UpdateView):
         cpf_input = self.request.POST.get("cpf_cliente")
         id_input = self.request.POST.get("pk_cliente")
 
-        if cliente_input:
-            cliente_nome = cliente_input.strip()
-            cliente = Cliente.objects.filter(
-                nome__iexact=cliente_nome, cpf=cpf_input
-            ).first()
+        # Limpa os campos
+        cliente_nome = cliente_input.strip() if cliente_input else None
+        cpf_input = cpf_input.strip() if cpf_input else None
 
-            if cliente and (not cpf_input or cliente.cpf == cpf_input) and (
-                    not id_input or cliente.pk == int(id_input)):
-                form.instance.cliente = cliente
-                if 'vendedor' in form.cleaned_data and form.cleaned_data['vendedor']:
-                    form.instance.vendedor = form.cleaned_data['vendedor']
-                else:
-                    form.instance.vendedor = self.object.vendedor
+        # Busca cliente com base nos dados fornecidos
+        cliente = None
+        if id_input:
+            cliente = Cliente.objects.filter(pk=id_input).first()
+        elif cpf_input and cliente_nome:
+            cliente = Cliente.objects.filter(nome__iexact=cliente_nome, cpf=cpf_input).first()
+        elif cpf_input:
+            cliente = Cliente.objects.filter(cpf=cpf_input).first()
+        elif cliente_nome:
+            cliente = Cliente.objects.filter(nome__iexact=cliente_nome).first()
 
+        # Validação da existência do cliente
+        if cliente:
+            form.instance.cliente = cliente
+            form.instance.vendedor = self.request.user
 
-                tipo_servico = self.request.POST.get("tipo_servico")
-                form.instance.tipo_servico = tipo_servico
+            tipo_servico = self.request.POST.get("tipo_servico")
+            form.instance.tipo_servico = tipo_servico
 
-
-                if tipo_servico == "Outros":
-                   form.instance.tipo_servico_outros = self.request.POST.get("tipo_servico_outros")
-                else:
-                   form.instance.tipo_servico_outros = None
-
-
-                # Lógica condicional para "Passaporte"
-                if tipo_servico == "Passaporte":
-                    form.instance.nacionalidade = self.request.POST.get("nacionalidade")
-                    if form.instance.nacionalidade == "Outros":
-                        form.instance.nacionalidade_outros = self.request.POST.get("nacionalidade_outros")
-                    else:
-                        form.instance.nacionalidade_outros = None
-
-                    form.instance.tipo_cidadania = None
-                    form.instance.tipo_cidadania_outros = None
-
-
-                # Lógica condicional para "Cidadania"
-                elif tipo_servico == "Cidadania":
-                    form.instance.tipo_cidadania = self.request.POST.get("tipo_cidadania")
-                    if form.instance.tipo_cidadania == "Outros":
-                        form.instance.tipo_cidadania_outros = self.request.POST.get("tipo_cidadania_outros")
-                    else:
-                        form.instance.tipo_cidadania_outros = None
-
-                    form.instance.nacionalidade = None
-                    form.instance.nacionalidade_outros = None
-
-                else:
-                    form.instance.nacionalidade = None
-                    form.instance.nacionalidade_outros = None
-                    form.instance.tipo_cidadania = None
-                    form.instance.tipo_cidadania_outros = None
-
-                response = super().form_valid(form)
-               
-                return response
+            if tipo_servico and tipo_servico.strip() in [item.strip() for item in OPC_SERVICES]:
+                form.instance.status_executivo = True
             else:
-                messages.error(self.request, 'Cliente não encontrado ou dados do Cliente inválidos.')
-                return self.form_invalid(form)
+                form.instance.status_executivo = False
+
+            if tipo_servico == "Outros":
+                form.instance.tipo_servico_outros = self.request.POST.get("tipo_servico_outros")
+            else:
+                form.instance.tipo_servico_outros = None
+
+            if tipo_servico == "Passaporte":
+                form.instance.nacionalidade = self.request.POST.get("nacionalidade")
+                if form.instance.nacionalidade == "Outros":
+                    form.instance.nacionalidade_outros = self.request.POST.get("nacionalidade_outros")
+                else:
+                    form.instance.nacionalidade_outros = None
+
+            elif tipo_servico == "Cidadania":
+                form.instance.tipo_cidadania = self.request.POST.get("tipo_cidadania")
+                if form.instance.tipo_cidadania == "Outros":
+                    form.instance.tipo_cidadania_outros = self.request.POST.get("tipo_cidadania_outros")
+                else:
+                    form.instance.tipo_cidadania_outros = None
+
+            return super().form_valid(form)
         else:
-            messages.error(self.request, 'Informe o nome do Cliente.')
+            messages.error(self.request, 'Cliente não encontrado ou dados insuficientes.')
             return self.form_invalid(form)
     
     ''' Caso deseje que apenas o vendedor possa ser associado a uma venda usar a função abaixo

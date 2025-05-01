@@ -43,7 +43,7 @@ class Venda(models.Model):
     recomendação_da_Venda = models.CharField(null=True,blank=True, verbose_name="recomendação de Venda", help_text="Digite o nome da pessoa que recomendou.",max_length=1000)
     data_venda = models.CharField(default=date.today().strftime('%d/%m/%Y'), editable=True, max_length=15)#temporario  deve ser 
     finished_at = models.CharField(null=True, verbose_name="Data finalizado",editable=True, max_length=15)
-    duracao_venda = models.CharField(null=True, max_length=20, verbose_name="Duração da venda em dias")
+    duracao_venda = models.CharField(null=True, max_length=20, verbose_name="Duração da venda em dias",default="em andamento")
    
     custo_padrao_venda = models.FloatField(null=True, blank=True, help_text="Digite o Valor padrão da venda.", verbose_name="Custo da Venda")
     valor = models.FloatField(null=True, blank=True)

@@ -118,6 +118,9 @@ __pycache__/
 *.pyc
 __localcode
 venv
+/media/
+/migrations/*
+!/migrations/__init__.py
 env
 .DS_Store
 local_settings.py

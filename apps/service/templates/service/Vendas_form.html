@@ -29,7 +29,7 @@
     }
     </style>
    {% endif %}
-
+    
 </head>
 <body>
 <div class="container mt-5">
@@ -147,7 +147,10 @@
 
 
             <div name="campo_cliente" style="background-color:rgba(0, 0, 0, 0.09); padding: 20px; border-radius: 10px;">
-                <div class="mb-3">
+                <span style="display: block; text-align: center; font-size: 1.2rem; font-weight: 500;">
+                    Para alterar os dados de um cliente, acesse a função "Editar Cliente"
+                  </span>
+                    <div class="mb-3">
                     <label for="pk_cliente" class="form-label">ID do Cliente:</label>
                     <input type="text" placeholder="Use identificador de cliente" name="pk_cliente" id="pk_cliente" 
                         class="form-control" value="{{ pk_cliente }}">
@@ -325,7 +328,6 @@
     // Inicializar a exibição dos campos ao carregar a página
     window.onload = toggleFields;
 </script>
-
 
 
 </body>
