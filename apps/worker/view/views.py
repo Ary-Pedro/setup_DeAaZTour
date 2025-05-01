@@ -21,6 +21,8 @@ import csv
 import os 
 from django.db.models import Q, Sum
 from .forms import AtualizarForm, CompletarCadastro
+from io import BytesIO
+from openpyxl import Workbook
 
 # INFO: Data
 from django.utils.timezone import now
@@ -56,58 +58,40 @@ def vendasDoFunc(request, pk):
 
 
 
-
 def salvar_csvFluxoConcluido(request, fluxo_id):
     fluxo = get_object_or_404(FluxoMensal, id=fluxo_id)
 
-
-    response = HttpResponse(content_type="text/csv")
+    response = HttpResponse(content_type="text/csv; charset=utf-8")
     response["Content-Disposition"] = (
         f"attachment; filename=fluxo_concluido_{fluxo.mes_referencia.strftime('%Y%m')}.csv"
     )
 
-    writer = csv.writer(response, delimiter=";")
+    response.write('\ufeff')
 
+    writer = csv.writer(response)
 
-    writer.writerow(
-        [
-            "Data",
-            "Observação",
-            "Entrada (R$)",
-            "Saída (R$)",
-        ]
-    )
-
+    writer.writerow(["Data", "Observação", "Entrada (R$)", "Saída (R$)"])
 
     contas = fluxo.contas.all()
-
-  
     total_entrada = 0.0
     total_saida = 0.0
 
-  
     for conta in contas:
-        writer.writerow(
-            [
-                conta.created_at.strftime("%d/%m/%Y") if conta.created_at else "Sem Data",
-                conta.observacao if conta.observacao else "Sem observação",
-                conta.entrada,
-                conta.saida,
-            ]
-        )
-     
+        writer.writerow([
+            conta.created_at.strftime("%d/%m/%Y") if conta.created_at else "Sem Data",
+            conta.observacao if conta.observacao else "Sem observação",
+            f"{conta.entrada:.2f}".replace('.', ','),  
+            f"{conta.saida:.2f}".replace('.', ','),
+        ])
         total_entrada += conta.entrada
         total_saida += conta.saida
 
-    
     saldo_total = total_entrada - total_saida
 
-   
-    writer.writerow([])
-
-    writer.writerow(["Total Entrada", total_entrada])
-    writer.writerow(["Total Saída", total_saida])
-    writer.writerow(["Saldo Final", saldo_total])
+    writer.writerow([])  
+    writer.writerow(["Total Entrada", f"{total_entrada:.2f}".replace('.', ',')])
+    writer.writerow(["Total Saída", f"{total_saida:.2f}".replace('.', ',')])
+    writer.writerow(["Saldo Final", f"{saldo_total:.2f}".replace('.', ',')])
 
     return response
 
@@ -515,202 +499,6 @@ class Dados(LoginRequiredMixin, ListView):
         return context
 
 
-### rever e corrigir!!!
-def salvar_csvVenda(request, periodo, forma_pagamento=None):
-    response = HttpResponse(content_type="text/csv")
-    response["Content-Disposition"] = (
-        "attachment; filename=Vendas_" + str(datetime.datetime.now()) + ".csv"
-    )
-
-    writer = csv.writer(response)
-    cabecalho = [
-        "ID",
-        "Cliente",
-        "Vendedor",
-        "Data da Venda",
-        "Valor",
-        "Situação",
-        "Data Finalizado",
-        "Tipo de Servico",
-        "Forma de pagamento",
-    ]
-
-    # Variáveis para controle de inclusão das colunas de cidadania e nacionalidade
-    incluir_cidadania = False
-    incluir_nacionalidade = False
-
-    if periodo == "hoje":
-        vendas = Venda.objects.filter(data_venda=date.today())
-    elif periodo == "semana":
-        inicio_semana = date.today() - timedelta(days=date.today().weekday())
-        fim_semana = inicio_semana + timedelta(days=6)
-        vendas = Venda.objects.filter(
-            data_venda__gte=inicio_semana, data_venda__lte=fim_semana
-        )
-    elif periodo == "mes":
-        inicio_mes = date.today().replace(day=1)
-        proximo_mes = (inicio_mes + timedelta(days=31)).replace(day=1)
-        vendas = Venda.objects.filter(
-            data_venda__gte=inicio_mes, data_venda__lt=proximo_mes
-        )
-    else:
-        vendas = Venda.objects.all()
-
-    if forma_pagamento == "Pix":
-        vendas = vendas.filter(tipo_pagamento="Pix")
-    elif forma_pagamento == "Dinheiro":
-        vendas = vendas.filter(tipo_pagamento="Dinheiro")
-    elif forma_pagamento == "Crédito":
-        vendas = vendas.filter(tipo_pagamento="Crédito")
-    elif forma_pagamento == "Débito":
-        vendas = vendas.filter(tipo_pagamento="Débito") 
-
-    # Verificar se algum tipo de cidadania ou nacionalidade foi preenchido
-    for venda in vendas:
-        if venda.tipo_cidadania and venda.tipo_cidadania != "S/D":
-            incluir_cidadania = True
-        if venda.nacionalidade and venda.nacionalidade != "S/D":
-            incluir_nacionalidade = True
-
-    # Adiciona as colunas de cidadania e nacionalidade ao cabeçalho, se necessário
-    if incluir_cidadania:
-        cabecalho.append("Tipo de Cidadania")
-    if incluir_nacionalidade:
-        cabecalho.append("Nacionalidade")
-
-    writer.writerow(cabecalho)
-
-    # Escrever os dados das vendas
-    for venda in vendas:
-        if venda.tipo_servico == "Outros":
-            tipo_servico = venda.tipo_servico_outros
-        else:
-            tipo_servico = venda.tipo_servico
-
-        if venda.tipo_cidadania == "Outros":
-            tipo_cidadania = (
-                venda.tipo_cidadania_outros if venda.tipo_cidadania_outros else "S/D"
-            )
-        else:
-            tipo_cidadania = venda.tipo_cidadania if venda.tipo_cidadania else "S/D"
-
-        if venda.nacionalidade == "Outros":
-            nacionalidade = (
-                venda.nacionalidade_outros if venda.nacionalidade_outros else "S/D"
-            )
-        else:
-            nacionalidade = venda.nacionalidade if venda.nacionalidade else "S/D"
-
-        linha = [
-            venda.id,
-            venda.cliente.nome,
-            (
-                f"{venda.vendedor.first_name} {venda.vendedor.last_name}"
-                if venda.vendedor
-                else "S/D"
-            ),
-            venda.data_venda.strftime("%d/%m/%Y"),
-            venda.valor,
-            venda.situacaoMensal,
-            venda.finished_at.strftime("%d/%m/%Y") if venda.finished_at else "S/D",
-            tipo_servico,
-            venda.tipo_pagamento,
-        ]
-
-        # Adiciona os valores de cidadania e nacionalidade, se forem incluídos no cabeçalho
-        if incluir_cidadania:
-            linha.append(tipo_cidadania)
-        if incluir_nacionalidade:
-            linha.append(nacionalidade)
-
-        writer.writerow(linha)
-
-    return response
-
-
-def salvar_csvClientes(request, periodo):
-    response = HttpResponse(content_type="text/csv")
-    response["Content-Disposition"] = (
-        "attachment; filename=dadosClientes_" + str(datetime.datetime.now()) + ".csv"
-    )
-
-    writer = csv.writer(response)
-    writer.writerow(
-        [
-            "Nome",
-            "Celular",
-            "Sexo",
-            "Data de Nascimento",
-            "Endereco",
-            "Bairro",
-            "Estado",
-            "CEP",
-            "RG",
-            "CPF",
-            "Número de Passaporte",
-            "Idade",
-            "Anexo 1",
-            "Anexo 2",
-            "Anexo 3",
-        ]
-    )  # Cabeçalho do CSV
-
-    if periodo == "hoje":
-        clientes = Cliente.objects.filter(created_at__date=date.today())
-    elif periodo == "semana":
-        inicio_semana = date.today() - timedelta(days=date.today().weekday())
-        clientes = Cliente.objects.filter(created_at__date__gte=inicio_semana)
-    elif periodo == "mes":
-        inicio_mes = date.today().replace(day=1)
-        clientes = Cliente.objects.filter(created_at__date__gte=inicio_mes)
-    else:
-        clientes = Cliente.objects.all()
-
-    for cliente in clientes:
-        anexo1_url = (
-            request.build_absolute_uri(cliente.anexo1.url) if cliente.anexo1 else "S/D"
-        )
-        anexo2_url = (
-            request.build_absolute_uri(cliente.anexo2.url) if cliente.anexo2 else "S/D"
-        )
-        anexo3_url = (
-            request.build_absolute_uri(cliente.anexo3.url) if cliente.anexo3 else "S/D"
-        )
-
-        writer.writerow(
-            [
-                cliente.nome,
-                cliente.celular,
-                cliente.get_sexo_display(),  # Obtém o texto legível para a escolha do sexo
-                cliente.data_nascimento.strftime("%d/%m/%Y"),
-                cliente.endereco,
-                cliente.bairro,
-                cliente.estado,
-                cliente.cep,
-                cliente.rg if cliente.rg else "S/D",
-                cliente.cpf,
-                cliente.num_passaporte,
-                cliente.idade if cliente.idade else "S/D"
-                   (
-                    f'=HYPERLINK("{anexo1_url}", "{os.path.basename(cliente.anexo1.name)}")'
-                    if anexo1_url != "S/D"
-                    else "S/D"
-                ),
-                (
-                    f'=HYPERLINK("{anexo2_url}", "{os.path.basename(cliente.anexo2.name)}")'
-                    if anexo2_url != "S/D"
-                    else "S/D"
-                ),
-                (
-                    f'=HYPERLINK("{anexo3_url}", "{os.path.basename(cliente.anexo3.name)}")'
-                    if anexo3_url != "S/D"
-                    else "S/D"
-                ),
-            ]
-        )
-    return response
-
-
 class Rank(LoginRequiredMixin, TemplateView):
     template_name = "ranking/rank.html"
     login_url = "log"  # URL para redirecionar para login
@@ -758,3 +546,159 @@ class Rank(LoginRequiredMixin, TemplateView):
         except Exception as e:
             # Logar o erro ou tratar de outra forma
             print(f"Erro ao atualizar situação da venda: {e}")
+
+
+
+def salvar_csvVenda(request, periodo=None, forma_pagamento=None):
+    from django.utils import timezone
+    import datetime
+    
+    response = HttpResponse(content_type="text/csv; charset=utf-8")
+    response.write('\ufeff')  # BOM para Excel ler acentuação
+    filename = f"Vendas_{timezone.now().strftime('%Y-%m-%d_%H-%M-%S')}.csv"
+    response["Content-Disposition"] = f"attachment; filename={filename}"
+
+    writer = csv.writer(response)
+    cabecalho = [
+        "ID", "Cliente", "Vendedor", "Executivo","Agência Recomendada", 
+        "Recomendação da Venda", "Data da Venda", "Data Finalizado",
+         "Custo Padrão", "Valor", "Desconto",
+        "Custo sobre Venda", "Tipo de Serviço", "Forma de pagamento",
+        "Nacionalidade", "Tipo de Cidadania"
+    ]
+
+    # Inicializa o queryset
+    vendas = Venda.objects.all().order_by('-id')
+
+    # Aplica filtro de período
+    if periodo and periodo != "todos":
+        hoje_str = date.today().strftime('%d/%m/%Y')
+        
+        if periodo == "hoje":
+            vendas = vendas.filter(data_venda=hoje_str)
+
+        elif periodo == "semana":
+            hoje = date.today()
+            dias_para_domingo = (hoje.weekday() + 1) % 7 
+            inicio_semana = hoje - timedelta(days=dias_para_domingo)
+            fim_semana = inicio_semana + timedelta(days=6)
+            datas_semana = [
+                (inicio_semana + timedelta(days=i)).strftime('%d/%m/%Y')
+                for i in range(7)
+            ]
+            vendas = vendas.filter(data_venda__in=datas_semana)
+
+        elif periodo == "mes":
+            hoje = date.today()
+            inicio_mes = hoje.replace(day=1)
+            fim_mes = (inicio_mes.replace(month=inicio_mes.month+1) if inicio_mes.month < 12 
+                else inicio_mes.replace(year=inicio_mes.year+1, month=1)) - timedelta(days=1)
+            inicio_mes_str = inicio_mes.strftime('%d/%m/%Y')
+            fim_mes_str = fim_mes.strftime('%d/%m/%Y')
+            vendas = vendas.filter(data_venda__gte=inicio_mes_str, data_venda__lte=fim_mes_str)
+
+    # Aplica filtro de forma de pagamento
+    if forma_pagamento and forma_pagamento.lower() != "todos":
+        vendas = vendas.filter(tipo_pagamento__iexact=forma_pagamento.strip())
+
+    writer.writerow(cabecalho)
+
+    # Escreve os dados
+    for venda in vendas:
+        linha = [
+            venda.id,
+            venda.cliente.nome if venda.cliente else "S/D",
+            f"{venda.vendedor.first_name} {venda.vendedor.last_name}".strip() if venda.vendedor else "S/D",
+            f"{venda.executivo.first_name} {venda.executivo.last_name}".strip() if venda.executivo else "S/D",
+           
+           
+          
+            venda.Agencia_recomendada if venda.Agencia_recomendada else "S/D",
+            venda.recomendação_da_Venda if venda.recomendação_da_Venda else "S/D",
+            venda.data_venda,
+            venda.finished_at if venda.finished_at else "S/D",
+            
+            venda.custo_padrao_venda if venda.custo_padrao_venda is not None else "S/D",
+            venda.valor if venda.valor is not None else "S/D",
+            f"{venda.desconto}%" if venda.desconto is not None else "S/D",
+            venda.custo_sobre_venda if venda.custo_sobre_venda is not None else "S/D",
+            venda.tipo_servico_outros if venda.tipo_servico == "Outros" else venda.tipo_servico,
+            venda.tipo_pagamento,
+            venda.nacionalidade_outros if venda.nacionalidade == "Outros" else (venda.nacionalidade or "S/D"),
+            venda.tipo_cidadania_outros if venda.tipo_cidadania == "Outros" else (venda.tipo_cidadania or "S/D"),
+        ]
+
+        writer.writerow(linha)
+
+    return response
+
+
+def salvar_csvClientes(request, periodo):
+    response = HttpResponse(content_type="text/csv")
+    response.write('\ufeff')  # Adiciona BOM para abrir corretamente no Excel
+    response["Content-Disposition"] = (
+        "attachment; filename=dadosClientes_"
+        + datetime.datetime.now().strftime("%Y-%m-%d_%H-%M-%S")
+        + ".csv"
+    )
+
+    writer = csv.writer(response)
+    writer.writerow(
+        [
+            "Nome",
+            "Telefone 1",
+            "Telefone 2",
+            "Email 1",
+            "Email 2",
+            "Sexo",
+            "Sexo Outros",
+            "Data de Nascimento",
+            "Idade",
+            "Endereço",
+            "Bairro",
+            "Cidade",
+            "Estado",
+            "CEP",
+            "RG",
+            "CPF",
+            "Número de Passaporte",
+           
+        ]
+    )
+
+    if periodo == "hoje":
+        clientes = Cliente.objects.filter(created_at__date=date.today())
+    elif periodo == "semana":
+        inicio_semana = date.today() - timedelta(days=date.today().weekday())
+        clientes = Cliente.objects.filter(created_at__date__gte=inicio_semana)
+    elif periodo == "mes":
+        inicio_mes = date.today().replace(day=1)
+        clientes = Cliente.objects.filter(created_at__date__gte=inicio_mes)
+    else:
+        clientes = Cliente.objects.all()
+
+    for cliente in clientes:
+       
+        writer.writerow(
+            [
+                cliente.nome if cliente.nome else "S/D",
+                cliente.telefone1 if cliente.telefone1 else "S/D",
+                cliente.telefone2 if cliente.telefone2 else "S/D",
+                cliente.email1 if cliente.email1 else "S/D",
+                cliente.email2 if cliente.email2 else "S/D",
+                cliente.get_sexo_display() if cliente.sexo else "S/D",
+                cliente.sexo_outros if cliente.sexo_outros else "S/D",
+                cliente.data_nascimento if cliente.data_nascimento else "S/D",
+                cliente.idade if cliente.idade else "S/D",
+                cliente.endereco if cliente.endereco else "S/D",
+                cliente.bairro if cliente.bairro else "S/D",
+                cliente.cidade if cliente.cidade else "S/D",
+                cliente.estado if cliente.estado else "S/D",
+                cliente.cep if cliente.cep else "S/D",
+                cliente.rg if cliente.rg else "S/D",
+                cliente.cpf if cliente.cpf else "S/D",
+                cliente.num_passaporte if cliente.num_passaporte else "S/D",
+              
+            ]
+        )
+    return response

@@ -22,27 +22,19 @@ urlpatterns = [
 
      #Buscas
     path(f"funcionario/buscar/", views.Procurar.as_view(), name="procurarFuncionario"),
-    path(f"funcionario/buscar/dados/-<int:dados_id>", views.Dados.as_view(),
-         name="dadosFuncionario"),
+    path(f"funcionario/buscar/dados/-<int:dados_id>", views.Dados.as_view(), name="dadosFuncionario"),
 
 
 
     path('adm/ranking/', views.Rank.as_view(), name='rank'),
+
+
     path("export-csv-vendas/<str:periodo>/", views.salvar_csvVenda, name="salvarVenda"),
-    path(
-        "export-csv-vendas/<str:periodo>/<str:forma_pagamento>/",
-        views.salvar_csvVenda,
-        name="salvarVendaPagamento",
-    ),
-    path(
-        "export-csv-Cliente/<str:periodo>/",
-        views.salvar_csvClientes,
-        name="salvarCliente",
-    ),
+    path("export-csv-vendas/<str:periodo>/<str:forma_pagamento>/", views.salvar_csvVenda, name="salvarVendaPagamento", ),
+    path( "export-csv-Cliente/<str:periodo>/", views.salvar_csvClientes, name="salvarCliente",),
 
 
     path('exportar-fluxo-concluido/<int:fluxo_id>/', views.salvar_csvFluxoConcluido, name='exportarFluxoConcluido'),
-
     path(f"fluxoMensal/", views.contas.as_view() , name="contas"),
     path('resetar-contas/', views.resetar_contas, name='resetar_contas'),
     path("concluir_fluxo/", views.concluir_fluxo_mensal, name="concluir_fluxo"),
