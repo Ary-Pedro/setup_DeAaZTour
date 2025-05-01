@@ -1,0 +1,16 @@
+﻿ID,Cliente,Vendedor,Executivo,Status Executivo,Situação Mensal,Data Apoio Situação,Agência Recomendada,Recomendação da Venda,Data da Venda,Data Finalizado,Duração da Venda (dias),Custo Padrão,Valor,Desconto,Custo sobre Venda,Tipo de Serviço,Forma de pagamento,Nacionalidade,Tipo de Cidadania
+15,ANA CAROLINA,ANA CAROLINA,S/D,Inativo,Mensal,30/04/2025,S/D,S/D,30/04/2025,S/D,S/D,S/D,S/D,S/D,S/D,Passaporte,Dinheiro,TESTEEEE,S/D
+14,ANA CAROLINA,ANA CAROLINA,S/D,Inativo,Mensal,30/04/2025,S/D,S/D,30/04/2025,2025-04-30,0 Dias,S/D,S/D,S/D,S/D,Vistos,Pix,S/D,S/D
+13,ANA CAROLINA,ANA CAROLINA,S/D,Inativo,Mensal,30/04/2025,S/D,S/D,30/04/2025,S/D,S/D,S/D,S/D,S/D,S/D,Vistos,Dinheiro,S/D,S/D
+12,ANA CAROLINA,Stefany Matos de Mendonça,S/D,Inativo,Mensal,30/04/2025,S/D,S/D,30/04/2025,S/D,S/D,S/D,S/D,S/D,S/D,Passaporte,Dinheiro,Canadense,S/D
+11,ANA CAROLINA,Stefany Matos de Mendonça,S/D,Inativo,Mensal,30/04/2025,S/D,S/D,30/04/2025,S/D,S/D,S/D,S/D,S/D,S/D,Passaporte,Dinheiro,S/D,S/D
+10,ANA CAROLINA,Stefany Matos de Mendonça,S/D,Inativo,Mensal,30/04/2025,S/D,S/D,30/04/2025,S/D,S/D,S/D,S/D,S/D,S/D,Passaporte,Dinheiro,S/D,S/D
+9,ANA CAROLINA,Stefany Matos de Mendonça,S/D,Inativo,Mensal,30/04/2025,S/D,S/D,30/04/2025,S/D,S/D,S/D,S/D,S/D,S/D,Vistos,Dinheiro,S/D,S/D
+8,ANA CAROLINA,ANA CAROLINA,S/D,Inativo,Mensal,29/04/2025,S/D,S/D,29/04/2025,S/D,S/D,S/D,S/D,S/D,S/D,Vistos,Dinheiro,S/D,S/D
+7,ANA CAROLINA,ANA CAROLINA,S/D,Inativo,Mensal,23/04/2025,S/D,S/D,23/04/2025,S/D,S/D,S/D,S/D,S/D,S/D,Vistos,Dinheiro,S/D,S/D
+6,ANA CAROLINA,ANA CAROLINA,S/D,Inativo,Mensal,23/04/2025,S/D,S/D,23/04/2025,S/D,S/D,S/D,S/D,S/D,S/D,Vistos,Dinheiro,S/D,S/D
+5,ANA CAROLINA,ANA CAROLINA,S/D,Inativo,Mensal,23/04/2025,S/D,S/D,23/04/2025,S/D,S/D,S/D,S/D,S/D,S/D,Vistos,Dinheiro,S/D,S/D
+4,ANA CAROLINA,ANA CAROLINA,S/D,Inativo,Mensal,23/04/2025,S/D,S/D,23/04/2025,S/D,S/D,S/D,S/D,S/D,S/D,Vistos,Dinheiro,S/D,S/D
+3,ANA CAROLINA,ANA CAROLINA,S/D,Ativo,Mensal,30/03/2025,S/D,Wikten de Medeiros,30/03/2025,S/D,S/D,100.0,100.0,S/D,S/D,Vistos,Dinheiro,S/D,S/D
+2,ANA CAROLINA,Stefany Matos de Mendonça,S/D,Inativo,Mensal,30/03/2025,S/D,S/D,30/03/2025,2025-04-30,31 Dias,100.0,100.0,S/D,S/D,Vistos,Dinheiro,S/D,S/D
+1,ANA CAROLINA,Stefany Matos de Mendonça,S/D,Inativo,Mensal,30/03/2025,S/D,S/D,30/03/2025,2025-04-30,31 Dias,S/D,100.0,S/D,S/D,Vistos,Dinheiro,S/D,S/D

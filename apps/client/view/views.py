@@ -63,6 +63,15 @@ class CadCliente(LoginRequiredMixin, CreateView):
 
 
 
+# INFO: Cliente - Atualizar
+class UpdateView(LoginRequiredMixin, UpdateView):
+    login_url = "log"  # URL para redirecionar para login
+    model = Cliente
+    form_class = AtualizarForm
+    template_name = "client/Cliente_form.html"
+    success_url = reverse_lazy("ListagemCliente")
+
+
 # INFO: Cliente - listar
 class ListCliente(LoginRequiredMixin, ListView):
     model = Cliente
@@ -87,15 +96,6 @@ class Validar(View):
         url = reverse("ListagemCliente")
         return HttpResponseRedirect(f"{url}?page={numero_pagina}")
 
-
-
-# INFO: Cliente - Atualizar
-class UpdateView(LoginRequiredMixin, UpdateView):
-    login_url = "log"  # URL para redirecionar para login
-    model = Cliente
-    form_class = AtualizarForm
-    template_name = "client/Cliente_form.html"
-    success_url = reverse_lazy("ListagemCliente")
 
 
 # INFO: Cliente - Deletar

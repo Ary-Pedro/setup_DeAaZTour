@@ -26,12 +26,7 @@ class Cliente(models.Model):
         blank=True, 
         verbose_name="telefone 2",
     )
-    celular = models.CharField(
-        max_length=15,
-        null=True,
-        blank=True, 
-        verbose_name="telefone 3",
-    )
+   
     email1 = models.EmailField(null=True, blank=True, verbose_name="e-mail 1", max_length=255)
     email2 = models.EmailField(null=True, blank=True, verbose_name="e-mail 2", max_length=255)
     
@@ -46,7 +41,7 @@ class Cliente(models.Model):
     )
 
     sexo_outros = models.CharField(
-        max_length=15,
+        max_length=50,
         blank=True,
         null=True,
         verbose_name="Tipo sexo",
@@ -111,44 +106,7 @@ class Cliente(models.Model):
 
     created_at = models.DateTimeField(auto_now_add=True)
 
-    anexo1 = models.FileField(
-        upload_to='anexos/',  # Define o diretório onde os arquivos serão armazenados
-        null=True,
-        blank=True,
-        verbose_name="Anexo",
-        help_text="Envie um arquivo relacionado ao Cliente."
-    )
-
-    anexo2 = models.FileField(
-        upload_to='anexos/',  # Define o diretório onde os arquivos serão armazenados
-        null=True,
-        blank=True,
-        verbose_name="Anexo",
-        help_text="Envie um arquivo relacionado ao Cliente."
-    )
-
-    anexo3 = models.FileField(
-        upload_to='anexos/',  # Define o diretório onde os arquivos serão armazenados
-        null=True,
-        blank=True,
-        verbose_name="Anexo",
-        help_text="Envie um arquivo relacionado ao Cliente."
-    )
-
-    def get_anexo1_nome(self):
-        import os
-        return os.path.basename(self.anexo1.name) if self.anexo1 else None
-
-    def get_anexo2_nome(self):
-        import os
-        return os.path.basename(self.anexo2.name) if self.anexo2 else None
-
-    def get_anexo3_nome(self):
-        import os
-        return os.path.basename(self.anexo3.name) if self.anexo3 else None
     
-
-
     def __str__(self):
         return self.nome
     
