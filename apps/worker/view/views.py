@@ -551,21 +551,25 @@ class Rank(LoginRequiredMixin, TemplateView):
 
 def salvar_csvVenda(request, periodo=None, forma_pagamento=None):
     from django.utils import timezone
-    import datetime
-    
+    from datetime import date, timedelta
+    import csv
+    from django.http import HttpResponse
+
     response = HttpResponse(content_type="text/csv; charset=utf-8")
     response.write('\ufeff')  # BOM para Excel ler acentuação
     filename = f"Vendas_{timezone.now().strftime('%Y-%m-%d_%H-%M-%S')}.csv"
     response["Content-Disposition"] = f"attachment; filename={filename}"
 
     writer = csv.writer(response)
+    
     cabecalho = [
-        "ID", "Cliente", "Vendedor", "Executivo","Agência Recomendada", 
+        "ID", "Cliente", "Vendedor", "Executivo", "Agência Recomendada", 
         "Recomendação da Venda", "Data da Venda", "Data Finalizado",
-         "Custo Padrão", "Valor", "Desconto",
-        "Custo sobre Venda", "Tipo de Serviço", "Forma de pagamento",
-        "Nacionalidade", "Tipo de Cidadania"
+        "Custo Padrão", "Valor", "Desconto", "Custo sobre Venda",
+        "Tipo de Serviço", "Forma de pagamento", "Nacionalidade", "Tipo de Cidadania",
+        "Anexos"
     ]
+    writer.writerow(cabecalho)
 
     # Inicializa o queryset
     vendas = Venda.objects.all().order_by('-id')
@@ -601,23 +605,20 @@ def salvar_csvVenda(request, periodo=None, forma_pagamento=None):
     if forma_pagamento and forma_pagamento.lower() != "todos":
         vendas = vendas.filter(tipo_pagamento__iexact=forma_pagamento.strip())
 
-    writer.writerow(cabecalho)
-
     # Escreve os dados
     for venda in vendas:
+        anexos = venda.anexos.all()
+        lista_anexos = ", ".join([anexo.arquivo.name.split('/')[-1] for anexo in anexos]) or "Sem Anexos"
+
         linha = [
             venda.id,
             venda.cliente.nome if venda.cliente else "S/D",
             f"{venda.vendedor.first_name} {venda.vendedor.last_name}".strip() if venda.vendedor else "S/D",
             f"{venda.executivo.first_name} {venda.executivo.last_name}".strip() if venda.executivo else "S/D",
-           
-           
-          
             venda.Agencia_recomendada if venda.Agencia_recomendada else "S/D",
             venda.recomendação_da_Venda if venda.recomendação_da_Venda else "S/D",
             venda.data_venda,
             venda.finished_at if venda.finished_at else "S/D",
-            
             venda.custo_padrao_venda if venda.custo_padrao_venda is not None else "S/D",
             venda.valor if venda.valor is not None else "S/D",
             f"{venda.desconto}%" if venda.desconto is not None else "S/D",
@@ -626,6 +627,7 @@ def salvar_csvVenda(request, periodo=None, forma_pagamento=None):
             venda.tipo_pagamento,
             venda.nacionalidade_outros if venda.nacionalidade == "Outros" else (venda.nacionalidade or "S/D"),
             venda.tipo_cidadania_outros if venda.tipo_cidadania == "Outros" else (venda.tipo_cidadania or "S/D"),
+            lista_anexos
         ]
 
         writer.writerow(linha)
