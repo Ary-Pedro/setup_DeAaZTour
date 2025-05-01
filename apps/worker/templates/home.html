@@ -247,9 +247,9 @@ main {
        {% if user is not None %}
        {% if 'Adm' in user.departamento %}
        <li><a href="{% url 'rank' %}">Ranking</a></li>
-       <li><a href="{% url 'ListagemFuncionario' %}">Lista Funcionários</a></li>
+       <li><a href="{% url 'ListagemFuncionario' %}">Gerenciar Funcionários</a></li>
        <li><a href="{% url 'contas' %}">Fluxo de caixa</a></li>
-       <li><a href="{% url 'listagemFluxoMensal' %}">Listagem - Fluxo mensal</a></li>
+       <li><a href="{% url 'listagemFluxoMensal' %}">Listagem do Fluxo</a></li>
 
 
            {% endif %}

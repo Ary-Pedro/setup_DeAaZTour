@@ -501,16 +501,15 @@ class Dados(LoginRequiredMixin, ListView):
 
 class Rank(LoginRequiredMixin, TemplateView):
     template_name = "ranking/rank.html"
-    login_url = "log"  # URL para redirecionar para login
+    login_url = "log"  
 
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
         usuario_logado = self.request.user
 
-        # Verificação de situação com base no tempo exato de um mês
         self.atualizar_situacao()
 
-        # Carregar vendedores rankeados apenas com vendas mensais
+       
         context["ranked_vendedores"] = Venda.objects.filter(
             Q(situacaoMensal="Mensal")).values(
             "vendedor__username",
@@ -520,33 +519,30 @@ class Rank(LoginRequiredMixin, TemplateView):
             "vendedor__email",
         ).annotate(total_vendas=Count("id")).order_by("-total_vendas")
 
-        # Contagem total de todas as vendas, incluindo as finalizadas
+    
         context["total_vendas"] = Venda.objects.count()
-
-        # Adiciona o usuário logado ao contexto
         context["usuario_logado"] = usuario_logado
 
         return context
 
     def atualizar_situacao(self):
         try:
-            # Verificar todas as vendas
+           
             vendas = Venda.objects.all()
             for venda in vendas:
-                # Verificar se situacaoMensal_dataApoio não é None
+                
                 if venda.situacaoMensal_dataApoio:
-                    # Comparar a data atual com a data de "situacaoMensal_dataApoio"
+                    
                     if venda.situacaoMensal == "Mensal" and now() >= venda.situacaoMensal_dataApoio + relativedelta(months=1):
                         venda.situacaoMensal = "Finalizada"
                     elif venda.situacaoMensal == "Finalizada" and now() <= venda.situacaoMensal_dataApoio + relativedelta(months=1):
                         venda.situacaoMensal = "Mensal"
 
-                    # Adicione outras condições conforme necessário para outras periodicidades
+                 
                     venda.save()
         except Exception as e:
-            # Logar o erro ou tratar de outra forma
+          
             print(f"Erro ao atualizar situação da venda: {e}")
-
 
 
 def salvar_csvVenda(request, periodo=None, forma_pagamento=None):
@@ -556,25 +552,24 @@ def salvar_csvVenda(request, periodo=None, forma_pagamento=None):
     from django.http import HttpResponse
 
     response = HttpResponse(content_type="text/csv; charset=utf-8")
-    response.write('\ufeff')  # BOM para Excel ler acentuação
+    response.write('\ufeff')  #
     filename = f"Vendas_{timezone.now().strftime('%Y-%m-%d_%H-%M-%S')}.csv"
     response["Content-Disposition"] = f"attachment; filename={filename}"
 
     writer = csv.writer(response)
-    
+
     cabecalho = [
         "ID", "Cliente", "Vendedor", "Executivo", "Agência Recomendada", 
         "Recomendação da Venda", "Data da Venda", "Data Finalizado",
         "Custo Padrão", "Valor", "Desconto", "Custo sobre Venda",
-        "Tipo de Serviço", "Forma de pagamento", "Nacionalidade", "Tipo de Cidadania",
-        "Anexos"
+        "Tipo de Serviço", "Forma de pagamento", "Nacionalidade", "Tipo de Cidadania"
     ]
+
+    cabecalho.extend([f"Anexo {i}" for i in range(1, 11)])
     writer.writerow(cabecalho)
 
-    # Inicializa o queryset
     vendas = Venda.objects.all().order_by('-id')
 
-    # Aplica filtro de período
     if periodo and periodo != "todos":
         hoje_str = date.today().strftime('%d/%m/%Y')
         
@@ -601,15 +596,10 @@ def salvar_csvVenda(request, periodo=None, forma_pagamento=None):
             fim_mes_str = fim_mes.strftime('%d/%m/%Y')
             vendas = vendas.filter(data_venda__gte=inicio_mes_str, data_venda__lte=fim_mes_str)
 
-    # Aplica filtro de forma de pagamento
     if forma_pagamento and forma_pagamento.lower() != "todos":
         vendas = vendas.filter(tipo_pagamento__iexact=forma_pagamento.strip())
 
-    # Escreve os dados
     for venda in vendas:
-        anexos = venda.anexos.all()
-        lista_anexos = ", ".join([anexo.arquivo.name.split('/')[-1] for anexo in anexos]) or "Sem Anexos"
-
         linha = [
             venda.id,
             venda.cliente.nome if venda.cliente else "S/D",
@@ -626,9 +616,26 @@ def salvar_csvVenda(request, periodo=None, forma_pagamento=None):
             venda.tipo_servico_outros if venda.tipo_servico == "Outros" else venda.tipo_servico,
             venda.tipo_pagamento,
             venda.nacionalidade_outros if venda.nacionalidade == "Outros" else (venda.nacionalidade or "S/D"),
-            venda.tipo_cidadania_outros if venda.tipo_cidadania == "Outros" else (venda.tipo_cidadania or "S/D"),
-            lista_anexos
+            venda.tipo_cidadania_outros if venda.tipo_cidadania == "Outros" else (venda.tipo_cidadania or "S/D")
         ]
+
+        anexos = venda.anexos.all()
+        anexos_links = []
+
+        for anexo in anexos[:10]:
+            try:
+                if anexo.arquivo and hasattr(anexo.arquivo, 'url'):
+                    url = request.build_absolute_uri(anexo.arquivo.url)
+                    nome_arquivo = anexo.arquivo.name.split('/')[-1]
+                    link = f'=HYPERLINK("{url}", "{nome_arquivo}")'
+                    anexos_links.append(link)
+            except Exception as e:
+                anexos_links.append(f"Erro: {str(e)}")
+
+        while len(anexos_links) < 10:
+            anexos_links.append("Sem Anexo")
+
+        linha.extend(anexos_links)
 
         writer.writerow(linha)
 
@@ -637,7 +644,7 @@ def salvar_csvVenda(request, periodo=None, forma_pagamento=None):
 
 def salvar_csvClientes(request, periodo):
     response = HttpResponse(content_type="text/csv")
-    response.write('\ufeff')  # Adiciona BOM para abrir corretamente no Excel
+    response.write('\ufeff')  
     response["Content-Disposition"] = (
         "attachment; filename=dadosClientes_"
         + datetime.datetime.now().strftime("%Y-%m-%d_%H-%M-%S")
@@ -645,62 +652,67 @@ def salvar_csvClientes(request, periodo):
     )
 
     writer = csv.writer(response)
-    writer.writerow(
-        [
-            "Nome",
-            "Telefone 1",
-            "Telefone 2",
-            "Email 1",
-            "Email 2",
-            "Sexo",
-            "Sexo Outros",
-            "Data de Nascimento",
-            "Idade",
-            "Endereço",
-            "Bairro",
-            "Cidade",
-            "Estado",
-            "CEP",
-            "RG",
-            "CPF",
-            "Número de Passaporte",
-           
-        ]
-    )
 
-    if periodo == "hoje":
-        clientes = Cliente.objects.filter(created_at__date=date.today())
-    elif periodo == "semana":
-        inicio_semana = date.today() - timedelta(days=date.today().weekday())
-        clientes = Cliente.objects.filter(created_at__date__gte=inicio_semana)
-    elif periodo == "mes":
-        inicio_mes = date.today().replace(day=1)
-        clientes = Cliente.objects.filter(created_at__date__gte=inicio_mes)
-    else:
-        clientes = Cliente.objects.all()
+    MAX_ANEXOS = 10 
+
+    headers = [
+        "Nome", "Telefone 1", "Telefone 2", "Email 1", "Email 2",
+        "Sexo", "Sexo Outros", "Data de Nascimento", "Idade",
+        "Endereço", "Bairro", "Cidade", "Estado", "CEP",
+        "RG", "CPF", "Número de Passaporte"
+    ]
+
+    headers += [f"Anexo {i+1}" for i in range(MAX_ANEXOS)]
+    writer.writerow(headers)
+
+    filters = {
+        'hoje': {'created_at__date': date.today()},
+        'semana': {'created_at__date__gte': date.today() - timedelta(days=date.today().weekday())},
+        'mes': {'created_at__date__gte': date.today().replace(day=1)},
+    }
+    filter_kwargs = filters.get(periodo, {})
+    clientes = Cliente.objects.filter(**filter_kwargs) if filter_kwargs else Cliente.objects.all()
 
     for cliente in clientes:
-       
-        writer.writerow(
-            [
-                cliente.nome if cliente.nome else "S/D",
-                cliente.telefone1 if cliente.telefone1 else "S/D",
-                cliente.telefone2 if cliente.telefone2 else "S/D",
-                cliente.email1 if cliente.email1 else "S/D",
-                cliente.email2 if cliente.email2 else "S/D",
+        try:
+            anexos = cliente.anexos.all() if hasattr(cliente, 'anexos') else []
+
+            lista_anexos = []
+            for anexo in anexos[:MAX_ANEXOS]:
+                try:
+                    if anexo.arquivo and hasattr(anexo.arquivo, 'url'):
+                        url = request.build_absolute_uri(anexo.arquivo.url)
+                        nome_arquivo = anexo.arquivo.name.split('/')[-1]  
+                        lista_anexos.append(f'=HYPERLINK("{url}", "{nome_arquivo}")')
+                except Exception as e:
+                    lista_anexos.append(f"Erro: {str(e)}")
+
+            while len(lista_anexos) < MAX_ANEXOS:
+                lista_anexos.append("S/D")
+
+            row = [
+                cliente.nome or "S/D",
+                cliente.telefone1 or "S/D",
+                cliente.telefone2 or "S/D",
+                cliente.email1 or "S/D",
+                cliente.email2 or "S/D",
                 cliente.get_sexo_display() if cliente.sexo else "S/D",
-                cliente.sexo_outros if cliente.sexo_outros else "S/D",
-                cliente.data_nascimento if cliente.data_nascimento else "S/D",
-                cliente.idade if cliente.idade else "S/D",
-                cliente.endereco if cliente.endereco else "S/D",
-                cliente.bairro if cliente.bairro else "S/D",
-                cliente.cidade if cliente.cidade else "S/D",
-                cliente.estado if cliente.estado else "S/D",
-                cliente.cep if cliente.cep else "S/D",
-                cliente.rg if cliente.rg else "S/D",
-                cliente.cpf if cliente.cpf else "S/D",
-                cliente.num_passaporte if cliente.num_passaporte else "S/D",
-              
-            ]
-        )
+                cliente.sexo_outros or "S/D",
+                cliente.data_nascimento or "S/D",
+                cliente.idade or "S/D",
+                cliente.endereco or "S/D",
+                cliente.bairro or "S/D",
+                cliente.cidade or "S/D",
+                cliente.estado or "S/D",
+                cliente.cep or "S/D",
+                cliente.rg or "S/D",
+                cliente.cpf or "S/D",
+                cliente.num_passaporte or "S/D",
+            ] + lista_anexos
+
+            writer.writerow(row)
+        except Exception as e:
+            import logging
+            logging.error(f"Erro ao processar cliente {cliente.id}: {str(e)}")
+            continue
     return response
