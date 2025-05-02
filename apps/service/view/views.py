@@ -94,11 +94,23 @@ class CadVendas(LoginRequiredMixin, CreateView):
             tipo_servico = self.request.POST.get("tipo_servico")
             form.instance.tipo_servico = tipo_servico
 
-            if tipo_servico and tipo_servico.strip() in [item.strip() for item in OPC_SERVICES]:
+            # Determina tipo_servico e coloca na instância
+            tipo_servico = (self.request.POST.get("tipo_servico") or "").strip()
+            form.instance.tipo_servico = tipo_servico
+
+            # **NOVO**: lê agência e recomendação do form.cleaned_data
+            agencia      = form.cleaned_data.get("Agencia_recomendada")
+            recomendacao = form.cleaned_data.get("recomendação_da_Venda")
+
+            # Define status_executivo considerando **3 critérios**
+            if (
+                tipo_servico in [s.strip() for s in OPC_SERVICES]
+                or agencia
+                or recomendacao
+            ):
                 form.instance.status_executivo = True
             else:
                 form.instance.status_executivo = False
-
             if tipo_servico == "Outros":
                 form.instance.tipo_servico_outros = self.request.POST.get("tipo_servico_outros")
             else:
@@ -231,10 +243,22 @@ class UpdateView(LoginRequiredMixin, UpdateView):
             tipo_servico = self.request.POST.get("tipo_servico")
             form.instance.tipo_servico = tipo_servico
 
-            if tipo_servico and tipo_servico.strip() in [item.strip() for item in OPC_SERVICES]:
+            # Garante que o form já esteja limpo e preenchido
+            tipo_servico = (self.request.POST.get("tipo_servico") or "").strip()
+            form.instance.tipo_servico = tipo_servico
+
+            agencia      = self.request.POST.get("Agencia_recomendada")
+            recomendacao = self.request.POST.get("recomendação_da_Venda")
+
+        # **MESMA LÓGICA UNIFICADA**
+            if (
+                tipo_servico in [s.strip() for s in OPC_SERVICES]
+                or agencia
+                or recomendacao
+            ):
                 form.instance.status_executivo = True
             else:
-                form.instance.status_executivo = False
+                form.instance.status_executivo = False            
 
             if tipo_servico == "Outros":
                 form.instance.tipo_servico_outros = self.request.POST.get("tipo_servico_outros")
