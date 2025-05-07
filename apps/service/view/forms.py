@@ -54,16 +54,15 @@ class VendaForm(forms.ModelForm):
         recomendacao = cleaned_data.get("recomendação_da_Venda")
         tipo_servico = self.data.get("tipo_servico")  # Pegando o valor do POST
 
-        # Se algum dos campos estiver preenchido, define status_executivo como True
-        if agencia or recomendacao:
+        # Verifica se algum dos critérios está presente
+        tem_agencia_ou_recomendacao = bool(agencia or recomendacao)
+        tipo_servico_valido = tipo_servico and tipo_servico.strip() in [item.strip() for item in OPC_SERVICES]
+        
+        if tem_agencia_ou_recomendacao or tipo_servico_valido:
             self.instance.status_executivo = True
-        # Nova condição: se o tipo de serviço estiver em OPC_SERVICES
-        elif tipo_servico and tipo_servico.strip() in [item.strip() for item in OPC_SERVICES]:
-            self.instance.status_executivo = True
-
         else:
             self.instance.status_executivo = False
-        
+
         return cleaned_data
 
     def save(self, commit=True):
@@ -132,34 +131,34 @@ class VendaAtualizar(forms.ModelForm):
             "vendedor", "executivo", "situacaoMensal", "data_venda", "finished_at", "custo_padrao_venda", "valor", "desconto", "custo_sobre_venda", "tipo_pagamento", "Agencia_recomendada", "recomendação_da_Venda", "arquivos"
         ]
     def clean(self):
-        """Validação personalizada para o status executivo"""
-        cleaned_data = super().clean()
-        agencia = cleaned_data.get("Agencia_recomendada")
-        recomendacao = cleaned_data.get("recomendação_da_Venda")
-        tipo_servico = self.data.get("tipo_servico")  # Pegando o valor do POST
+            cleaned_data = super().clean()
+            agencia      = cleaned_data.get("Agencia_recomendada")
+            recomendacao = cleaned_data.get("recomendação_da_Venda")
+            tipo_servico = (self.data.get("tipo_servico") or "").strip()
 
-        if agencia or recomendacao or tipo_servico and tipo_servico.strip() in [item.strip() for item in OPC_SERVICES]:
-            self.instance.status_executivo = True
-        else:
-            self.instance.status_executivo = False
-            # Define o campo executivo como None no cleaned_data
-            cleaned_data['executivo'] = None
-        
-        return cleaned_data
+            # MESMA lógica unificada
+            if agencia or recomendacao or tipo_servico in [s.strip() for s in OPC_SERVICES]:
+                self.instance.status_executivo = True
+            else:
+                self.instance.status_executivo = False
+                # zera o campo executivo no form, para desabilitar no template
+                cleaned_data["executivo"] = None
+
+            return cleaned_data
 
     def __init__(self, *args, **kwargs):
-        super().__init__(*args, **kwargs)
+            super().__init__(*args, **kwargs)
+            # controla queryset de 'executivo' conforme o status_executivo
+            if not self.instance.status_executivo:
+                self.fields['executivo'].queryset = Funcionario.objects.none()
+            else:
+                self.fields['executivo'].queryset = Funcionario.objects.filter(departamento='Exec')
 
-        # Verificar o valor de status_executivo, se for False, desabilitar o campo executivo
-        if not self.instance.status_executivo:
-            self.fields['executivo'].queryset = Funcionario.objects.none()  # Isso limpa a queryset, deixando o campo sem opções
-        else:
-            # Se o status_executivo for True, permite a seleção dos executivos
-            self.fields['executivo'].queryset = Funcionario.objects.filter(departamento='Exec')
-        
-        self.fields['vendedor'].queryset = Funcionario.objects.filter(
-            Q(departamento='Vend') | Q(departamento='Adm')
-        )
+            # vendedores sempre disponíveis
+            self.fields['vendedor'].queryset = Funcionario.objects.filter(
+                Q(departamento='Vend') | Q(departamento='Adm')
+            )
+
 
     def save(self, commit=True):
      venda = super().save(commit=commit)
