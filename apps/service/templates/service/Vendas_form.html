@@ -78,7 +78,7 @@
 
 <!-- Campos para "Passaporte" -->
 <div id="passaporte_fields" style="display: {% if form.initial.tipo_servico == 'Passaporte' %}block{% else %}none{% endif %};">
-    <label>Nacionalidade</label>
+    <label>Nacionalidade:</label>
     <div>
         <label style="padding-inline: 10px 20px;">
             <input type="radio" name="nacionalidade" value="Americano" onchange="toggleNacionalidade()"
@@ -113,7 +113,7 @@
 
 <!-- Campos para "Cidadania" -->
 <div id="cidadania_fields" style="display: {% if form.initial.tipo_servico == 'Cidadania' %}block{% else %}none{% endif %};">
-    <label>Tipo de Cidadania</label>
+    <label>Tipo de Cidadania:</label>
     <div>
         <label style="padding-inline: 10px 20px;">
             <input type="radio" name="tipo_cidadania" value="Pai para filho" onchange="toggleCidadania()"
@@ -148,7 +148,7 @@
 
 <!-- Campos para "Vistos" -->
 <div id="vistos_fields" style="display: {% if form.initial.tipo_servico == 'Vistos' %}block{% else %}none{% endif %};">
-    <label>Vistos</label>
+    <label>Vistos:</label>
     <div>
         <label style="padding-inline: 10px 20px;">
             <input type="radio" name="vistos" value="Americano" onchange="toggleVistos()"
