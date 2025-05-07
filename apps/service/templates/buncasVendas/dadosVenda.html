@@ -61,6 +61,7 @@
        {% endif %}
         {% endif %}
 
+
         {% if cadastro.tipo_servico == 'Passaporte' %}
         {% if cadastro.nacionalidade == 'Outros' %}
             <p><strong>Nacionalidade: </strong> {{ cadastro.nacionalidade_outros }}</p>
@@ -76,7 +77,7 @@
             <p><strong>Vistos: </strong> {{ cadastro.vistos_outros }}</p>
         {% else %}
             {% if cadastro.vistos %}
-                <p><strong>Visto: </strong> {{ cadastro.vistos|capfirst }}</p>
+                <p><strong>Vistos: </strong> {{ cadastro.vistos|capfirst }}</p>
             {% endif %}
         {% endif %}
     {% endif %}
@@ -90,6 +91,7 @@
             {% endif %}
         {% endif %}
     {% endif %}
+    
 
         <p><strong>Situação: </strong> {{ cadastro.situacaoMensal }}</p>
         {% if cadastro.finished_at %}

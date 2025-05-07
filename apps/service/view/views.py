@@ -263,7 +263,8 @@ class UpdateView(LoginRequiredMixin, UpdateView):
 
             agencia      = self.request.POST.get("Agencia_recomendada")
             recomendacao = self.request.POST.get("recomendação_da_Venda")
-
+            
+            
         # **MESMA LÓGICA UNIFICADA**
             if (
                 tipo_servico in [s.strip() for s in OPC_SERVICES]
@@ -278,27 +279,27 @@ class UpdateView(LoginRequiredMixin, UpdateView):
                 form.instance.tipo_servico_outros = self.request.POST.get("tipo_servico_outros")
             else:
                 form.instance.tipo_servico_outros = None
+                
+
+            form.instance.nacionalidade = None
+            form.instance.nacionalidade_outros = None
+            form.instance.vistos = None
+            form.instance.vistos_outros = None
+            form.instance.tipo_cidadania = None
+            form.instance.tipo_cidadania_outros = None
 
             if tipo_servico == "Passaporte":
-                form.instance.nacionalidade = self.request.POST.get("nacionalidade")
-                if form.instance.nacionalidade == "Outros":
-                    form.instance.nacionalidade_outros = self.request.POST.get("nacionalidade_outros")
-                else:
-                    form.instance.nacionalidade_outros = None
+               form.instance.nacionalidade = self.request.POST.get("nacionalidade")
+               form.instance.nacionalidade_outros = self.request.POST.get("nacionalidade_outros") if self.request.POST.get("nacionalidade") == "Outros" else None
 
             elif tipo_servico == "Cidadania":
-                form.instance.tipo_cidadania = self.request.POST.get("tipo_cidadania")
-                if form.instance.tipo_cidadania == "Outros":
-                    form.instance.tipo_cidadania_outros = self.request.POST.get("tipo_cidadania_outros")
-                else:
-                    form.instance.tipo_cidadania_outros = None
+               form.instance.tipo_cidadania = self.request.POST.get("tipo_cidadania")
+               form.instance.tipo_cidadania_outros = self.request.POST.get("tipo_cidadania_outros") if self.request.POST.get("tipo_cidadania") == "Outros" else None
 
             elif tipo_servico == "Vistos":
-                form.instance.vistos = self.request.POST.get("vistos")
-                if form.instance.vistos == "Outros":
-                    form.instance.vistos_outros = self.request.POST.get("vistos_outros")
-                else:
-                    form.instance.vistos_outros = None
+               form.instance.vistos = self.request.POST.get("vistos")
+               form.instance.vistos_outros = self.request.POST.get("vistos_outros") if self.request.POST.get("vistos") == "Outros" else None
+             
         
 
             return super().form_valid(form)
