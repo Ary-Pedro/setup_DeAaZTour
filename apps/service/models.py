@@ -86,6 +86,25 @@ class Venda(models.Model):
         help_text='Especifique se você escolheu "Outros".',
     )
 
+
+    vistos = models.CharField(
+        max_length=20,
+        choices=[
+            ("Americano", "Americano"),
+            ("Canadense", "Canadense"),
+            ("Mexicano", "Mexicano"),
+            ("Outros", "Outros"),
+        ],
+        blank=True,
+        null=True,
+    )
+    vistos_outros = models.CharField(
+        max_length=100,
+        blank=True,
+        null=True,
+        help_text='Especifique se você escolheu "Outros".',
+    )
+
     tipo_servico = models.CharField(
         max_length=50,
         choices=[

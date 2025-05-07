@@ -118,6 +118,13 @@ class CadVendas(LoginRequiredMixin, CreateView):
                 else:
                     form.instance.tipo_cidadania_outros = None
 
+            elif tipo_servico == "Vistos":
+                form.instance.vistos = self.request.POST.get("vistos")
+                if form.instance.vistos == "Outros":
+                    form.instance.vistos_outros = self.request.POST.get("vistos_outros")
+                else:
+                    form.instance.nacionalidade_outros = None        
+
             return super().form_valid(form)
         else:
             messages.error(self.request, 'Cliente não encontrado ou dados insuficientes.')
@@ -187,6 +194,13 @@ class UpdateView(LoginRequiredMixin, UpdateView):
                     initial["tipo_cidadania"] = venda.tipo_cidadania
                     if venda.tipo_cidadania == "Outros":
                         initial["tipo_cidadania_outros"] = venda.tipo_cidadania_outros
+
+            if venda.tipo_servico == "Vistos":
+                if venda.vistos:
+                    initial["vistos"] = venda.vistos
+                    if venda.vistos == "Outros":
+                        initial["vistos_outros"] = venda.vistos_outros
+                 
         return initial
 
     def get_context_data(self, **kwargs):
@@ -254,6 +268,14 @@ class UpdateView(LoginRequiredMixin, UpdateView):
                     form.instance.tipo_cidadania_outros = self.request.POST.get("tipo_cidadania_outros")
                 else:
                     form.instance.tipo_cidadania_outros = None
+
+            elif tipo_servico == "Vistos":
+                form.instance.vistos = self.request.POST.get("vistos")
+                if form.instance.vistos == "Outros":
+                    form.instance.vistos_outros = self.request.POST.get("vistos_outros")
+                else:
+                    form.instance.vistos_outros = None
+        
 
             return super().form_valid(form)
         else:
