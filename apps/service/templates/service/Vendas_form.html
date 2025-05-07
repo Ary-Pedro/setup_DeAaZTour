@@ -80,22 +80,22 @@
 <div id="passaporte_fields" style="display: {% if form.initial.tipo_servico == 'Passaporte' %}block{% else %}none{% endif %};">
     <label>Nacionalidade</label>
     <div>
-        <label>
+        <label style="padding-inline: 10px 20px;">
             <input type="radio" name="nacionalidade" value="Americano" onchange="toggleNacionalidade()"
             {% if form.initial.nacionalidade == 'Americano' %}checked{% endif %}>
             Americano
         </label>
-        <label>
+        <label style="padding-inline: 10px 20px;">
             <input type="radio" name="nacionalidade" value="Canadense" onchange="toggleNacionalidade()"
             {% if form.initial.nacionalidade == 'Canadense' %}checked{% endif %}>
             Canadense
         </label>
-        <label>
+        <label style="padding-inline: 10px 20px;">
             <input type="radio" name="nacionalidade" value="Mexicano" onchange="toggleNacionalidade()"
             {% if form.initial.nacionalidade == 'Mexicano' %}checked{% endif %}>
             Mexicano
         </label>
-        <label>
+        <label style="padding-inline: 10px 20px;">
             <input type="radio" name="nacionalidade" value="Outros" onchange="toggleNacionalidade()"
             {% if form.initial.nacionalidade == 'Outros' %}checked{% endif %}>
             Outros
@@ -115,7 +115,7 @@
 <div id="cidadania_fields" style="display: {% if form.initial.tipo_servico == 'Cidadania' %}block{% else %}none{% endif %};">
     <label>Tipo de Cidadania</label>
     <div>
-        <label  style="padding-inline: 10px 20px;">
+        <label style="padding-inline: 10px 20px;">
             <input type="radio" name="tipo_cidadania" value="Pai para filho" onchange="toggleCidadania()"
             {% if form.initial.tipo_cidadania == 'Pai para filho' %}checked{% endif %}>
             Pai para filho
@@ -142,6 +142,42 @@
         <label for="id_tipo_cidadania_outros">Especifique o tipo de cidadania</label>
         <input type="text" id="id_tipo_cidadania_outros" name="tipo_cidadania_outros" value="{{ form.initial.tipo_cidadania_outros }}">
     </div>
+<br>
+</div>
+
+
+<!-- Campos para "Vistos" -->
+<div id="vistos_fields" style="display: {% if form.initial.tipo_servico == 'Vistos' %}block{% else %}none{% endif %};">
+    <label>Vistos</label>
+    <div>
+        <label style="padding-inline: 10px 20px;">
+            <input type="radio" name="vistos" value="Americano" onchange="toggleVistos()"
+            {% if form.initial.vistos == 'Americano' %}checked{% endif %}>
+            Americano
+        </label>
+        <label style="padding-inline: 10px 20px;">
+            <input type="radio" name="vistos" value="Canadense" onchange="toggleVistos()"
+            {% if form.initial.vistos == 'Canadense' %}checked{% endif %}>
+            Canadense
+        </label>
+        <label style="padding-inline: 10px 20px;">
+            <input type="radio" name="vistos" value="Mexicano" onchange="toggleVistos()"
+            {% if form.initial.vistos == 'Mexicano' %}checked{% endif %}>
+            Mexicano
+        </label>
+        <label style="padding-inline: 10px 20px;">
+            <input type="radio" name="vistos" value="Outros" onchange="toggleVistos()"
+            {% if form.initial.vistos == 'Outros' %}checked{% endif %}>
+            Outros
+        </label>
+    </div>
+
+    <!-- Campo para especificar vistos "Outros" -->
+    <div id="vistos_outros_div" style="display: {% if form.initial.vistos == 'Outros' %}block{% else %}none{% endif %};">
+        <label for="id_vistos_outros">Especifique o Visto</label>
+        <input type="text" id="id_vistos_outros" name="vistos_outros" value="{{ form.initial.vistos_outros }}">
+    </div>
+
 <br>
 </div>
 
@@ -274,6 +310,7 @@
         const tipoServico = document.getElementById("tipo_servico").value;
         const passaporteFields = document.getElementById("passaporte_fields");
         const cidadaniaFields = document.getElementById("cidadania_fields");
+        const vistosFields = document.getElementById("vistos_fields");
         const tipoServicoOutrosDiv = document.getElementById("tipo_servico_outros_div");
 
         // Mostrar/esconder campo "Outros" para tipo de serviço
@@ -287,13 +324,20 @@
         // Mostrar/esconder campos específicos de "Passaporte" ou "Cidadania"
         if (tipoServico === "Passaporte") {
             passaporteFields.style.display = "block";
-            cidadaniaFields.style.display = "none"; // Esconder campos de Cidadania
+            cidadaniaFields.style.display = "none"; 
+            vistosFields.style.display = "none";
         } else if (tipoServico === "Cidadania") {
             cidadaniaFields.style.display = "block";
-            passaporteFields.style.display = "none"; // Esconder campos de Passaporte
+            passaporteFields.style.display = "none"; 
+            vistosFields.style.display = "none";
+        } else if (tipoServico === "Vistos") {
+            vistosFields.style.display = "block";
+            cidadaniaFields.style.display = "none"; 
+            passaporteFields.style.display = "none"; 
         } else {
             passaporteFields.style.display = "none";
             cidadaniaFields.style.display = "none";
+            vistosFields.style.display = "none";
         }
 
         // Verificar a seleção da nacionalidade e exibir "Outros" para nacionalidade
@@ -324,6 +368,20 @@
             });
         });
     }
+
+    // Verificar a seleção da vistos e exibir "Outros" para vistos
+    const vistosRadios = document.getElementsByName("vistos");
+    let vistosOutrosDiv = document.getElementById("vistos_outros_div");
+    vistosRadios.forEach(function (radio) {
+        radio.addEventListener("change", function() {
+            if (this.value === "Outros" && this.checked) {
+                vistosOutrosDiv.style.display = "block";
+            } else {
+                vistosOutrosDiv.style.display = "none";
+                document.getElementById("id_vistos_outros").value = ""; // Limpar campo
+            }
+        });
+    });
 
     // Inicializar a exibição dos campos ao carregar a página
     window.onload = toggleFields;

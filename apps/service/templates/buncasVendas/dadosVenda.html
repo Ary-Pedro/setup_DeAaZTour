@@ -61,23 +61,35 @@
        {% endif %}
         {% endif %}
 
-{% if cadastro.nacionalidade == 'Outros' %}
-    <p><strong>Nacionalidade: </strong> {{ cadastro.nacionalidade_outros }}</p>
-{% else %}
-    {% if cadastro.nacionalidade %}
-        <p><strong>Nacionalidade: </strong> {{ cadastro.nacionalidade|capfirst }}</p>
+        {% if cadastro.tipo_servico == 'Passaporte' %}
+        {% if cadastro.nacionalidade == 'Outros' %}
+            <p><strong>Nacionalidade: </strong> {{ cadastro.nacionalidade_outros }}</p>
+        {% else %}
+            {% if cadastro.nacionalidade %}
+                <p><strong>Nacionalidade: </strong> {{ cadastro.nacionalidade|capfirst }}</p>
+            {% endif %}
+        {% endif %}
     {% endif %}
-{% endif %}
-
-
-{% if cadastro.tipo_cidadania == 'Outros' %}
-    <p><strong>Tipo de Cidadania: </strong> {{ cadastro.tipo_cidadania_outros }}</p>
-{% else %}
-    {% if cadastro.tipo_cidadania %}
-        <p><strong>Tipo de Cidadania: </strong> {{ cadastro.tipo_cidadania|capfirst }}</p>
+    
+    {% if cadastro.tipo_servico == 'Vistos' %}
+        {% if cadastro.vistos == 'Outros' %}
+            <p><strong>Vistos: </strong> {{ cadastro.vistos_outros }}</p>
+        {% else %}
+            {% if cadastro.vistos %}
+                <p><strong>Visto: </strong> {{ cadastro.vistos|capfirst }}</p>
+            {% endif %}
+        {% endif %}
     {% endif %}
-{% endif %}
-
+    
+    {% if cadastro.tipo_servico == 'Cidadania' %}
+        {% if cadastro.tipo_cidadania == 'Outros' %}
+            <p><strong>Tipo de Cidadania: </strong> {{ cadastro.tipo_cidadania_outros }}</p>
+        {% else %}
+            {% if cadastro.tipo_cidadania %}
+                <p><strong>Tipo de Cidadania: </strong> {{ cadastro.tipo_cidadania|capfirst }}</p>
+            {% endif %}
+        {% endif %}
+    {% endif %}
 
         <p><strong>Situação: </strong> {{ cadastro.situacaoMensal }}</p>
         {% if cadastro.finished_at %}

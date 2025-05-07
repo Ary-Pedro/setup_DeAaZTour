@@ -22,7 +22,6 @@ import os
 from django.db.models import Q, Sum
 from .forms import AtualizarForm, CompletarCadastro
 from io import BytesIO
-from openpyxl import Workbook
 
 # INFO: Data
 from django.utils.timezone import now
