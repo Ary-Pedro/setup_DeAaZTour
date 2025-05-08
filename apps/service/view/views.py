@@ -28,6 +28,7 @@ from dateutil.relativedelta import relativedelta  # Usando relativedelta para ma
 from django.db.models import Count
 
 from django.shortcuts import render
+from urllib.parse import urlparse
 
 from .forms import VendaAtualizar, VendaForm
 

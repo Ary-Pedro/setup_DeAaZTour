@@ -39,9 +39,9 @@ urlpatterns = [
     path('resetar-contas/', views.resetar_contas, name='resetar_contas'),
     path("concluir_fluxo/", views.concluir_fluxo_mensal, name="concluir_fluxo"),
     path("fluxos/", views.ListarFluxosMensais.as_view(), name="listagemFluxoMensal"),
-    path('fluxo-completo/<int:pk>/', views.DetalhesFluxoMensalCompleto.as_view(), name='fluxo_completo'),  
     path('fluxo/deletar-conta/<int:pk>/', views.deletar_conta_mensal, name='deletar_conta_mensal'),   
-
+    path('fluxo-completo/<int:pk>/', views.DetalhesFluxoMensalCompleto.as_view(), name='fluxo_completo'),  
+    path('fluxo/completo/atualizar/<int:pk>/', views.FluxoUpdateView.as_view(), name='fluxo_atualizar'),
   
   
 

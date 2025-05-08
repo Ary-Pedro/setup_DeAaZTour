@@ -8,7 +8,9 @@ from django.core.exceptions import ValidationError
 from django.db.models import Sum
 from django.utils.timezone import now
 from datetime import timedelta
-
+#-----------------------------------------------------------------------------------------------------------------------------------
+#Warning: AS porcentagens de comissão fora definidas presencialmente, evitar alterar o valor!!!! model e views, worker e services!!!
+#-----------------------------------------------------------------------------------------------------------------------------------
 
 class CustomUserManager(BaseUserManager):
     def create_user(self, email, password=None, **extra_fields):
@@ -198,7 +200,7 @@ class Funcionario(AbstractUser):
         liquido = fluxo.subtotal_liquido or 0.0
 
         # Comissão de 5%
-        comissao = liquido * 0.05
+        comissao = liquido * 0.03
         return comissao
     
         
@@ -223,7 +225,7 @@ class ContasMensal(models.Model):
     observacao = models.CharField(max_length=500, null=True, blank=True, verbose_name="Descrição")
     entrada = models.FloatField(null=True, blank=True, default=0)
     saida = models.FloatField(null=True, blank=True, default=0)
-    created_at = models.DateTimeField(auto_now_add=True)
+    created_at = models.DateField(null=True, blank=True, default=now, verbose_name="Data de Criação")
     fluxo_mensal = models.ForeignKey('FluxoMensal', on_delete=models.SET_NULL, null=True, blank=True, related_name='contas')
 
     def __str__(self):

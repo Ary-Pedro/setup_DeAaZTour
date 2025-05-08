@@ -8,7 +8,7 @@ from django.contrib.auth.mixins import LoginRequiredMixin
 from django.views import View
 from django.core.mail import send_mail
 import uuid
-from django.urls import reverse_lazy
+from django.urls import reverse, reverse_lazy
 from .forms import RegisterForm
 from apps.worker.models import Funcionario, ContasMensal, FluxoMensal
 from setup_DeAaZTour import settings
@@ -160,7 +160,16 @@ def deletar_conta_mensal(request, pk):
     fluxo.save()
     
     return redirect('fluxo_completo', pk=fluxo_id)
-    
+class FluxoUpdateView(LoginRequiredMixin, UpdateView):
+    model = ContasMensal
+    fields = ['observacao', 'entrada', 'saida', "created_at"]
+    login_url = 'log'  # redireciona para login caso não esteja autenticado
+    template_name = 'contas/detalhes_fluxo_form.html'
+    def get_success_url(self):
+        # redireciona de volta para o fluxo completo ao qual esta conta pertence
+        fluxo_pk = self.object.fluxo_mensal.pk
+        return reverse('fluxo_completo', kwargs={'pk': fluxo_pk})
+
 class ListarFluxosMensais(LoginRequiredMixin, ListView):
     model = FluxoMensal
     template_name = "contas/listagemFluxo.html"
