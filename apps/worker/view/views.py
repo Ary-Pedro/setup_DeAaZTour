@@ -1,6 +1,6 @@
 from django.shortcuts import render, redirect, get_object_or_404
 from django.contrib.auth import get_user_model, authenticate, login
-from django.http import JsonResponse, Http404
+from django.http import HttpResponseRedirect, JsonResponse, Http404
 from django.contrib import messages
 from django.contrib.auth.views import LogoutView
 from django.views.generic import *
@@ -162,19 +162,62 @@ def deletar_conta_mensal(request, pk):
     return redirect('fluxo_completo', pk=fluxo_id)
 class FluxoUpdateView(LoginRequiredMixin, UpdateView):
     model = ContasMensal
-    fields = ['observacao', 'entrada', 'saida', "created_at"]
-    login_url = 'log'  # redireciona para login caso não esteja autenticado
+    form_class = ContasForm
     template_name = 'contas/detalhes_fluxo_form.html'
-    def get_success_url(self):
-        # redireciona de volta para o fluxo completo ao qual esta conta pertence
-        fluxo_pk = self.object.fluxo_mensal.pk
-        return reverse('fluxo_completo', kwargs={'pk': fluxo_pk})
+    login_url = 'log'
+
+    def form_valid(self, form):
+        # instância antes de alterar
+        conta_antiga = self.get_object()
+        fluxo_antigo = conta_antiga.fluxo_mensal
+
+        # salva sem commit para podermos ajustar fluxo_mensal
+        conta = form.save(commit=False)
+
+        # determina o mês de referência a partir de created_at editado
+        mes = conta.created_at
+        mes_referencia = date(mes.year, mes.month, 1)
+
+        # obtém ou cria o fluxo para esse mês
+        fluxo_novo, _ = FluxoMensal.objects.get_or_create(
+            mes_referencia=mes_referencia,
+            defaults={
+                'saldo_total': 0,
+                'total_entrada': 0,
+                'total_saida': 0,
+            }
+        )
+
+        # reatribui e salva a conta
+        conta.fluxo_mensal = fluxo_novo
+        conta.save()
+
+        # função auxiliar para recálculo de um fluxo
+        def recalcular(fluxo):
+            contas = ContasMensal.objects.filter(fluxo_mensal=fluxo)
+            entrada = contas.aggregate(Sum('entrada'))['entrada__sum'] or 0
+            saida  = contas.aggregate(Sum('saida'))['saida__sum'] or 0
+            fluxo.total_entrada = entrada
+            fluxo.total_saida   = saida
+            fluxo.saldo_total   = entrada - saida
+            fluxo.save()
+
+        # recalcula tanto o fluxo antigo (se existir) quanto o novo
+        if fluxo_antigo:
+            recalcular(fluxo_antigo)
+        recalcular(fluxo_novo)
+
+        # redireciona para o fluxo_completo do fluxo novo
+        return HttpResponseRedirect(
+            reverse('fluxo_completo', kwargs={'pk': fluxo_novo.pk})
+        )
 
 class ListarFluxosMensais(LoginRequiredMixin, ListView):
     model = FluxoMensal
     template_name = "contas/listagemFluxo.html"
     paginate_by = 12
     context_object_name = "fluxos"
+    ordering = ['-mes_referencia']   # <-- ordem decrescente
 
 
 class DetalhesFluxoMensalCompleto(LoginRequiredMixin, DetailView):
