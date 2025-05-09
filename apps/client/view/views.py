@@ -80,6 +80,16 @@ class ListCliente(LoginRequiredMixin, ListView):
     context_object_name = "cadastro_list"
     login_url = "log"  # URL para redirecionar para login
 
+    def get_queryset(self):
+      queryset = Cliente.objects.all()
+    
+      order = self.request.GET.get('order', 'desc')
+      if order == 'asc':
+         return queryset.order_by('id')
+      return queryset.order_by('-id')
+
+
+
 
 
 # INFO: Cliente - Validar
@@ -156,17 +166,42 @@ class DadosCadastros(LoginRequiredMixin, ListView):
 
 
 # NOTE: função para puxar informaçoes de clientes em nova venda pelo id
-def cliente_detail_api(request, pk):
-    cliente = get_object_or_404(Cliente, pk=pk)
-    data = {
-        "nome": cliente.nome,
-        "cpf": cliente.cpf,
-        "num_passaporte": cliente.num_passaporte,
-        "data_nascimento": cliente.data_nascimento,
-        "endereco": cliente.endereco,
-        "cep": cliente.cep,
-        "bairro": cliente.bairro,
-        "estado": cliente.estado,
-    }
-    return JsonResponse(data)
+   
+from django.http import JsonResponse
+from django.views.decorators.http import require_GET
+import re
 
+from django.db.models import Q
+@require_GET
+def cliente_detail_api(request, cpf):
+    try:
+        # Remove todos os não dígitos
+        cpf_limpo = re.sub(r'[^0-9]', '', cpf)
+
+        if len(cpf_limpo) != 11:
+            return JsonResponse({'erro': 'CPF deve conter 11 dígitos'}, status=400)
+
+        # Tenta encontrar o cliente pelo CPF limpo (sem formatação)
+        cliente = Cliente.objects.filter(cpf=cpf_limpo).first()
+
+        if not cliente:
+            # Se não encontrar, tenta buscar por um CPF que contenha o CPF limpo
+            # (útil se o CPF no banco estiver formatado)
+            cliente = Cliente.objects.filter(cpf__contains=cpf_limpo).first()
+
+        if not cliente:
+            return JsonResponse({'erro': 'Cliente não encontrado'}, status=404)
+
+        return JsonResponse({
+            'nome': cliente.nome,
+            'cpf': cliente.cpf,
+            'num_passaporte': cliente.num_passaporte or '',
+            'data_nascimento': cliente.data_nascimento or '',  # Já é string
+            'endereco': cliente.endereco or '',
+            'cep': cliente.cep or '',
+            'bairro': cliente.bairro or '',
+            'estado': cliente.estado or ''
+        })
+
+    except Exception as e:
+        return JsonResponse({'erro': str(e)}, status=500)

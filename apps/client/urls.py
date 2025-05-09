@@ -11,10 +11,12 @@ urlpatterns = [
     path(f"Deletar/-<int:pk>", views.DeleteView.as_view(), name="cliente_deletar"),
     path(f"buscar/", views.Procurar.as_view(), name="procurarCliente"),
     path(f"buscar/dados/-<int:dados_id>", views.DadosCadastros.as_view(), name="dadosCliente"),
-    path('api/cliente/<int:pk>/', views.cliente_detail_api, name='cliente_detail_api'),
+
+
+    path('api/cliente/<str:cpf>/', views.cliente_detail_api, name='cliente_detail_api'),
     #remover
 
-    path(f"btn-complete/cliente/-<int:pk>", views.Validar.as_view(), name="cliente_complete"),
+    path(f"btn-complete/cliente/-<int:cpf>", views.Validar.as_view(), name="cliente_complete"),
 
     path('excluir-anexo/<int:anexo_id>/', views.excluir_anexo_cliente, name='excluir_anexo_cliente'),
 

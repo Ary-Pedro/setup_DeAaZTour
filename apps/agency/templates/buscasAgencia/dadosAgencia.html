@@ -57,13 +57,35 @@ a {
         <p><strong>Telefone 3: </strong> {{ cadastro.telefone3 }}</p>
       {% endif %}
 
-        <p><strong>Ano de contato: </strong> {{ cadastro.contato_ano }}</p>
-        <p><strong>Bairro: </strong> {{ cadastro.bairro }}</p>
-        <p><strong>Município: </strong> {{ cadastro.municipio }}</p>
-        <p><strong>Estado: </strong> {{ cadastro.uf }}</p>
-        <p><strong>Cep: </strong> {{ cadastro.cep }}</p>
-        <p><strong>Logradouro: </strong> {{ cadastro.logradouro }}</p>
-        <p><strong>Número: </strong> {{ cadastro.numero }}</p>
+
+      {% if cadastro.contato_ano %}
+      <p><strong>Contato de ano: </strong> {{ cadastro.contato_ano }}</p>
+    {% endif %}
+
+    {% if cadastro.bairro %}
+    <p><strong>Bairro: </strong> {{ cadastro.bairro }}</p>
+  {% endif %}
+
+  {% if cadastro.municipio %}
+  <p><strong>Município: </strong> {{ cadastro.municipio }}</p>
+{% endif %}
+
+{% if cadastro.uf %}
+<p><strong>Estado: </strong> {{ cadastro.uf }}</p>
+{% endif %}
+
+{% if cadastro.cep %}
+<p><strong>Cep: </strong> {{ cadastro.cep }}</p>
+{% endif %}
+
+{% if cadastro.logradouro %}
+<p><strong>Logradouro: </strong> {{ cadastro.logradouro }}</p>
+{% endif %}
+
+{% if cadastro.numero %}
+<p><strong>Número: </strong> {{ cadastro.numero }}</p>
+{% endif %}
+
   
         {% if cadastro.complemento %}
         <p><strong>Complemento: </strong> {{ cadastro.complemento }}</p>

@@ -30,6 +30,7 @@ from django.db.models import Count
 from django.shortcuts import render
 from urllib.parse import urlparse
 
+
 from .forms import VendaAtualizar, VendaForm
 
 
@@ -39,6 +40,7 @@ def excluir_anexo(request, anexo_id):
     return redirect(request.META.get("HTTP_REFERER", "ListagemVenda"))
 
 # INFO: Venda  --------------------------------------------------------------------------------------------------------
+import re
 
 # INFO: Venda - Cadastar
 class CadVendas(LoginRequiredMixin, CreateView):
@@ -74,18 +76,16 @@ class CadVendas(LoginRequiredMixin, CreateView):
 
         # Limpa os campos
         cliente_nome = cliente_input.strip() if cliente_input else None
-        cpf_input = cpf_input.strip() if cpf_input else None
+        cpf_input = re.sub(r'\D', '', cpf_input) if cpf_input else None
 
-        # Busca cliente com base nos dados fornecidos
         cliente = None
-        if id_input:
-            cliente = Cliente.objects.filter(pk=id_input).first()
-        elif cpf_input and cliente_nome:
-            cliente = Cliente.objects.filter(nome__iexact=cliente_nome, cpf=cpf_input).first()
-        elif cpf_input:
-            cliente = Cliente.objects.filter(cpf=cpf_input).first()
-        elif cliente_nome:
-            cliente = Cliente.objects.filter(nome__iexact=cliente_nome).first()
+        if cpf_input:  # Primeiro tenta encontrar por CPF
+          cliente = Cliente.objects.filter(cpf=cpf_input).first()
+        elif id_input:  # Depois tenta por ID
+          cliente = Cliente.objects.filter(pk=id_input).first()
+        elif cliente_nome:  # Por fim, tenta pelo nome
+           cliente = Cliente.objects.filter(nome__iexact=cliente_nome).first()
+
 
         # Validação da existência do cliente
         if cliente:
@@ -315,6 +315,10 @@ class UpdateView(LoginRequiredMixin, UpdateView):
             return self.instance.vendedor  # Mantém o original se não for fornecido
         return vendedor
 '''
+
+
+
+
 
 # INFO: Venda - Deletar
 class DeleteView(LoginRequiredMixin, DeleteView):

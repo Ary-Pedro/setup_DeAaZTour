@@ -1,183 +1,357 @@
 {% load static %}
 <!DOCTYPE html>
-
-<html lang="en">
+<html lang="pt-br">
 <head>
     <meta charset="UTF-8">
-    <title>Title</title>
-    <link href="{% static 'global/css/buscasFuncionario/dados_print.css' %}" rel="stylesheet" type="text/css"/>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Detalhes da Venda</title>
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0-alpha3/dist/css/bootstrap.min.css" rel="stylesheet">
-
-</head>
-
-
-<style>
-
-    a {
-      text-decoration: none; /* Remove o sublinhado */
-      color: inherit; /* Mantém a cor do texto conforme o estilo do botão */
-    }
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+        
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            line-height: 1.6;
+            background-color: #f8f9fa;
+            color: #333;
+            padding: 20px;
+        }
+        
+        .container {
+            max-width: 1400px;
+            margin: 0 auto;
+            background-color: #fff;
+            border-radius: 10px;
+            box-shadow: 0 0 20px rgba(0, 0, 0, 0.1);
+            padding: 30px;
+            margin-bottom: 30px;
+        }
+        
+        h1 {
+            color: #2c3e50;
+            text-align: center;
+            margin-bottom: 30px;
+            padding-bottom: 15px;
+            border-bottom: 1px solid #eee;
+        }
+        
+        h2 {
+            color: #3498db;
+            margin: 25px 0 15px;
+            padding-bottom: 10px;
+            border-bottom: 1px solid #eee;
+            font-size: 1.4rem;
+        }
+        
+        .info-container {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 20px;
+            margin-bottom: 20px;
+        }
+        
+        .info-card {
+            flex: 1;
+            min-width: 250px;
+            background-color: #f8f9fa;
+            border-radius: 8px;
+            padding: 15px;
+            box-shadow: 0 2px 5px rgba(0, 0, 0, 0.05);
+        }
+        
+        .info-item {
+            margin-bottom: 10px;
+        }
+        
+        .info-item strong {
+            color: #2c3e50;
+            display: block;
+            margin-bottom: 3px;
+            font-size: 0.9rem;
+            color: #7f8c8d;
+        }
+        
+        .info-item p {
+            font-size: 1rem;
+            color: #34495e;
+            margin: 0;
+        }
+        
+        .anexos-container {
+            margin-top: 30px;
+        }
+        
+        .anexo-item {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            padding: 10px;
+            border-bottom: 1px solid #eee;
+        }
+        
+        .anexo-item a {
+            color: #3498db;
+            text-decoration: none;
+            flex-grow: 1;
+        }
+        
+        .anexo-item a:hover {
+            text-decoration: underline;
+        }
+        
+        .btn-voltar {
+            display: block;
+            width: 100%;
+            max-width: 200px;
+            margin: 30px auto 0;
+            background-color: #3498db;
+            color: white;
+            border: none;
+            padding: 10px;
+            border-radius: 5px;
+            text-align: center;
+            transition: background-color 0.3s;
+        }
+        
+        .btn-voltar:hover {
+            background-color: #2980b9;
+            color: white;
+        }
+        
+        .empty-message {
+            color: #7f8c8d;
+            font-style: italic;
+            padding: 15px;
+            text-align: center;
+        }
+        
+        @media (max-width: 1200px) {
+            .info-card {
+                min-width: calc(50% - 20px);
+            }
+        }
+        
+        @media (max-width: 768px) {
+            .info-card {
+                min-width: 100%;
+            }
+            
+            .container {
+                padding: 20px;
+            }
+        }
     </style>
-
+</head>
 <body>
-
-
-{% for cadastro in object_list %}
-
-    <div class="dados_cliente">
-
-    <h1>Detalhes do Cadastro</h1>
-    <hr/>
-    <div class="apenasp_cliente">
-
-
-        <h2>Dados da venda</h2>
-        <p><strong>Vendedor: </strong> {{ cadastro.vendedor }}</p>
-
-
-        {% if cadastro.data_venda %}
-        <p><strong>Inicio da venda: </strong> {{ cadastro.data_venda }}</p>
-        {% endif %}
-
-        {% if cadastro.finished_at %}
-        <p><strong>Término da venda: </strong> {{ cadastro.finished_at|slice:"8:10" }}/{{ cadastro.finished_at|slice:"5:7" }}/{{ cadastro.finished_at|slice:"0:4" }}</p>
-        {% endif %}
-    
-
-        {% if cadastro.valor %}
-        <p><strong>Valor da venda: </strong> {{ cadastro.valor }}</p>
-        {% endif %}
-
-        {% if cadastro.tipo_pagamento %}
-        <p><strong>Forma de pagamento: </strong> {{ cadastro.tipo_pagamento }}</p>
-        {% endif %}
-        
-
-       {% if cadastro.tipo_servico == 'Outros' %}
-          <p><strong>Tipo de Serviço: </strong> {{ cadastro.tipo_servico_outros }}</p>
-       {% else %}
-       {% if cadastro.tipo_servico %}
-        <p><strong>Tipo de Serviço: </strong> {{ cadastro.tipo_servico|capfirst }}</p>
-       {% endif %}
-        {% endif %}
-
-
-        {% if cadastro.tipo_servico == 'Passaporte' %}
-        {% if cadastro.nacionalidade == 'Outros' %}
-            <p><strong>Nacionalidade: </strong> {{ cadastro.nacionalidade_outros }}</p>
-        {% else %}
-            {% if cadastro.nacionalidade %}
-                <p><strong>Nacionalidade: </strong> {{ cadastro.nacionalidade|capfirst }}</p>
+    <div class="container">
+        {% for cadastro in object_list %}
+            <h1>Detalhes da Venda</h1>
+            
+            <div class="info-container">
+                <!-- Informações da Venda -->
+                <div class="info-card">
+                    <h2>Dados da Venda</h2>
+                    
+                    <div class="info-item">
+                        <strong>Vendedor</strong>
+                        <p>{{ cadastro.vendedor }}</p>
+                    </div>
+                    
+                    <div class="info-item">
+                        <strong>Tipo de Serviço</strong>
+                        <p>
+                            {% if cadastro.tipo_servico == 'Outros' %}
+                                {{ cadastro.tipo_servico_outros|default:"-" }}
+                            {% else %}
+                                {{ cadastro.tipo_servico|capfirst|default:"-" }}
+                            {% endif %}
+                        </p>
+                    </div>
+                    
+                    {% if cadastro.tipo_servico == 'Passaporte' %}
+                    <div class="info-item">
+                        <strong>Nacionalidade</strong>
+                        <p>
+                            {% if cadastro.nacionalidade == 'Outros' %}
+                                {{ cadastro.nacionalidade_outros|default:"-" }}
+                            {% else %}
+                                {{ cadastro.nacionalidade|capfirst|default:"-" }}
+                            {% endif %}
+                        </p>
+                    </div>
+                    {% endif %}
+                    
+                    {% if cadastro.tipo_servico == 'Vistos' %}
+                    <div class="info-item">
+                        <strong>Visto</strong>
+                        <p>
+                            {% if cadastro.vistos == 'Outros' %}
+                                {{ cadastro.vistos_outros|default:"-" }}
+                            {% else %}
+                                {{ cadastro.vistos|capfirst|default:"-" }}
+                            {% endif %}
+                        </p>
+                    </div>
+                    {% endif %}
+                    
+                    {% if cadastro.tipo_servico == 'Cidadania' %}
+                    <div class="info-item">
+                        <strong>Tipo de Cidadania</strong>
+                        <p>
+                            {% if cadastro.tipo_cidadania == 'Outros' %}
+                                {{ cadastro.tipo_cidadania_outros|default:"-" }}
+                            {% else %}
+                                {{ cadastro.tipo_cidadania|capfirst|default:"-" }}
+                            {% endif %}
+                        </p>
+                    </div>
+                    {% endif %}
+                </div>
+                
+                <!-- Financeiro -->
+                <div class="info-card">
+                    <h2>Financeiro</h2>
+                    
+                    <div class="info-item">
+                        <strong>Valor da venda</strong>
+                        <p>{{ cadastro.valor|default:"-" }}</p>
+                    </div>
+                    
+                    <div class="info-item">
+                        <strong>Desconto</strong>
+                        <p>{{ cadastro.desconto|default:"-" }}</p>
+                    </div>
+                    
+                    <div class="info-item">
+                        <strong>Custo sobre a venda</strong>
+                        <p>{{ cadastro.custo_sobre_venda|default:"-" }}</p>
+                    </div>
+                    
+                    <div class="info-item">
+                        <strong>Forma de pagamento</strong>
+                        <p>{{ cadastro.tipo_pagamento|default:"-" }}</p>
+                    </div>
+                </div>
+                
+                <!-- Detalhes Adicionais -->
+                <div class="info-card">
+                    <h2>Detalhes Adicionais</h2>
+                    
+                    <div class="info-item">
+                        <strong>Agência recomendada</strong>
+                        <p>{{ cadastro.Agencia_recomendada|default:"-" }}</p>
+                    </div>
+                    
+                    <div class="info-item">
+                        <strong>Recomendação da Venda</strong>
+                        <p>{{ cadastro.recomendação_da_Venda|default:"-" }}</p>
+                    </div>
+                    
+                    <div class="info-item">
+                        <strong>Início da venda</strong>
+                        <p>{{ cadastro.data_venda|default:"-" }}</p>
+                    </div>
+                    
+                    <div class="info-item">
+                        <strong>Término da venda</strong>
+                        <p>
+                            {% if cadastro.finished_at %}
+                                {{ cadastro.finished_at|slice:"8:10" }}/{{ cadastro.finished_at|slice:"5:7" }}/{{ cadastro.finished_at|slice:"0:4" }}
+                            {% else %}
+                                -
+                            {% endif %}
+                        </p>
+                    </div>
+                    
+                    <div class="info-item">
+                        <strong>Situação</strong>
+                        <p>{{ cadastro.situacaoMensal|default:"-" }}</p>
+                    </div>
+                </div>
+                
+                <!-- Cliente -->
+                <div class="info-card">
+                    <h2>Dados do Cliente</h2>
+                    
+                    <div class="info-item">
+                        <strong>Nome</strong>
+                        <p>{{ cadastro.cliente|default:"-" }}</p>
+                    </div>
+                    
+                    <div class="info-item">
+                        <strong>CPF</strong>
+                        <p>{{ cadastro.cliente.cpf|default:"-" }}</p>
+                    </div>
+                    
+                    <div class="info-item">
+                        <strong>Data de Nascimento</strong>
+                        <p>{{ cadastro.cliente.data_nascimento|default:"-" }}</p>
+                    </div>
+                    
+                    <div class="info-item">
+                        <strong>Passaporte</strong>
+                        <p>{{ cadastro.cliente.num_passaporte|default:"-" }}</p>
+                    </div>
+                    
+                    <div class="info-item">
+                        <strong>Endereço</strong>
+                        <p>{{ cadastro.cliente.endereco|default:"-" }}</p>
+                    </div>
+                    
+                    <div class="info-item">
+                        <strong>CEP</strong>
+                        <p>{{ cadastro.cliente.cep|default:"-" }}</p>
+                    </div>
+                    
+                    <div class="info-item">
+                        <strong>Bairro</strong>
+                        <p>{{ cadastro.cliente.bairro|default:"-" }}</p>
+                    </div>
+                    
+                    <div class="info-item">
+                        <strong>Estado</strong>
+                        <p>{{ cadastro.cliente.estado|default:"-" }}</p>
+                    </div>
+                </div>
+            </div>
+            
+            <!-- Anexos -->
+            <div class="anexos-container">
+                <h2>Anexos</h2>
+                
+                {% if cadastro.anexos.all %}
+                    {% for anexo in cadastro.anexos.all %}
+                        <div class="anexo-item">
+                            <a href="{{ anexo.arquivo.url }}" target="_blank">
+                                {{ anexo.arquivo.name }}
+                            </a>
+                            <form action="{% url 'excluir_anexo' anexo.id %}" method="POST" style="display:inline;">
+                                {% csrf_token %}
+                                <button type="submit" class="btn btn-danger btn-sm" 
+                                    onclick="return confirm('Tem certeza que deseja excluir este anexo?');">
+                                    Excluir
+                                </button> 
+                            </form>
+                        </div>
+                    {% endfor %}
+                {% else %}
+                    <div class="empty-message">Não há anexos disponíveis.</div>
+                {% endif %}
+            </div>
+            
+            <!-- Botão Voltar -->
+            {% if from_fluxo %}
+                <a href="{% url 'fluxo_completo' from_fluxo %}" class="btn-voltar">Voltar</a>
+            {% elif fluxo_id %}
+                <a href="{% url 'fluxo_completo' fluxo_id %}" class="btn-voltar">Voltar</a>
+            {% else %}
+                <a href="{% url 'ListagemVenda' %}" class="btn-voltar">Voltar</a>
             {% endif %}
-        {% endif %}
-    {% endif %}
-    
-    {% if cadastro.tipo_servico == 'Vistos' %}
-        {% if cadastro.vistos == 'Outros' %}
-            <p><strong>Vistos: </strong> {{ cadastro.vistos_outros }}</p>
-        {% else %}
-            {% if cadastro.vistos %}
-                <p><strong>Vistos: </strong> {{ cadastro.vistos|capfirst }}</p>
-            {% endif %}
-        {% endif %}
-    {% endif %}
-    
-    {% if cadastro.tipo_servico == 'Cidadania' %}
-        {% if cadastro.tipo_cidadania == 'Outros' %}
-            <p><strong>Tipo de Cidadania: </strong> {{ cadastro.tipo_cidadania_outros }}</p>
-        {% else %}
-            {% if cadastro.tipo_cidadania %}
-                <p><strong>Tipo de Cidadania: </strong> {{ cadastro.tipo_cidadania|capfirst }}</p>
-            {% endif %}
-        {% endif %}
-    {% endif %}
-    
-
-        <p><strong>Situação: </strong> {{ cadastro.situacaoMensal }}</p>
-        {% if cadastro.finished_at %}
-            <p><strong>Finalizado em: </strong> {{ cadastro.finished_at }}</p>
-        {% endif %}
-
-        
-        <h2>Anexos</h2>
-        {% if cadastro.anexos.all %}
-           
-                {% for anexo in cadastro.anexos.all %}
-                   
-                        <a href="{{ anexo.arquivo.url }}" target="_blank">{{ anexo.arquivo.name }}</a>
-
-                        <form action="{% url 'excluir_anexo' anexo.id %}" method="POST" style="display:inline;">
-                            {% csrf_token %}
-                            <button type="submit" class="btn btn-danger btn-sm" 
-                            style="padding: 2px 8px; font-size: 0.60rem;" 
-                            onclick="return confirm('Tem certeza que deseja excluir este anexo?');">
-                      Excluir
-                    </button> 
-                    </form>
-                        
-                   <br> <br>
-                {% endfor %}
-           
-        {% else %}
-            <p>Não há anexos disponíveis.</p>
-        {% endif %}
-        
-    
-        <h2>Dados do Cliente</h2>
-      
-        {% if cadastro.cliente.id %}
-        <p><strong>ID: </strong> {{ cadastro.cliente.id }}</p>
-        {% endif %}
-
-        {% if cadastro.cliente %}
-        <p><strong>Cliente: </strong> {{ cadastro.cliente }}</p>
-        {% endif %}
-
-        {% if cadastro.cliente.cpf %}
-        <p><strong>CPF: </strong> {{ cadastro.cliente.cpf }}</p>
-        {% endif %}
-
-        {% if cadastro.cliente.data_nascimento %}
-        <p><strong>Data de nascimento: </strong> {{ cadastro.cliente.data_nascimento }}</p>
-        {% endif %}
-
-        {% if cadastro.num_passaporte %}
-            <p><strong>Passaporte: </strong> {{ cadastro.num_passaporte }}</p>
-        {% endif %}
-
-        {% if cadastro.endereco %}
-            <p><strong>Endereco: </strong> {{ cadastro.endereco }}</p>
-        {% endif %}
-
-        {% if cadastro.cep %}
-            <p><strong>Cep: </strong> {{ cadastro.cep }}</p>
-        {% endif %}
-        
-        {% if cadastro.bairro %}
-            <p><strong>Bairro: </strong> {{ cadastro.bairro }}</p>
-        {% endif %}
-
-
-        {% if cadastro.estado %}
-            <p><strong>Estado: </strong> {{ cadastro.estado }}</p>
-        {% endif %}
-
-
-
-
+        {% endfor %}
     </div>
-
-    {% if from_fluxo %}
-    <a href="{% url 'fluxo_completo' from_fluxo %}"><button class="btnvoltar">Voltar</button></a>
-{% elif fluxo_id %}
-    <a href="{% url 'fluxo_completo' fluxo_id %}"><button class="btnvoltar">Voltar</button></a>
-{% else %}
-    <a href="{% url 'ListagemVenda' %}"><button class="btnvoltar">Voltar</button></a>
-{% endif %}
-  
-  
-{% endfor %}
-
-
 </body>
 </html>

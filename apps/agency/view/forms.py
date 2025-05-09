@@ -49,6 +49,15 @@ class AgenciaForm(forms.ModelForm):
         widget=forms.TextInput(attrs={"placeholder": "Preencha apenas com números, a formatação será automática"})
     )
 
+    nome_contato = forms.CharField(
+        label="Nome de contato",required=False
+    )
+    
+    nome_fantasia = forms.CharField(
+        label="Nome fantasia da empresa",required=False
+    )
+    
+
     class Meta:
         model = Agencia
         fields = [

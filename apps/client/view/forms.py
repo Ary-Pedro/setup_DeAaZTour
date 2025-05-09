@@ -39,6 +39,12 @@ class ClienteForm(forms.ModelForm):
     required=False,
     widget=forms.TextInput(attrs={"placeholder": "Preencha apenas com números, a formatação será automática"})
     )
+    rg = forms.CharField(
+        label="RG",
+        required=False,
+
+    )
+
     cpf = forms.CharField(
         label="CPF",
         required=False,
@@ -68,6 +74,7 @@ class ClienteForm(forms.ModelForm):
             "bairro",
             "estado",
             "cep",
+            "rg",
             "cpf",
             "num_passaporte",
             "cep",

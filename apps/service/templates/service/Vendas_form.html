@@ -186,16 +186,26 @@
                 <span style="display: block; text-align: center; font-size: 1.2rem; font-weight: 500;">
                     Para alterar os dados de um cliente, acesse a função "Editar Cliente"
                   </span>
-                    <div class="mb-3">
-                    <label for="pk_cliente" class="form-label">ID do Cliente:</label>
-                    <input type="text" placeholder="Use identificador de cliente" name="pk_cliente" id="pk_cliente" 
-                        class="form-control" value="{{ pk_cliente }}">
-                    <span class="form-text" style="font-size: 0.8em; color: #6c757d; display: block; margin-top: 4px;">
-                        ID disponível em listagem
-                    </span>
-                    <button type="button" class="btn btn-primary mt-2" onclick="buscarCliente()">Buscar Cliente</button>
+
+                
+                  
+                  <!-- Para: -->
+                  <div class="card">
+                    <div class="card-body">
+                        <div class="mb-3">
+                            <label for="cpfInput" class="form-label">CPF do Cliente:</label>
+                            <input type="text" class="form-control" id="cpfInput" 
+                                   placeholder="Digite o CPF (123.456.789-09)">
+                            <div class="form-text">Digite o CPF no formato: 123.456.789-09</div>
+                        </div>
+                        
+                        <button id="buscarBtn" class="btn btn-primary" onclick="buscarCliente()">
+                            Buscar Cliente
+                        </button>
+                    </div>
                 </div>
 
+                <input type="hidden" name="pk_cliente" id="pk_cliente" value="{{ pk_cliente }}">
 
             <div class="mb-3">
                <label for="cliente" class="form-label">Nome do Cliente:</label>
@@ -207,10 +217,7 @@
                </datalist>
            </div>
 
-           <div class="mb-3">
-               <label for="cpf_cliente" class="form-label">CPF do Cliente:</label>
-               <input type="text" name="cpf_cliente" id="cpf_cliente" class="form-control" value="{{ cpf_cliente }}">
-           </div>
+           
 
 <div class="mb-3">
    <label for="passaporte_cliente" class="form-label">Passaporte do Cliente:</label>
@@ -267,43 +274,62 @@
 <script src="{% static 'js/format_service.js' %}" defer></script>
 
 <script>
-    function buscarCliente() {
-     var pk_cliente = document.getElementById('pk_cliente').value.trim();
-     if (!pk_cliente) {
-         alert('Informe o ID do Cliente.');
-         return;
-     }
- 
-    axios.get("{% url 'cliente_detail_api' pk=0 %}".replace('0', pk_cliente))
-         .then(function (response) {
-             var cliente = response.data;
-             if (cliente) {
-                document.getElementById('cliente').value = cliente.nome;
-                document.getElementById('cpf_cliente').value = cliente.cpf;
-                document.getElementById('passaporte_cliente').value = cliente.num_passaporte;
+// Busca o cliente via API
+function buscarCliente() {
+    const cpfInput = document.getElementById('cpfInput').value;
+    const cpfLimpo = cpfInput.replace(/\D/g, '');
+    const btn = document.getElementById('buscarBtn');
+    
+    // Validação básica
+    if (!cpfLimpo || cpfLimpo.length !== 11) {
+        alert('CPF inválido. Deve conter 11 dígitos.');
+        return;
+    }
+    
+    // Mostra loading
+    btn.disabled = true;
+    btn.innerHTML = '<span class="spinner-border spinner-border-sm" role="status" aria-hidden="true"></span> Buscando...';
+    
+    // Faz a requisição
+    axios.get(`/api/cliente/${cpfLimpo}/`)
+        .then(response => {
+            const cliente = response.data;
+            
+            // Preenche os campos (certifique-se que os IDs batem com seu HTML)
+            document.getElementById('cliente').value = cliente.nome;
+            document.getElementById('cpf_cliente').value = cliente.cpf;
+            document.getElementById('passaporte_cliente').value = cliente.num_passaporte;
+            
+            // Formata a data se existir
+            if (cliente.data_nascimento) {
+                const [dia, mes, ano] = cliente.data_nascimento.split('/');
                 document.getElementById('data_nascimento_cliente').value = cliente.data_nascimento;
-                document.getElementById('endereco_cliente').value = cliente.endereco;
-                document.getElementById('cep_cliente').value = cliente.cep;
-                document.getElementById('bairro_cliente').value = cliente.bairro;
-                document.getElementById('estado_cliente').value = cliente.estado;
- 
-             } else {
-                 alert('Cliente não encontrado.');
-             }
-         })
-         .catch(function (error) {
-             console.error('Erro ao buscar cliente:', error);
-             alert('Cliente de id inserido não existe.');
-         });
- }
-
-  setTimeout(function() {
-        var messageContainer = document.getElementById('message-container');
-        if (messageContainer) {
-            messageContainer.style.display = 'none';
-        }
-    }, 5000);
+            }
+            
+            document.getElementById('endereco_cliente').value = cliente.endereco;
+            document.getElementById('cep_cliente').value = cliente.cep;
+            document.getElementById('bairro_cliente').value = cliente.bairro;
+            document.getElementById('estado_cliente').value = cliente.estado;
+        })
+        .catch(error => {
+            console.error('Erro:', error);
+            if (error.response && error.response.status === 404) {
+                alert('Cliente não encontrado.');
+            } else {
+                alert('Erro ao buscar cliente. Verifique o console para detalhes.');
+            }
+        })
+        .finally(() => {
+            btn.disabled = false;
+            btn.textContent = 'Buscar Cliente';
+        });
+}
+   
 </script>
+
+
+
+
 
 <script>
     function toggleFields() {
