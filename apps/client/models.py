@@ -5,6 +5,7 @@ from math import floor
 from django.dispatch import receiver
 from django.db.models.signals import pre_save
 
+
 # INFO: Dados de clientes
 class Cliente(models.Model):
     nome = models.CharField(
@@ -23,19 +24,20 @@ class Cliente(models.Model):
     telefone2 = models.CharField(
         max_length=20,
         null=True,
-        blank=True, 
+        blank=True,
         verbose_name="telefone 2",
     )
-   
-    email1 = models.EmailField(null=True, blank=True, verbose_name="e-mail 1", max_length=255)
-    email2 = models.EmailField(null=True, blank=True, verbose_name="e-mail 2", max_length=255)
-    
+
+    email1 = models.EmailField(
+        null=True, blank=True, verbose_name="e-mail 1", max_length=255
+    )
+    email2 = models.EmailField(
+        null=True, blank=True, verbose_name="e-mail 2", max_length=255
+    )
 
     sexo = models.CharField(
         max_length=50,
-        choices=[
-            ("M", "Masculino"), ("F", "Feminino"),("O", "Outro")
-        ],
+        choices=[("M", "Masculino"), ("F", "Feminino"), ("O", "Outro")],
         blank=True,
         null=True,
     )
@@ -48,40 +50,28 @@ class Cliente(models.Model):
         help_text="Digite o sexo aqui.",
     )
 
-
     data_nascimento = models.CharField(
         max_length=15,
         null=True,
         blank=True,
         verbose_name="Data de nascimento",
-        help_text="Digite no formato dd/mm/aaaa")
-    
+        help_text="Digite no formato dd/mm/aaaa",
+    )
+
     idade = models.IntegerField(null=True, editable=False)
 
     endereco = models.CharField(
-        max_length=200,
-        null=True,
-        verbose_name="endereço",
-        blank=True
+        max_length=200, null=True, verbose_name="endereço", blank=True
     )
 
     cidade = models.CharField(
-        max_length=100,
-        null=True,
-        verbose_name="cidade",
-        blank=True
+        max_length=100, null=True, verbose_name="cidade", blank=True
     )
     bairro = models.CharField(
-        max_length=100,
-        null=True,
-        verbose_name="bairro",
-        blank=True
+        max_length=100, null=True, verbose_name="bairro", blank=True
     )
     estado = models.CharField(
-        max_length=100,
-        null=True,
-        verbose_name="Estado",
-        blank=True
+        max_length=100, null=True, verbose_name="Estado", blank=True
     )
     cep = models.CharField(
         max_length=14,
@@ -90,8 +80,7 @@ class Cliente(models.Model):
         verbose_name="CEP",
     )
 
-
-    rg = models.CharField(max_length=20, verbose_name="RG",  null=True, blank=True)
+    rg = models.CharField(max_length=20, verbose_name="RG", null=True, blank=True)
 
     cpf = models.CharField(
         max_length=14,
@@ -106,11 +95,9 @@ class Cliente(models.Model):
 
     created_at = models.DateTimeField(auto_now_add=True)
 
-    
     def __str__(self):
         return self.nome
-    
-     
+
     def save(self, *args, **kwargs):
         if self.nome:
             self.nome = self.nome.upper()
@@ -124,7 +111,11 @@ def calcular_idade(data_nascimento_str):
     data_nascimento_dt = datetime.strptime(data_nascimento_str, "%d/%m/%Y").date()
     hoje = date.today()
     # Calcula a idade considerando se o aniversário já ocorreu neste ano ou não
-    idade = hoje.year - data_nascimento_dt.year - ((hoje.month, hoje.day) < (data_nascimento_dt.month, data_nascimento_dt.day))
+    idade = (
+        hoje.year
+        - data_nascimento_dt.year
+        - ((hoje.month, hoje.day) < (data_nascimento_dt.month, data_nascimento_dt.day))
+    )
     return idade
 
 
@@ -137,11 +128,11 @@ def pre_save_cliente(sender, instance, **kwargs):
 
 
 class Anexo(models.Model):
-    arquivo = models.FileField(upload_to='anexos/')
-    cliente = models.ForeignKey('Cliente', related_name='anexos', on_delete=models.CASCADE)
+    arquivo = models.FileField(upload_to="anexos/")
+    cliente = models.ForeignKey(
+        "Cliente", related_name="anexos", on_delete=models.CASCADE
+    )
     data_upload = models.DateTimeField(auto_now_add=True)
 
     def __str__(self):
         return self.arquivo.name
-
-

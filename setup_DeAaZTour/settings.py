@@ -7,19 +7,19 @@ BASE_DIR = Path(__file__).resolve().parent.parent
 
 # Security settings
 # criar env para a secret key
-SECRET_KEY ='django-insecure-k%es*+c3f0tws+hez6w)%kgcq*0s7rg2=4354c$1s9eb$wh9aa'
+SECRET_KEY = "django-insecure-k%es*+c3f0tws+hez6w)%kgcq*0s7rg2=4354c$1s9eb$wh9aa"
 DEBUG = True
-ALLOWED_HOSTS = ['*']
+ALLOWED_HOSTS = ["*"]
 
 # python manage.py compress
 
-#DEBUG = os.getenv('DJANGO_DEBUG', 'True') == 'True'
-#ALLOWED_HOSTS = os.getenv('DJANGO_ALLOWED_HOSTS', '*')
-#SECRET_KEY = os.getenv('DJANGO_SECRET_KEY', 'django-insecure-k%es*+c3f0tws+hez6w)%kgcq*0s7rg2=4354c$1s9eb$wh9aa')
+# DEBUG = os.getenv('DJANGO_DEBUG', 'True') == 'True'
+# ALLOWED_HOSTS = os.getenv('DJANGO_ALLOWED_HOSTS', '*')
+# SECRET_KEY = os.getenv('DJANGO_SECRET_KEY', 'django-insecure-k%es*+c3f0tws+hez6w)%kgcq*0s7rg2=4354c$1s9eb$wh9aa')
 
 # Application definition
 # Adicionar?!
-# "crispy_forms" 
+# "crispy_forms"
 # "crispy_bootstrap5"
 BASE_INSTALLED_APPS = [
     "django.contrib.admin",
@@ -39,7 +39,7 @@ MY_APPS = [
 
 FUNCIONAIS_APPS = [
     "phonenumber_field",
-    'compressor',
+    "compressor",
     "crispy_forms",
     "crispy_bootstrap5",
 ]
@@ -54,7 +54,7 @@ MIDDLEWARE = [
     "django.contrib.auth.middleware.AuthenticationMiddleware",
     "django.contrib.messages.middleware.MessageMiddleware",
     "django.middleware.clickjacking.XFrameOptionsMiddleware",
-    'whitenoise.middleware.WhiteNoiseMiddleware',
+    "whitenoise.middleware.WhiteNoiseMiddleware",
 ]
 
 ROOT_URLCONF = "setup_DeAaZTour.urls"
@@ -121,13 +121,13 @@ STATICFILES_DIRS = [
 STATIC_ROOT = BASE_DIR / "static"  # aonde vai ser salvo as pastas estáticas do projeto
 
 MEDIA_URL = "/media/"
-MEDIA_ROOT = os.path.join(BASE_DIR, 'media')
+MEDIA_ROOT = os.path.join(BASE_DIR, "media")
 
 
 # Static files finders
 STATICFILES_FINDERS = [
-    'django.contrib.staticfiles.finders.AppDirectoriesFinder',
-    'compressor.finders.CompressorFinder',
+    "django.contrib.staticfiles.finders.AppDirectoriesFinder",
+    "compressor.finders.CompressorFinder",
 ]
 
 # Django Compressor settings
@@ -139,7 +139,7 @@ RISPY_ALLOWED_TEMPLATE_PACKS = "bootstrap5"
 CRISPY_TEMPLATE_PACK = "bootstrap5"
 
 # Whitenoise settings
-STATICFILES_STORAGE = 'whitenoise.storage.CompressedManifestStaticFilesStorage'
+STATICFILES_STORAGE = "whitenoise.storage.CompressedManifestStaticFilesStorage"
 
 # Authentication settings
 AUTH_USER_MODEL = "worker.Funcionario"
@@ -149,8 +149,8 @@ EMAIL_BACKEND = "django.core.mail.backends.smtp.EmailBackend"
 EMAIL_HOST = "smtp.gmail.com"
 EMAIL_PORT = 587
 EMAIL_USE_TLS = True
-EMAIL_HOST_USER = os.getenv('EMAIL_HOST_USER', 'recuperarsenhadeaaztur@gmail.com')
-EMAIL_HOST_PASSWORD = os.getenv('EMAIL_HOST_PASSWORD', 'gask herz xqlr kdmq')
+EMAIL_HOST_USER = os.getenv("EMAIL_HOST_USER", "recuperarsenhadeaaztur@gmail.com")
+EMAIL_HOST_PASSWORD = os.getenv("EMAIL_HOST_PASSWORD", "gask herz xqlr kdmq")
 DEFAULT_FROM_EMAIL = "recuperarsenhadeaaztur@gmail.com"
 
 # Base URL for the project
@@ -178,7 +178,7 @@ SECURE_HSTS_SECONDS = int(os.getenv('DJANGO_SECURE_HSTS_SECONDS', 3600))
 SECURE_HSTS_INCLUDE_SUBDOMAINS = os.getenv('DJANGO_SECURE_HSTS_INCLUDE_SUBDOMAINS', 'True') == 'True'
 SECURE_HSTS_PRELOAD = os.getenv('DJANGO_SECURE_HSTS_PRELOAD', 'True') == 'True'
 """
-'''
+"""
 # Logging configuration
 LOGGING = {
     'version': 1,
@@ -197,4 +197,4 @@ LOGGING = {
             'propagate': True,
         },
     },
-}'''
+}"""

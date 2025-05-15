@@ -27,6 +27,7 @@ def excluir_anexo_cliente(request, anexo_id):
     anexo.delete()
     return redirect(request.META.get("HTTP_REFERER", "ListagemCliente"))
 
+
 # INFO: Cliente --------------------------------------------------------------------------------------------------------
 # INFO: Cliente - Cadastrar
 class CadCliente(LoginRequiredMixin, CreateView):
@@ -36,31 +37,28 @@ class CadCliente(LoginRequiredMixin, CreateView):
     template_name = "client/Cliente_form.html"
     success_url = reverse_lazy("home")
 
-
     def form_valid(self, form):
         # Salva o cliente primeiro
 
-           # Ajusta o valor do campo sexo antes de salvar o cliente
+        # Ajusta o valor do campo sexo antes de salvar o cliente
         sexo = self.request.POST.get("sexo")
         form.instance.sexo = sexo
 
-        if sexo == "O":  
+        if sexo == "O":
             form.instance.sexo_outros = self.request.POST.get("sexo_outros")
         else:
             form.instance.sexo_outros = None
-            
+
         response = super().form_valid(form)
-                    
+
         # Obtém os arquivos enviados
-        arquivos = self.request.FILES.getlist('arquivos')
+        arquivos = self.request.FILES.getlist("arquivos")
 
         # Cria um anexo para cada arquivo enviado e associa ao cliente
         for arquivo in arquivos:
             Anexo.objects.create(arquivo=arquivo, cliente=self.object)
 
-
         return response
-
 
 
 # INFO: Cliente - Atualizar
@@ -81,15 +79,12 @@ class ListCliente(LoginRequiredMixin, ListView):
     login_url = "log"  # URL para redirecionar para login
 
     def get_queryset(self):
-      queryset = Cliente.objects.all()
-    
-      order = self.request.GET.get('order', 'desc')
-      if order == 'asc':
-         return queryset.order_by('id')
-      return queryset.order_by('-id')
+        queryset = Cliente.objects.all()
 
-
-
+        order = self.request.GET.get("order", "desc")
+        if order == "asc":
+            return queryset.order_by("id")
+        return queryset.order_by("-id")
 
 
 # INFO: Cliente - Validar
@@ -105,7 +100,6 @@ class Validar(View):
 
         url = reverse("ListagemCliente")
         return HttpResponseRedirect(f"{url}?page={numero_pagina}")
-
 
 
 # INFO: Cliente - Deletar
@@ -162,24 +156,25 @@ class DadosCadastros(LoginRequiredMixin, ListView):
         context = super().get_context_data(**kwargs)
         context["title"] = "Detalhes do Cadastro"
         return context
-    
 
 
 # NOTE: função para puxar informaçoes de clientes em nova venda pelo id
-   
+
 from django.http import JsonResponse
 from django.views.decorators.http import require_GET
 import re
 
 from django.db.models import Q
+
+
 @require_GET
 def cliente_detail_api(request, cpf):
     try:
         # Remove todos os não dígitos
-        cpf_limpo = re.sub(r'[^0-9]', '', cpf)
+        cpf_limpo = re.sub(r"[^0-9]", "", cpf)
 
         if len(cpf_limpo) != 11:
-            return JsonResponse({'erro': 'CPF deve conter 11 dígitos'}, status=400)
+            return JsonResponse({"erro": "CPF deve conter 11 dígitos"}, status=400)
 
         # Tenta encontrar o cliente pelo CPF limpo (sem formatação)
         cliente = Cliente.objects.filter(cpf=cpf_limpo).first()
@@ -190,18 +185,20 @@ def cliente_detail_api(request, cpf):
             cliente = Cliente.objects.filter(cpf__contains=cpf_limpo).first()
 
         if not cliente:
-            return JsonResponse({'erro': 'Cliente não encontrado'}, status=404)
+            return JsonResponse({"erro": "Cliente não encontrado"}, status=404)
 
-        return JsonResponse({
-            'nome': cliente.nome,
-            'cpf': cliente.cpf,
-            'num_passaporte': cliente.num_passaporte or '',
-            'data_nascimento': cliente.data_nascimento or '',  # Já é string
-            'endereco': cliente.endereco or '',
-            'cep': cliente.cep or '',
-            'bairro': cliente.bairro or '',
-            'estado': cliente.estado or ''
-        })
+        return JsonResponse(
+            {
+                "nome": cliente.nome,
+                "cpf": cliente.cpf,
+                "num_passaporte": cliente.num_passaporte or "",
+                "data_nascimento": cliente.data_nascimento or "",  # Já é string
+                "endereco": cliente.endereco or "",
+                "cep": cliente.cep or "",
+                "bairro": cliente.bairro or "",
+                "estado": cliente.estado or "",
+            }
+        )
 
     except Exception as e:
-        return JsonResponse({'erro': str(e)}, status=500)
+        return JsonResponse({"erro": str(e)}, status=500)

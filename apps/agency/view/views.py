@@ -25,7 +25,8 @@ import heapq
 from django.shortcuts import render
 from django.views.decorators.csrf import csrf_exempt
 
-from .forms import AgenciaForm,AtualizarForm
+from .forms import AgenciaForm, AtualizarForm
+
 
 # INFO: Agencia ----------------------------------------------------------------------------------------------------
 # INFO: Agencia - cadastrar
@@ -60,7 +61,7 @@ class DeleteView(LoginRequiredMixin, DeleteView):
 # INFO: Agencia - Atualizar
 class UpdateView(LoginRequiredMixin, UpdateView):
     login_url = "log"  # URL para redirecionar para login
-    model = Agencia 
+    model = Agencia
     form_class = AtualizarForm
     template_name = "agency/Agencia_form.html"
     success_url = reverse_lazy("ListagemAgencia")
@@ -96,7 +97,9 @@ class Procurar(LoginRequiredMixin, ListView):
 
         return Agencia.objects.filter(
             Q(
-                Q(nome_fantasia__istartswith=procurar_termo) | Q(cnpj__icontains=procurar_termo) | Q(nome_contato__icontains=procurar_termo),
+                Q(nome_fantasia__istartswith=procurar_termo)
+                | Q(cnpj__icontains=procurar_termo)
+                | Q(nome_contato__icontains=procurar_termo),
             )
         ).order_by("-id")
 
@@ -109,13 +112,12 @@ class Procurar(LoginRequiredMixin, ListView):
         return context
 
 
-
 def calcular_proximidade(cep1, cep2):
     """
     Calcula a proximidade entre dois CEPs com base na diferença numérica total.
     """
-    numero1 = int(cep1.replace('-', ''))
-    numero2 = int(cep2.replace('-', ''))
+    numero1 = int(cep1.replace("-", ""))
+    numero2 = int(cep2.replace("-", ""))
     return abs(numero1 - numero2)
 
 
@@ -127,7 +129,7 @@ def dijkstra(ceps, distancias, origem):
     :param origem: CEP de origem.
     :return: Dicionário com as menores distâncias de 'origem' para cada nó.
     """
-    menor_distancia = {cep: float('inf') for cep in ceps}
+    menor_distancia = {cep: float("inf") for cep in ceps}
     menor_distancia[origem] = 0
     visitados = set()
 
@@ -160,7 +162,7 @@ def Pesquisar_rota(request):
     agencias_com_distancia = []  # Lista que armazenará os resultados
 
     if request.method == "POST":
-        cep_usuario = request.POST.get('cep')  # Obtém o CEP enviado pelo formulário
+        cep_usuario = request.POST.get("cep")  # Obtém o CEP enviado pelo formulário
 
         if cep_usuario:
             # Obter todas as agências cadastradas no banco
@@ -172,9 +174,10 @@ def Pesquisar_rota(request):
                     "nome da agência": agencia.nome_fantasia,
                     "cep": agencia.cep,
                     "bairro": agencia.bairro,
-                    "cidade": agencia.municipio
+                    "cidade": agencia.municipio,
                 }
-                for agencia in agencias if agencia.cep
+                for agencia in agencias
+                if agencia.cep
             ]
 
             # Construir o grafo de distâncias entre CEPs
@@ -195,22 +198,28 @@ def Pesquisar_rota(request):
                 agencias_com_distancia = [
                     {
                         "agencia": {
-                            "nome_fantasia": item["nome da agência"],  
+                            "nome_fantasia": item["nome da agência"],
                             "cep": item["cep"],
                             "bairro": item["bairro"],
-                            "cidade": item["cidade"]
+                            "cidade": item["cidade"],
                         },
-                        "distancia": menores_distancias[item["cep"]]
+                        "distancia": menores_distancias[item["cep"]],
                     }
                     for item in ceps_agencias
                 ]
 
                 # Ordenar a lista pelas menores distâncias
-                agencias_com_distancia = sorted(agencias_com_distancia, key=lambda x: x["distancia"])
+                agencias_com_distancia = sorted(
+                    agencias_com_distancia, key=lambda x: x["distancia"]
+                )
             except Exception as e:
                 print(f"Erro ao processar os dados: {e}")
 
-    return render(request, 'pesquisarRota.html', {'agencias_com_distancia': agencias_com_distancia})
+    return render(
+        request,
+        "pesquisarRota.html",
+        {"agencias_com_distancia": agencias_com_distancia},
+    )
 
 
 def obter_bairro_por_cep(cep):
@@ -219,10 +228,14 @@ def obter_bairro_por_cep(cep):
     Retorna 'Desconhecido' se a consulta falhar.
     """
     try:
-        response = requests.get(f"https://viacep.com.br/ws/{cep.replace('-', '')}/json/")
+        response = requests.get(
+            f"https://viacep.com.br/ws/{cep.replace('-', '')}/json/"
+        )
         if response.status_code == 200:
             data = response.json()
-            return data.get("bairro", "Desconhecido")  # Retorna 'Desconhecido' se o bairro não estiver disponível
+            return data.get(
+                "bairro", "Desconhecido"
+            )  # Retorna 'Desconhecido' se o bairro não estiver disponível
         else:
             return "Desconhecido"
     except Exception as e:
@@ -240,8 +253,8 @@ def classificar_ceps_com_bairros(ceps, cep_referencia):
         """
         Calcula a proximidade entre dois CEPs com base na distância numérica total.
         """
-        numero1 = int(cep1.replace('-', ''))
-        numero2 = int(cep2.replace('-', ''))
+        numero1 = int(cep1.replace("-", ""))
+        numero2 = int(cep2.replace("-", ""))
         return abs(numero1 - numero2)
 
     # Obter os bairros para cada CEP
@@ -249,14 +262,16 @@ def classificar_ceps_com_bairros(ceps, cep_referencia):
     bairro_referencia = obter_bairro_por_cep(cep_referencia)
 
     # Criar DataFrame para manipulação
-    df_ceps = pd.DataFrame({'cep': ceps, 'bairro': [bairros[cep] for cep in ceps]})
-    df_ceps['proximidade'] = df_ceps['cep'].apply(lambda cep: calcular_proximidade(cep, cep_referencia))
+    df_ceps = pd.DataFrame({"cep": ceps, "bairro": [bairros[cep] for cep in ceps]})
+    df_ceps["proximidade"] = df_ceps["cep"].apply(
+        lambda cep: calcular_proximidade(cep, cep_referencia)
+    )
 
     # Ordenar os CEPs pela proximidade
-    df_ceps = df_ceps.sort_values(by='proximidade')
+    df_ceps = df_ceps.sort_values(by="proximidade")
 
     # Substituir o CEP pelo nome do bairro no DataFrame
-    df_ceps['cep'] = df_ceps['bairro']
-    df_ceps.drop(columns=['bairro'], inplace=True)
+    df_ceps["cep"] = df_ceps["bairro"]
+    df_ceps.drop(columns=["bairro"], inplace=True)
 
-    return df_ceps[['cep', 'proximidade']]
+    return df_ceps[["cep", "proximidade"]]

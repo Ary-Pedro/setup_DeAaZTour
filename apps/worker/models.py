@@ -8,9 +8,11 @@ from django.core.exceptions import ValidationError
 from django.db.models import Sum
 from django.utils.timezone import now
 from datetime import timedelta
-#-----------------------------------------------------------------------------------------------------------------------------------
-#Warning: AS porcentagens de comissão fora definidas presencialmente, evitar alterar o valor!!!! model e views, worker e services!!!
-#-----------------------------------------------------------------------------------------------------------------------------------
+
+# -----------------------------------------------------------------------------------------------------------------------------------
+# Warning: AS porcentagens de comissão fora definidas presencialmente, evitar alterar o valor!!!! model e views, worker e services!!!
+# -----------------------------------------------------------------------------------------------------------------------------------
+
 
 class CustomUserManager(BaseUserManager):
     def create_user(self, email, password=None, **extra_fields):
@@ -39,20 +41,46 @@ class Funcionario(AbstractUser):
     nome = models.CharField(max_length=101, editable=False, null=True)
     idade = models.IntegerField(null=True, editable=False)
     username = models.CharField(max_length=255, unique=True, verbose_name="apelido")
-    email = models.EmailField(unique=True, verbose_name="e-mail",max_length=255)
-    
-    Sub_salario_fixo = models.FloatField(default=0, verbose_name="salário fixo",help_text="Um valor fixo pago ao funcionario", null=True, blank=True)
-    salario = models.FloatField(default=0, verbose_name="salário total",editable=False)
+    email = models.EmailField(unique=True, verbose_name="e-mail", max_length=255)
+
+    Sub_salario_fixo = models.FloatField(
+        default=0,
+        verbose_name="salário fixo",
+        help_text="Um valor fixo pago ao funcionario",
+        null=True,
+        blank=True,
+    )
+    salario = models.FloatField(default=0, verbose_name="salário total", editable=False)
     comissao_acumulada = models.FloatField(default=0, verbose_name="comissão acumulada")
-  
-    telefone = models.CharField(max_length=20, null=True, blank=True,help_text="Apenas digite os números; este campo possui autoformatação")
-    endereco = models.CharField(max_length=255, null=True, blank=True, verbose_name="Endereço")
+
+    telefone = models.CharField(
+        max_length=20,
+        null=True,
+        blank=True,
+        help_text="Apenas digite os números; este campo possui autoformatação",
+    )
+    endereco = models.CharField(
+        max_length=255, null=True, blank=True, verbose_name="Endereço"
+    )
     cidade = models.CharField(max_length=255, null=True, blank=True)
     complemento = models.CharField(max_length=255, null=True, blank=True)
-    data_nascimento = models.CharField(max_length=10,verbose_name="Data de nascimento", null=True, blank=True,help_text="Apenas digite os números; este campo possui autoformatação")
+    data_nascimento = models.CharField(
+        max_length=10,
+        verbose_name="Data de nascimento",
+        null=True,
+        blank=True,
+        help_text="Apenas digite os números; este campo possui autoformatação",
+    )
     token = models.CharField(null=True, unique=True, max_length=8)
     is_staff = models.BooleanField(default=True)
-    cpf = models.CharField(max_length=14, unique=True, verbose_name="CPF", null=True, blank=True,help_text="Apenas digite os números; este campo possui autoformatação")
+    cpf = models.CharField(
+        max_length=14,
+        unique=True,
+        verbose_name="CPF",
+        null=True,
+        blank=True,
+        help_text="Apenas digite os números; este campo possui autoformatação",
+    )
     pix = models.CharField(max_length=255, null=True, blank=True, verbose_name="Pix")
 
     area_departamento = (
@@ -61,20 +89,16 @@ class Funcionario(AbstractUser):
         ("Exec", "Executivo"),
     )
     departamento = models.CharField(
-        max_length=15,
-        default="Adm",
-        choices=area_departamento,
-        null=True, 
-        blank=True
+        max_length=15, default="Adm", choices=area_departamento, null=True, blank=True
     )
     xpto = (("Ativo", "Ativo "), ("Inativo", "Inativo"))
     atividade = models.CharField(
-        null=True, 
+        null=True,
         blank=True,
         max_length=15,
         default="Ativo",
         choices=xpto,
-        help_text="Defini se o funcionario tá ativo na empresa, ou foi desligado."
+        help_text="Defini se o funcionario tá ativo na empresa, ou foi desligado.",
     )
     situacao_especializada = (
         ("Financeiro", "Financeiro"),
@@ -82,7 +106,10 @@ class Funcionario(AbstractUser):
         ("Despachante externo", "Despachante externo "),
         ("Suporte Whatsapp", "Suporte Whatsapp"),
         ("Executivo contas", "Executivo contas"),
-        ("Despachante externo e Executivo contas", "Despachante externo e Executivo contas"),
+        (
+            "Despachante externo e Executivo contas",
+            "Despachante externo e Executivo contas",
+        ),
         ("Diretor(a)", "Diretor(a)"),
     )
     especializacao_funcao = models.CharField(
@@ -118,7 +145,7 @@ class Funcionario(AbstractUser):
 
     def save(self, *args, **kwargs):
         # Validações de exceções
-        #validate_custom_user_funcionario(self) FROM EXEPTIONS
+        # validate_custom_user_funcionario(self) FROM EXEPTIONS
 
         # Atualização do nome completo
         self.nome = f"{self.first_name} {self.last_name}"
@@ -134,18 +161,17 @@ class Funcionario(AbstractUser):
 
         super().save(*args, **kwargs)
 
-
     def __str__(self):
         return self.nome
 
     objects = CustomUserManager()
 
-    
- 
     def calcular_idade(self):
         if self.data_nascimento:
-            data_nascimento_aux = datetime.strptime(self.data_nascimento, "%d/%m/%Y").date()
-        
+            data_nascimento_aux = datetime.strptime(
+                self.data_nascimento, "%d/%m/%Y"
+            ).date()
+
             # Calcule a idade:
             hoje = date.today()
             resto = hoje.month - data_nascimento_aux.month
@@ -155,7 +181,7 @@ class Funcionario(AbstractUser):
             return idade
         else:
             return None
-        
+
     def AlterarAtividade(self):
         try:
             if self.atividade == "Ativo":
@@ -165,8 +191,8 @@ class Funcionario(AbstractUser):
             self.save()
         except Funcionario.DoesNotExist:
             raise ValidationError("erro inesperado")
-          #TODO: comissão do vendedor executivo e administrador
-          
+        # TODO: comissão do vendedor executivo e administrador
+
     @staticmethod
     def calcular_comissao_administrador(funcionario):
         """
@@ -178,7 +204,10 @@ class Funcionario(AbstractUser):
         - Retorna 5% desse valor como comissão.
         """
         # Validações iniciais
-        if funcionario.departamento != "Adm" or funcionario.especializacao_funcao != "Financeiro":
+        if (
+            funcionario.departamento != "Adm"
+            or funcionario.especializacao_funcao != "Financeiro"
+        ):
             return 0.0
 
         # Determina mês e ano atuais
@@ -189,21 +218,18 @@ class Funcionario(AbstractUser):
         # Tenta obter o fluxo mensal referente ao mês/ano atual
         try:
             fluxo = FluxoMensal.objects.get(
-                mes_referencia__year=ano_atual,
-                mes_referencia__month=mes_atual
+                mes_referencia__year=ano_atual, mes_referencia__month=mes_atual
             )
         except FluxoMensal.DoesNotExist:
             return 0.0
 
         # Montante líquido: entradas menos saídas e salários fixos
-        
+
         liquido = fluxo.subtotal_liquido or 0.0
 
         # Comissão de 5%
         comissao = liquido * 0.03
         return comissao
-    
-        
 
 
 @receiver(pre_save, sender=Funcionario)
@@ -216,17 +242,33 @@ class FluxoMensal(models.Model):
     saldo_total = models.FloatField(verbose_name="Saldo Total")
     total_entrada = models.FloatField(verbose_name="Total de Entradas")
     total_saida = models.FloatField(verbose_name="Total de Saídas")
-    subtotal_liquido = models.FloatField(null= True, blank=True,verbose_name="Sub Líquido")
-    total_liquido = models.FloatField(null= True, blank=True,verbose_name="Total Líquido")
+    subtotal_liquido = models.FloatField(
+        null=True, blank=True, verbose_name="Sub Líquido"
+    )
+    total_liquido = models.FloatField(
+        null=True, blank=True, verbose_name="Total Líquido"
+    )
+
     def __str__(self):
         return f"Fluxo de {self.mes_referencia.strftime('%B %Y')}"
 
+
 class ContasMensal(models.Model):
-    observacao = models.CharField(max_length=500, null=True, blank=True, verbose_name="Descrição")
+    observacao = models.CharField(
+        max_length=500, null=True, blank=True, verbose_name="Descrição"
+    )
     entrada = models.FloatField(null=True, blank=True, default=0)
     saida = models.FloatField(null=True, blank=True, default=0)
-    created_at = models.DateField(null=True, blank=True, default=now, verbose_name="Data de Criação")
-    fluxo_mensal = models.ForeignKey('FluxoMensal', on_delete=models.SET_NULL, null=True, blank=True, related_name='contas')
+    created_at = models.DateField(
+        null=True, blank=True, default=now, verbose_name="Data de Criação"
+    )
+    fluxo_mensal = models.ForeignKey(
+        "FluxoMensal",
+        on_delete=models.SET_NULL,
+        null=True,
+        blank=True,
+        related_name="contas",
+    )
 
     def __str__(self):
         return f"{self.observacao} - {self.created_at}"
@@ -244,12 +286,10 @@ class ContasMensal(models.Model):
     @staticmethod
     def calcular_saldo():
         registros_fluxo_atual = ContasMensal.objects.filter(fluxo_mensal__isnull=True)
-        
-        total_entrada = registros_fluxo_atual.aggregate(Sum('entrada'))['entrada__sum'] or 0
-        total_saida = registros_fluxo_atual.aggregate(Sum('saida'))['saida__sum'] or 0
-        
+
+        total_entrada = (
+            registros_fluxo_atual.aggregate(Sum("entrada"))["entrada__sum"] or 0
+        )
+        total_saida = registros_fluxo_atual.aggregate(Sum("saida"))["saida__sum"] or 0
+
         return total_entrada - total_saida
-    
-
-
-    

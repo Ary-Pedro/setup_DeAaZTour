@@ -16,45 +16,51 @@ from apps.client.models import Cliente
 from apps.service.models import OPC_SERVICES, Venda
 from datetime import date, timedelta
 from django.db.models.functions import datetime
-from django.http import HttpResponse  
-import csv  
-import os 
+from django.http import HttpResponse
+import csv
+import os
 from django.db.models import Q, Sum
 from .forms import AtualizarForm, CompletarCadastro
 from io import BytesIO
 
 # INFO: Data
 from django.utils.timezone import now
-from dateutil.relativedelta import relativedelta  # Usando relativedelta para manipulação de meses
+from dateutil.relativedelta import (
+    relativedelta,
+)  # Usando relativedelta para manipulação de meses
 from django.db.models import Count
 from .forms import ContasForm
 from django.utils import timezone
 
 User = get_user_model()
 
+
 def vendasDoFunc(request, pk):
     funcionario = Funcionario.objects.get(pk=pk)
-    vendas = Venda.objects.filter(vendedor=funcionario)  
-    vendas = Venda.objects.filter(executivo=funcionario)  
-    vendas = Venda.objects.filter(Q(vendedor=funcionario) | Q(executivo=funcionario)) 
-    
-    fluxo_mensal = FluxoMensal.objects.first()  
-    if fluxo_mensal:  
-       mes_referencia = fluxo_mensal.mes_referencia
+    vendas = Venda.objects.filter(vendedor=funcionario)
+    vendas = Venda.objects.filter(executivo=funcionario)
+    vendas = Venda.objects.filter(Q(vendedor=funcionario) | Q(executivo=funcionario))
+
+    fluxo_mensal = FluxoMensal.objects.first()
+    if fluxo_mensal:
+        mes_referencia = fluxo_mensal.mes_referencia
     else:
-       mes_referencia = None
+        mes_referencia = None
 
     if mes_referencia:
         vendas = vendas.filter(
             situacaoMensal_dataApoio__month=mes_referencia.month,
-            situacaoMensal_dataApoio__year=mes_referencia.year
+            situacaoMensal_dataApoio__year=mes_referencia.year,
+        )
+    return render(
+        request,
+        "contas/detalhes_fluxo_completo.html",
+        {
+            "funcionario": funcionario,
+            "vendas": vendas,
+            "mes_referencia": mes_referencia,
+        },
     )
-    return render(request, 'contas/detalhes_fluxo_completo.html', {
-        'funcionario': funcionario,
-        'vendas': vendas,
-        'mes_referencia': mes_referencia
-    })
-
 
 
 def salvar_csvFluxoConcluido(request, fluxo_id):
@@ -65,7 +71,7 @@ def salvar_csvFluxoConcluido(request, fluxo_id):
         f"attachment; filename=fluxo_concluido_{fluxo.mes_referencia.strftime('%Y%m')}.csv"
     )
 
-    response.write('\ufeff')
+    response.write("\ufeff")
 
     writer = csv.writer(response)
 
@@ -76,95 +82,103 @@ def salvar_csvFluxoConcluido(request, fluxo_id):
     total_saida = 0.0
 
     for conta in contas:
-        writer.writerow([
-            conta.created_at.strftime("%d/%m/%Y") if conta.created_at else "Sem Data",
-            conta.observacao if conta.observacao else "Sem observação",
-            f"{conta.entrada:.2f}".replace('.', ','),  
-            f"{conta.saida:.2f}".replace('.', ','),
-        ])
+        writer.writerow(
+            [
+                (
+                    conta.created_at.strftime("%d/%m/%Y")
+                    if conta.created_at
+                    else "Sem Data"
+                ),
+                conta.observacao if conta.observacao else "Sem observação",
+                f"{conta.entrada:.2f}".replace(".", ","),
+                f"{conta.saida:.2f}".replace(".", ","),
+            ]
+        )
         total_entrada += conta.entrada
         total_saida += conta.saida
 
     saldo_total = total_entrada - total_saida
 
-    writer.writerow([])  
-    writer.writerow(["Total Entrada", f"{total_entrada:.2f}".replace('.', ',')])
-    writer.writerow(["Total Saída", f"{total_saida:.2f}".replace('.', ',')])
-    writer.writerow(["Saldo Final", f"{saldo_total:.2f}".replace('.', ',')])
+    writer.writerow([])
+    writer.writerow(["Total Entrada", f"{total_entrada:.2f}".replace(".", ",")])
+    writer.writerow(["Total Saída", f"{total_saida:.2f}".replace(".", ",")])
+    writer.writerow(["Saldo Final", f"{saldo_total:.2f}".replace(".", ",")])
 
     return response
 
 
-class contas(LoginRequiredMixin, CreateView): 
+class contas(LoginRequiredMixin, CreateView):
     model = ContasMensal
     form_class = ContasForm
     template_name = "contas/contas.html"
     success_url = reverse_lazy("contas")
-    
+
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
         context["contas"] = ContasMensal.objects.filter(fluxo_mensal__isnull=True)
         context["saldo_total"] = ContasMensal.calcular_saldo()
         return context
-     
+
+
 def resetar_contas(request):
     ContasMensal.objects.filter(fluxo_mensal__isnull=True).delete()
     return redirect("contas")
+
 
 def concluir_fluxo_mensal(request):
     # Define o mês de referência como o primeiro dia do mês atual
     current_date = timezone.now().date()
     mes_referencia = date(current_date.year, current_date.month, 1)
-    
+
     # Obtém ou cria o FluxoMensal para o mês atual
     fluxo, created = FluxoMensal.objects.get_or_create(
         mes_referencia=mes_referencia,
         defaults={
-            'saldo_total': 0,
-            'total_entrada': 0,
-            'total_saida': 0,
-        }
+            "saldo_total": 0,
+            "total_entrada": 0,
+            "total_saida": 0,
+        },
     )
-    
+
     # Atualiza os registros não vinculados e recalcula totais
     registros_fluxo_atual = ContasMensal.objects.filter(fluxo_mensal__isnull=True)
     registros_fluxo_atual.update(fluxo_mensal=fluxo)
-    
+
     # Recalcula totais baseado em todas as contas vinculadas
     contas_do_fluxo = ContasMensal.objects.filter(fluxo_mensal=fluxo)
-    total_entrada = contas_do_fluxo.aggregate(Sum('entrada'))['entrada__sum'] or 0
-    total_saida = contas_do_fluxo.aggregate(Sum('saida'))['saida__sum'] or 0
-    
+    total_entrada = contas_do_fluxo.aggregate(Sum("entrada"))["entrada__sum"] or 0
+    total_saida = contas_do_fluxo.aggregate(Sum("saida"))["saida__sum"] or 0
+
     fluxo.total_entrada = total_entrada
     fluxo.total_saida = total_saida
     fluxo.saldo_total = total_entrada - total_saida
     fluxo.save()
-    
-    return redirect('listagemFluxoMensal')
 
+    return redirect("listagemFluxoMensal")
 
 
 def deletar_conta_mensal(request, pk):
     conta = get_object_or_404(ContasMensal, pk=pk)
-    fluxo = conta.fluxo_mensal  
-    fluxo_id = fluxo.id  
-    
-    conta.delete()  
+    fluxo = conta.fluxo_mensal
+    fluxo_id = fluxo.id
 
-    
+    conta.delete()
+
     contas_do_fluxo = ContasMensal.objects.filter(fluxo_mensal=fluxo)
-    
-    fluxo.total_entrada = contas_do_fluxo.aggregate(Sum('entrada'))['entrada__sum'] or 0
-    fluxo.total_saida = contas_do_fluxo.aggregate(Sum('saida'))['saida__sum'] or 0
+
+    fluxo.total_entrada = contas_do_fluxo.aggregate(Sum("entrada"))["entrada__sum"] or 0
+    fluxo.total_saida = contas_do_fluxo.aggregate(Sum("saida"))["saida__sum"] or 0
     fluxo.saldo_total = fluxo.total_entrada - fluxo.total_saida
     fluxo.save()
-    
-    return redirect('fluxo_completo', pk=fluxo_id)
+
+    return redirect("fluxo_completo", pk=fluxo_id)
+
+
 class FluxoUpdateView(LoginRequiredMixin, UpdateView):
     model = ContasMensal
     form_class = ContasForm
-    template_name = 'contas/detalhes_fluxo_form.html'
-    login_url = 'log'
+    template_name = "contas/detalhes_fluxo_form.html"
+    login_url = "log"
 
     def form_valid(self, form):
         # instância antes de alterar
@@ -182,10 +196,10 @@ class FluxoUpdateView(LoginRequiredMixin, UpdateView):
         fluxo_novo, _ = FluxoMensal.objects.get_or_create(
             mes_referencia=mes_referencia,
             defaults={
-                'saldo_total': 0,
-                'total_entrada': 0,
-                'total_saida': 0,
-            }
+                "saldo_total": 0,
+                "total_entrada": 0,
+                "total_saida": 0,
+            },
         )
 
         # reatribui e salva a conta
@@ -195,11 +209,11 @@ class FluxoUpdateView(LoginRequiredMixin, UpdateView):
         # função auxiliar para recálculo de um fluxo
         def recalcular(fluxo):
             contas = ContasMensal.objects.filter(fluxo_mensal=fluxo)
-            entrada = contas.aggregate(Sum('entrada'))['entrada__sum'] or 0
-            saida  = contas.aggregate(Sum('saida'))['saida__sum'] or 0
+            entrada = contas.aggregate(Sum("entrada"))["entrada__sum"] or 0
+            saida = contas.aggregate(Sum("saida"))["saida__sum"] or 0
             fluxo.total_entrada = entrada
-            fluxo.total_saida   = saida
-            fluxo.saldo_total   = entrada - saida
+            fluxo.total_saida = saida
+            fluxo.saldo_total = entrada - saida
             fluxo.save()
 
         # recalcula tanto o fluxo antigo (se existir) quanto o novo
@@ -209,15 +223,16 @@ class FluxoUpdateView(LoginRequiredMixin, UpdateView):
 
         # redireciona para o fluxo_completo do fluxo novo
         return HttpResponseRedirect(
-            reverse('fluxo_completo', kwargs={'pk': fluxo_novo.pk})
+            reverse("fluxo_completo", kwargs={"pk": fluxo_novo.pk})
         )
+
 
 class ListarFluxosMensais(LoginRequiredMixin, ListView):
     model = FluxoMensal
     template_name = "contas/listagemFluxo.html"
     paginate_by = 12
     context_object_name = "fluxos"
-    ordering = ['-mes_referencia']   # <-- ordem decrescente
+    ordering = ["-mes_referencia"]  # <-- ordem decrescente
 
 
 class DetalhesFluxoMensalCompleto(LoginRequiredMixin, DetailView):
@@ -240,55 +255,69 @@ class DetalhesFluxoMensalCompleto(LoginRequiredMixin, DetailView):
         total_comissoes = 0
 
         # Salários fixos de funcionários ativos
-        total_salarios_fixos = Funcionario.objects.filter(is_active=True).aggregate(
-            total=Sum('Sub_salario_fixo')
-        )['total'] or 0
+        total_salarios_fixos = (
+            Funcionario.objects.filter(is_active=True).aggregate(
+                total=Sum("Sub_salario_fixo")
+            )["total"]
+            or 0
+        )
 
         for funcionario in Funcionario.objects.all():
             # Ignorar comissão de ADMs
-            if funcionario.departamento == 'Adm':
+            if funcionario.departamento == "Adm":
                 comissao = 0
             else:
                 comissao = funcionario.comissao_acumulada or 0
                 total_comissoes += comissao
 
-            vendas_vendedor = vendas_mes.filter(vendedor=funcionario).exclude(tipo_servico__in=OPC_SERVICES)
-            vendas_executivo = vendas_mes.filter(executivo=funcionario, tipo_servico__in=OPC_SERVICES)
+            vendas_vendedor = vendas_mes.filter(vendedor=funcionario).exclude(
+                tipo_servico__in=OPC_SERVICES
+            )
+            vendas_executivo = vendas_mes.filter(
+                executivo=funcionario, tipo_servico__in=OPC_SERVICES
+            )
             vendas_funcionario = list(vendas_vendedor) + list(vendas_executivo)
             total_funcionario = sum(v.valor for v in vendas_funcionario if v.valor)
 
-            funcionarios_data.append({
-                'funcionario': funcionario,
-                'vendas': vendas_funcionario,
-                'total_vendas': total_funcionario,
-                'comissao': comissao,
-            })
+            funcionarios_data.append(
+                {
+                    "funcionario": funcionario,
+                    "vendas": vendas_funcionario,
+                    "total_vendas": total_funcionario,
+                    "comissao": comissao,
+                }
+            )
             total_vendas_brutas += total_funcionario
 
         # Cálculos financeiros
-        subliquido = (fluxo.total_entrada + total_vendas_brutas) - (fluxo.total_saida + total_comissoes)
+        subliquido = (fluxo.total_entrada + total_vendas_brutas) - (
+            fluxo.total_saida + total_comissoes
+        )
         liquido_real = subliquido - total_salarios_fixos
 
-         # Salvar valores no modelo
+        # Salvar valores no modelo
         fluxo.subtotal_liquido = subliquido
         fluxo.total_liquido = liquido_real
         fluxo.save()
 
-        context.update({
-            'contas': fluxo.contas.all(),
-            'funcionarios_data': funcionarios_data,
-            'total_vendas_brutas': total_vendas_brutas,
-            'total_comissoes': total_comissoes,
-            'total_salarios_fixos': total_salarios_fixos,
-            'subliquido': subliquido,
-            'liquido_real': liquido_real,
-            'OPC_SERVICES': OPC_SERVICES,
-        })
+        context.update(
+            {
+                "contas": fluxo.contas.all(),
+                "funcionarios_data": funcionarios_data,
+                "total_vendas_brutas": total_vendas_brutas,
+                "total_comissoes": total_comissoes,
+                "total_salarios_fixos": total_salarios_fixos,
+                "subliquido": subliquido,
+                "liquido_real": liquido_real,
+                "OPC_SERVICES": OPC_SERVICES,
+            }
+        )
         return context
 
-    
+
 # IDEA: Dados Cadastrais ----------------------------------------------------------------------------------------------------
 # INFO: Campo de login da conta
+
 
 def log(request):
     url_redefinir_senha = (
@@ -309,7 +338,9 @@ def log(request):
                     else:
                         error_message = "Funcionário inativo"
                         return render(
-                            request, "register/login.html", {"error_message": error_message}
+                            request,
+                            "register/login.html",
+                            {"error_message": error_message},
                         )
                 else:
                     error_message = "Apelido ou senha incorretos. Tente novamente."
@@ -322,7 +353,9 @@ def log(request):
                 email = request.POST.get("email")
                 try:
                     user = Funcionario.objects.get(email=email)
-                    user.token = str(uuid.uuid4())[:8]  # Apenas os 8 primeiros caracteres
+                    user.token = str(uuid.uuid4())[
+                        :8
+                    ]  # Apenas os 8 primeiros caracteres
                     user.save()  # Salva o token no banco de dados
 
                     send_mail(
@@ -338,7 +371,9 @@ def log(request):
                         status=200,
                     )
                 except Funcionario.DoesNotExist:
-                    return JsonResponse({"message": "E-mail não encontrado."}, status=404)
+                    return JsonResponse(
+                        {"message": "E-mail não encontrado."}, status=404
+                    )
                 except Exception as e:
                     return JsonResponse(
                         {
@@ -423,7 +458,9 @@ def RedefinirSenha(request):
             user.save()
 
             messages.success(request, "Sua senha foi redefinida com sucesso.")
-            return redirect("home")  # Redireciona para a página de login ou onde preferir
+            return redirect(
+                "home"
+            )  # Redireciona para a página de login ou onde preferir
 
         except Funcionario.DoesNotExist:
             messages.error(
@@ -436,25 +473,22 @@ def RedefinirSenha(request):
     return render(request, "register/redefinirSenha.html")
 
 
-
 class Home(LoginRequiredMixin, TemplateView):
     template_name = "home.html"
     login_url = "log"  # URL para redirecionar para login
     model = User
 
-   
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
         usuario_logado = self.request.user
 
-
         context["usuario_logado"] = usuario_logado
         return context
+
 
 # INFO: Sair da conta
 class LogoutView(LogoutView):
     next_page = "log"
-
 
 
 # IDEIA: Dados Cadastrais - Alterar, Completar, Atualizar----------------------------------------------------------------------------------------------------
@@ -463,19 +497,28 @@ class ListFuncionario(LoginRequiredMixin, ListView):
     model = Funcionario
     paginate_by = 20
     login_url = "log"  # URL para redirecionar para login
-    
+
     def get_queryset(self):
         queryset = super().get_queryset()
         for funcionario in queryset:
             if funcionario.departamento == "Vend":
                 # Atualiza a comissão do vendedor
-                funcionario.comissao_acumulada = Venda.calcular_comissao_vendedor(funcionario)
+                funcionario.comissao_acumulada = Venda.calcular_comissao_vendedor(
+                    funcionario
+                )
 
             if funcionario.departamento == "Exec":
                 # Atualiza a comissão do executivo
-                funcionario.comissao_acumulada = Venda.calcular_comissao_executivo(funcionario)
-            if funcionario.departamento == "Adm" and funcionario.especializacao_funcao == "Financeiro":
-                funcionario.comissao_acumulada = Funcionario.calcular_comissao_administrador(funcionario)
+                funcionario.comissao_acumulada = Venda.calcular_comissao_executivo(
+                    funcionario
+                )
+            if (
+                funcionario.departamento == "Adm"
+                and funcionario.especializacao_funcao == "Financeiro"
+            ):
+                funcionario.comissao_acumulada = (
+                    Funcionario.calcular_comissao_administrador(funcionario)
+                )
             funcionario.save()
         return queryset
 
@@ -487,7 +530,6 @@ class UpdateView(LoginRequiredMixin, UpdateView):
     form_class = AtualizarForm
     template_name = "worker/Funcionario_form.html"
     success_url = reverse_lazy("ListagemFuncionario")
-    
 
 
 class AtualizarPerfil(UpdateView, LoginRequiredMixin):
@@ -499,15 +541,16 @@ class AtualizarPerfil(UpdateView, LoginRequiredMixin):
 
     def get_object(self, queryset=None):
         return self.request.user
-    
+
+
 class Desligar(View):
     def get(self, request, pk):
-        
-        funcionario =  get_object_or_404(Funcionario, pk=pk)
+
+        funcionario = get_object_or_404(Funcionario, pk=pk)
         funcionario.AlterarAtividade()
         return redirect("ListagemFuncionario")
-        
-            
+
+
 # INFO: Procurar -------------------------------------------------------------------------------------------------------
 # INFO: Procurar - Funcionário
 class Procurar(LoginRequiredMixin, ListView):
@@ -552,7 +595,7 @@ class Dados(LoginRequiredMixin, ListView):
 
 class Rank(LoginRequiredMixin, TemplateView):
     template_name = "ranking/rank.html"
-    login_url = "log"  
+    login_url = "log"
 
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
@@ -560,17 +603,19 @@ class Rank(LoginRequiredMixin, TemplateView):
 
         self.atualizar_situacao()
 
-       
-        context["ranked_vendedores"] = Venda.objects.filter(
-            Q(situacaoMensal="Mensal")).values(
-            "vendedor__username",
-            "vendedor__first_name",
-            "vendedor__last_name",
-            "vendedor__telefone",
-            "vendedor__email",
-        ).annotate(total_vendas=Count("id")).order_by("-total_vendas")
+        context["ranked_vendedores"] = (
+            Venda.objects.filter(Q(situacaoMensal="Mensal"))
+            .values(
+                "vendedor__username",
+                "vendedor__first_name",
+                "vendedor__last_name",
+                "vendedor__telefone",
+                "vendedor__email",
+            )
+            .annotate(total_vendas=Count("id"))
+            .order_by("-total_vendas")
+        )
 
-    
         context["total_vendas"] = Venda.objects.count()
         context["usuario_logado"] = usuario_logado
 
@@ -578,21 +623,28 @@ class Rank(LoginRequiredMixin, TemplateView):
 
     def atualizar_situacao(self):
         try:
-           
+
             vendas = Venda.objects.all()
             for venda in vendas:
-                
+
                 if venda.situacaoMensal_dataApoio:
-                    
-                    if venda.situacaoMensal == "Mensal" and now() >= venda.situacaoMensal_dataApoio + relativedelta(months=1):
+
+                    if (
+                        venda.situacaoMensal == "Mensal"
+                        and now()
+                        >= venda.situacaoMensal_dataApoio + relativedelta(months=1)
+                    ):
                         venda.situacaoMensal = "Finalizada"
-                    elif venda.situacaoMensal == "Finalizada" and now() <= venda.situacaoMensal_dataApoio + relativedelta(months=1):
+                    elif (
+                        venda.situacaoMensal == "Finalizada"
+                        and now()
+                        <= venda.situacaoMensal_dataApoio + relativedelta(months=1)
+                    ):
                         venda.situacaoMensal = "Mensal"
 
-                 
                     venda.save()
         except Exception as e:
-          
+
             print(f"Erro ao atualizar situação da venda: {e}")
 
 
@@ -603,37 +655,49 @@ def salvar_csvVenda(request, periodo=None, forma_pagamento=None):
     from django.http import HttpResponse
 
     response = HttpResponse(content_type="text/csv; charset=utf-8")
-    response.write('\ufeff')  #
+    response.write("\ufeff")  #
     filename = f"Vendas_{timezone.now().strftime('%Y-%m-%d_%H-%M-%S')}.csv"
     response["Content-Disposition"] = f"attachment; filename={filename}"
 
     writer = csv.writer(response)
 
     cabecalho = [
-        "ID", "Cliente", "Vendedor", "Executivo", "Agência Recomendada", 
-        "Recomendação da Venda", "Data da Venda", "Data Finalizado",
-        "Custo Padrão", "Valor", "Desconto", "Custo sobre Venda",
-        "Tipo de Serviço", "Forma de pagamento", "Nacionalidade", "Tipo de Cidadania"
+        "ID",
+        "Cliente",
+        "Vendedor",
+        "Executivo",
+        "Agência Recomendada",
+        "Recomendação da Venda",
+        "Data da Venda",
+        "Data Finalizado",
+        "Custo Padrão",
+        "Valor",
+        "Desconto",
+        "Custo sobre Venda",
+        "Tipo de Serviço",
+        "Forma de pagamento",
+        "Nacionalidade",
+        "Tipo de Cidadania",
     ]
 
     cabecalho.extend([f"Anexo {i}" for i in range(1, 11)])
     writer.writerow(cabecalho)
 
-    vendas = Venda.objects.all().order_by('-id')
+    vendas = Venda.objects.all().order_by("-id")
 
     if periodo and periodo != "todos":
-        hoje_str = date.today().strftime('%d/%m/%Y')
-        
+        hoje_str = date.today().strftime("%d/%m/%Y")
+
         if periodo == "hoje":
             vendas = vendas.filter(data_venda=hoje_str)
 
         elif periodo == "semana":
             hoje = date.today()
-            dias_para_domingo = (hoje.weekday() + 1) % 7 
+            dias_para_domingo = (hoje.weekday() + 1) % 7
             inicio_semana = hoje - timedelta(days=dias_para_domingo)
             fim_semana = inicio_semana + timedelta(days=6)
             datas_semana = [
-                (inicio_semana + timedelta(days=i)).strftime('%d/%m/%Y')
+                (inicio_semana + timedelta(days=i)).strftime("%d/%m/%Y")
                 for i in range(7)
             ]
             vendas = vendas.filter(data_venda__in=datas_semana)
@@ -641,11 +705,16 @@ def salvar_csvVenda(request, periodo=None, forma_pagamento=None):
         elif periodo == "mes":
             hoje = date.today()
             inicio_mes = hoje.replace(day=1)
-            fim_mes = (inicio_mes.replace(month=inicio_mes.month+1) if inicio_mes.month < 12 
-                else inicio_mes.replace(year=inicio_mes.year+1, month=1)) - timedelta(days=1)
-            inicio_mes_str = inicio_mes.strftime('%d/%m/%Y')
-            fim_mes_str = fim_mes.strftime('%d/%m/%Y')
-            vendas = vendas.filter(data_venda__gte=inicio_mes_str, data_venda__lte=fim_mes_str)
+            fim_mes = (
+                inicio_mes.replace(month=inicio_mes.month + 1)
+                if inicio_mes.month < 12
+                else inicio_mes.replace(year=inicio_mes.year + 1, month=1)
+            ) - timedelta(days=1)
+            inicio_mes_str = inicio_mes.strftime("%d/%m/%Y")
+            fim_mes_str = fim_mes.strftime("%d/%m/%Y")
+            vendas = vendas.filter(
+                data_venda__gte=inicio_mes_str, data_venda__lte=fim_mes_str
+            )
 
     if forma_pagamento and forma_pagamento.lower() != "todos":
         vendas = vendas.filter(tipo_pagamento__iexact=forma_pagamento.strip())
@@ -654,8 +723,16 @@ def salvar_csvVenda(request, periodo=None, forma_pagamento=None):
         linha = [
             venda.id,
             venda.cliente.nome if venda.cliente else "S/D",
-            f"{venda.vendedor.first_name} {venda.vendedor.last_name}".strip() if venda.vendedor else "S/D",
-            f"{venda.executivo.first_name} {venda.executivo.last_name}".strip() if venda.executivo else "S/D",
+            (
+                f"{venda.vendedor.first_name} {venda.vendedor.last_name}".strip()
+                if venda.vendedor
+                else "S/D"
+            ),
+            (
+                f"{venda.executivo.first_name} {venda.executivo.last_name}".strip()
+                if venda.executivo
+                else "S/D"
+            ),
             venda.Agencia_recomendada if venda.Agencia_recomendada else "S/D",
             venda.recomendação_da_Venda if venda.recomendação_da_Venda else "S/D",
             venda.data_venda,
@@ -664,10 +741,22 @@ def salvar_csvVenda(request, periodo=None, forma_pagamento=None):
             venda.valor if venda.valor is not None else "S/D",
             f"{venda.desconto}%" if venda.desconto is not None else "S/D",
             venda.custo_sobre_venda if venda.custo_sobre_venda is not None else "S/D",
-            venda.tipo_servico_outros if venda.tipo_servico == "Outros" else venda.tipo_servico,
+            (
+                venda.tipo_servico_outros
+                if venda.tipo_servico == "Outros"
+                else venda.tipo_servico
+            ),
             venda.tipo_pagamento,
-            venda.nacionalidade_outros if venda.nacionalidade == "Outros" else (venda.nacionalidade or "S/D"),
-            venda.tipo_cidadania_outros if venda.tipo_cidadania == "Outros" else (venda.tipo_cidadania or "S/D")
+            (
+                venda.nacionalidade_outros
+                if venda.nacionalidade == "Outros"
+                else (venda.nacionalidade or "S/D")
+            ),
+            (
+                venda.tipo_cidadania_outros
+                if venda.tipo_cidadania == "Outros"
+                else (venda.tipo_cidadania or "S/D")
+            ),
         ]
 
         anexos = venda.anexos.all()
@@ -675,9 +764,9 @@ def salvar_csvVenda(request, periodo=None, forma_pagamento=None):
 
         for anexo in anexos[:10]:
             try:
-                if anexo.arquivo and hasattr(anexo.arquivo, 'url'):
+                if anexo.arquivo and hasattr(anexo.arquivo, "url"):
                     url = request.build_absolute_uri(anexo.arquivo.url)
-                    nome_arquivo = anexo.arquivo.name.split('/')[-1]
+                    nome_arquivo = anexo.arquivo.name.split("/")[-1]
                     link = f'=HYPERLINK("{url}", "{nome_arquivo}")'
                     anexos_links.append(link)
             except Exception as e:
@@ -695,7 +784,7 @@ def salvar_csvVenda(request, periodo=None, forma_pagamento=None):
 
 def salvar_csvClientes(request, periodo):
     response = HttpResponse(content_type="text/csv")
-    response.write('\ufeff')  
+    response.write("\ufeff")
     response["Content-Disposition"] = (
         "attachment; filename=dadosClientes_"
         + datetime.datetime.now().strftime("%Y-%m-%d_%H-%M-%S")
@@ -704,36 +793,56 @@ def salvar_csvClientes(request, periodo):
 
     writer = csv.writer(response)
 
-    MAX_ANEXOS = 10 
+    MAX_ANEXOS = 10
 
     headers = [
-        "Nome", "Telefone 1", "Telefone 2", "Email 1", "Email 2",
-        "Sexo", "Sexo Outros", "Data de Nascimento", "Idade",
-        "Endereço", "Bairro", "Cidade", "Estado", "CEP",
-        "RG", "CPF", "Número de Passaporte"
+        "Nome",
+        "Telefone 1",
+        "Telefone 2",
+        "Email 1",
+        "Email 2",
+        "Sexo",
+        "Sexo Outros",
+        "Data de Nascimento",
+        "Idade",
+        "Endereço",
+        "Bairro",
+        "Cidade",
+        "Estado",
+        "CEP",
+        "RG",
+        "CPF",
+        "Número de Passaporte",
     ]
 
     headers += [f"Anexo {i+1}" for i in range(MAX_ANEXOS)]
     writer.writerow(headers)
 
     filters = {
-        'hoje': {'created_at__date': date.today()},
-        'semana': {'created_at__date__gte': date.today() - timedelta(days=date.today().weekday())},
-        'mes': {'created_at__date__gte': date.today().replace(day=1)},
+        "hoje": {"created_at__date": date.today()},
+        "semana": {
+            "created_at__date__gte": date.today()
+            - timedelta(days=date.today().weekday())
+        },
+        "mes": {"created_at__date__gte": date.today().replace(day=1)},
     }
     filter_kwargs = filters.get(periodo, {})
-    clientes = Cliente.objects.filter(**filter_kwargs) if filter_kwargs else Cliente.objects.all()
+    clientes = (
+        Cliente.objects.filter(**filter_kwargs)
+        if filter_kwargs
+        else Cliente.objects.all()
+    )
 
     for cliente in clientes:
         try:
-            anexos = cliente.anexos.all() if hasattr(cliente, 'anexos') else []
+            anexos = cliente.anexos.all() if hasattr(cliente, "anexos") else []
 
             lista_anexos = []
             for anexo in anexos[:MAX_ANEXOS]:
                 try:
-                    if anexo.arquivo and hasattr(anexo.arquivo, 'url'):
+                    if anexo.arquivo and hasattr(anexo.arquivo, "url"):
                         url = request.build_absolute_uri(anexo.arquivo.url)
-                        nome_arquivo = anexo.arquivo.name.split('/')[-1]  
+                        nome_arquivo = anexo.arquivo.name.split("/")[-1]
                         lista_anexos.append(f'=HYPERLINK("{url}", "{nome_arquivo}")')
                 except Exception as e:
                     lista_anexos.append(f"Erro: {str(e)}")
@@ -764,6 +873,7 @@ def salvar_csvClientes(request, periodo):
             writer.writerow(row)
         except Exception as e:
             import logging
+
             logging.error(f"Erro ao processar cliente {cliente.id}: {str(e)}")
             continue
     return response
