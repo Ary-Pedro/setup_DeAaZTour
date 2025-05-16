@@ -244,75 +244,74 @@ class Venda(models.Model):
             self.duracao_venda = f"{delta.days} Dias"
             self.save()
 
-    # TODO: comissão do vendedor executivo e administrador
+    #TODO: comissão do vendedor executivo e administrador
     @staticmethod
     def calcular_comissao_vendedor(vendedor):
         """Calcula a comissão do vendedor baseada em cada venda individualmente."""
         comissao = 0.00
         vendas = Venda.objects.filter(vendedor=vendedor)
-
-        if (
-            vendedor.departamento != "Vend"
-            or vendedor.especializacao_funcao != "Despachante"
-        ):
+        
+        if vendedor.departamento != "Vend" or vendedor.especializacao_funcao != "Despachante":
             return comissao
-
+        
         for venda in vendas:
             valor_venda = venda.valor or 0
-
+        
             # Verifica serviços OPC com executivo
             if venda.tipo_servico in OPC_SERVICES:
                 continue  # Vendedor não recebe
 
-            if venda.executivo != "" and venda.tipo_servico not in OPC_SERVICES:
-                # caso houve venda com executivo, para alteração futura
+            if ((venda.recomendação_da_Venda or venda.Agencia_recomendada)  and venda.custo_sobre_venda == 85.0) and not venda.desconto:
+                comissao +=50
+            elif venda.executivo != "" and venda.tipo_servico not in OPC_SERVICES:
+                #caso houver venda com executivo, para alteração futura
                 comissao += valor_venda * 0.15
-            else:
-                comissao += valor_venda * 0.15
-
+            else: 
+                 comissao += valor_venda * 0.15
+        
         return comissao
+
 
     @staticmethod
     def calcular_comissao_executivo(executivo):
         """Calcula a comissão do executivo baseada em cada venda individualmente."""
         comissao = 0.00
         vendas = Venda.objects.filter(executivo=executivo)
-
+        
         if executivo.departamento != "Exec":
             return comissao
-        # TODO: ver se são as porcentagens corretas
+            
+        #TODO: ver se são as porcentagens corretas
         for venda in vendas:
             valor_venda = venda.valor or 0
+            if (venda.recomendação_da_Venda or venda.Agencia_recomendada) and venda.custo_sobre_venda == 85:
+                comissao += ((valor_venda - 50)* 0.02)
+                    
 
-            if venda.tipo_servico in OPC_SERVICES:
+            elif venda.tipo_servico in OPC_SERVICES:
                 comissao += valor_venda * 0.40
-
-            if venda.Agencia_recomendada or venda.recomendação_da_Venda:
-                comissao += (
-                    valor_venda * 0.85
-                ) * 0.02  # 2% do valor após 15% do vendedor
-
+            
+            elif venda.Agencia_recomendada or venda.recomendação_da_Venda:
+                comissao += (valor_venda * 0.85) * 0.02  # 2% do valor após 15% do vendedor        
         return comissao
 
 
-# TODO: comissão do administrador
+
+
+#TODO: comissão do administrador
 @receiver(post_save, sender=Venda)
 def atualizar_comissao_acumulada(sender, instance, **kwargs):
     """Atualiza as comissões de forma otimizada após cada venda."""
     # Atualiza vendedor
     if instance.vendedor:
-        instance.vendedor.comissao_acumulada = Venda.calcular_comissao_vendedor(
-            instance.vendedor
-        )
+        instance.vendedor.comissao_acumulada = Venda.calcular_comissao_vendedor(instance.vendedor)
         instance.vendedor.save()
-
+    
     # Atualiza executivo
     if instance.executivo:
-        instance.executivo.comissao_acumulada = Venda.calcular_comissao_executivo(
-            instance.executivo
-        )
+        instance.executivo.comissao_acumulada = Venda.calcular_comissao_executivo(instance.executivo)
         instance.executivo.save()
-
+    
 
 class Anexo(models.Model):
     arquivo = models.FileField(upload_to="anexos/")

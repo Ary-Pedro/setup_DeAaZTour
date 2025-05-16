@@ -201,13 +201,10 @@ class Funcionario(AbstractUser):
         - Só executa se o funcionário for do departamento 'Adm' e especialização 'Financeiro'.
         - Busca o registro de FluxoMensal cujo mes_referencia corresponda ao mês/ano atual.
         - Calcula o total líquido: total_entrada - total_saida - soma dos salários fixos de funcionários ativos.
-        - Retorna 5% desse valor como comissão.
+        - Retorna 3% desse valor como comissão.
         """
         # Validações iniciais
-        if (
-            funcionario.departamento != "Adm"
-            or funcionario.especializacao_funcao != "Financeiro"
-        ):
+        if funcionario.departamento != "Adm" or funcionario.especializacao_funcao != "Financeiro":
             return 0.0
 
         # Determina mês e ano atuais
@@ -218,16 +215,17 @@ class Funcionario(AbstractUser):
         # Tenta obter o fluxo mensal referente ao mês/ano atual
         try:
             fluxo = FluxoMensal.objects.get(
-                mes_referencia__year=ano_atual, mes_referencia__month=mes_atual
+                mes_referencia__year=ano_atual,
+                mes_referencia__month=mes_atual
             )
         except FluxoMensal.DoesNotExist:
             return 0.0
 
         # Montante líquido: entradas menos saídas e salários fixos
+        
+        liquido = fluxo.total_liquido or 0.0
 
-        liquido = fluxo.subtotal_liquido or 0.0
-
-        # Comissão de 5%
+        # Comissão de 3%
         comissao = liquido * 0.03
         return comissao
 
@@ -251,6 +249,7 @@ class FluxoMensal(models.Model):
 
     def __str__(self):
         return f"Fluxo de {self.mes_referencia.strftime('%B %Y')}"
+    
 
 
 class ContasMensal(models.Model):

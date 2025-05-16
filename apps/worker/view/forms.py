@@ -24,7 +24,7 @@ def validar_cpf(cpf):
 class ContasForm(forms.ModelForm):
     class Meta:
         model = ContasMensal
-        fields = ["entrada", "saida", "observacao"]
+        fields = ["entrada", "saida", "observacao","created_at"]# fazer validação para tamanho do campo
 
     def save(self, commit=True):
         contas = super().save(commit=commit)

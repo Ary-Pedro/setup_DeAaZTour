@@ -27,7 +27,7 @@
                     <div class="card mb-3">
                         <div class="card-body">
                             <h5 class="card-title">Fluxo de Caixa</h5>
-                            <p class="card-text">Saldo Final: <span class="highlight">R$ {{ fluxo.saldo_total|floatformat:2 }}</span></p>
+                            <p class="card-text">Saldo Final: <span class="highlight">R$ <span class="br-currency">{{ fluxo.saldo_total|floatformat:2 }}</span></span></p>
                             <a href="#fluxo" class="btn btn-outline-secondary">Detalhes</a>
                         </div>
                     </div>
@@ -37,7 +37,7 @@
                     <div class="card mb-3">
                         <div class="card-body">
                             <h5 class="card-title">Comissões</h5>
-                            <p class="card-text">Total: <span class="highlight">R$ {{ total_comissoes|floatformat:2 }}</span></p>
+                            <p class="card-text">Total: <span class="highlight">R$ <span class="br-currency">{{ total_comissoes|floatformat:2 }}</span></span></p>
                             <a href="#comissoes" class="btn btn-outline-secondary">Ver Funcionários</a>
                         </div>
                     </div>
@@ -47,7 +47,7 @@
                     <div class="card mb-3">
                         <div class="card-body">
                             <h5 class="card-title">Sub-Líquido</h5>
-                            <p class="card-text"><small><span class="highlight">R$ {{ subliquido|floatformat:2 }}</span></small></p>
+                            <p class="card-text"><small><span class="highlight">R$ <span class="br-currency">{{ subliquido|floatformat:2 }}</span></span></small></p>
                             <a href="#subliquidoSection" class="btn btn-outline-secondary">Ver Sub-Líquido</a>
                         </div>
                     </div>
@@ -57,7 +57,7 @@
                     <div class="card mb-3">
                         <div class="card-body">
                             <h5 class="card-title">Líquido Real</h5>
-                            <p class="card-text"><span class="highlight">R$ {{ liquido_real|floatformat:2 }}</span></p>
+                            <p class="card-text"><span class="highlight">R$ <span class="br-currency">{{ liquido_real|floatformat:2 }}</span></span></p>
                             <a href="#resultado" class="btn btn-outline-success">Ver Detalhes</a>
                         </div>
                     </div>
@@ -73,15 +73,15 @@
                     <div class="row">
                         <div class="col-md-4">
                             <h5>Entradas Totais</h5>
-                            <p class="fs-4 text-success">R$ {{ fluxo.total_entrada|floatformat:2 }}</p>
+                            <p class="fs-4 text-success">R$ <span class="br-currency">{{ fluxo.total_entrada|floatformat:2 }}</span></p>
                         </div>
                         <div class="col-md-4">
                             <h5>Saídas Totais</h5>
-                            <p class="fs-4 text-danger">R$ {{ fluxo.total_saida|floatformat:2 }}</p>
+                            <p class="fs-4 text-danger">R$ <span class="br-currency">{{ fluxo.total_saida|floatformat:2 }}</span></p>
                         </div>
                         <div class="col-md-4">
                             <h5>Saldo Final</h5>
-                            <p class="fs-4 text-primary">R$ {{ fluxo.saldo_total|floatformat:2 }}</p>
+                            <p class="fs-4 text-primary">R$ <span class="br-currency">{{ fluxo.saldo_total|floatformat:2 }}</span></p>
                         </div>
                     </div>
                     <h4 class="mt-4">Movimentações Detalhadas</h4>
@@ -101,24 +101,16 @@
                                 <tr>
                                     <td>{{ conta.created_at|date:"d/m/Y" }}</td>
                                     <td>{{ conta.observacao }}</td>
-                                    <td class="text-success">{{ conta.entrada|default:"0.00" }}</td>
-                                    <td class="text-danger">{{ conta.saida|default:"0.00" }}</td>
+                                    <td class="text-success">R$ <span class="br-currency">{{ conta.entrada|default:"0.00" }}</span></td>
+                                    <td class="text-danger">R$ <span class="br-currency">{{ conta.saida|default:"0.00" }}</span></td>
                                     <td>
                                         <form method="post" action="{% url 'deletar_conta_mensal' conta.id %}">
                                             {% csrf_token %}
                                             <button type="submit" class="btn btn-sm btn-danger"><i class="fas fa-trash"></i></button>
                                         </form>
-                                        
-                                        <a href="{% url 'fluxo_atualizar' pk=conta.pk %}"
-                                        class="btn btn-secondary btn-sm"
-                                        style="padding-right: 10px; transform: translate(33px, -30px);">
-                                       <img src="{% static 'imagens/edit.svg' %}"
-                                            alt="Editar"
-                                            style="height: 15px; width: 15px;">
-                                     </a>
-                                        
-                                        
-                                       
+                                        <a href="{% url 'fluxo_atualizar' pk=conta.pk %}" class="btn btn-secondary btn-sm" style="padding-right: 10px; transform: translate(33px, -30px);">
+                                            <img src="{% static 'imagens/edit.svg' %}" alt="Editar" style="height: 15px; width: 15px;">
+                                        </a>
                                     </td>
                                 </tr>
                                 {% endfor %}
@@ -140,9 +132,9 @@
                 </div>
                 <div class="card-body">
                     <div class="row mb-3">
-                        <div class="col-md-4"><p>Salário Base: R$ {{ data.funcionario.Sub_salario_fixo|floatformat:2 }}</p></div>
-                        <div class="col-md-4"><p>Comissão: R$ {{ data.comissao|floatformat:2 }}</p></div>
-                        <div class="col-md-4"><p>Salário Total: R$ {{ data.funcionario.salario|floatformat:2 }}</p></div>
+                        <div class="col-md-4"><p>Salário Base: R$ <span class="br-currency">{{ data.funcionario.Sub_salario_fixo|floatformat:2 }}</span></p></div>
+                        <div class="col-md-4"><p>Comissão: R$ <span class="br-currency">{{ data.comissao|floatformat:2 }}</span></p></div>
+                        <div class="col-md-4"><p>Salário Total: R$ <span class="br-currency">{{ data.funcionario.salario|floatformat:2 }}</span></p></div>
                     </div>
                     <h5>Vendas Realizadas</h5>
                     <div class="table-responsive">
@@ -160,10 +152,9 @@
                             <tbody>
                                 {% for venda in data.vendas %}
                                 <tr>
-
                                     <td><a href="{% url 'dadosVenda' venda.id %}?from_fluxo={{ fluxo.id }}">#{{ venda.id }}</a></td>
                                     <td>{{ venda.data_venda }}</td>
-                                    <td>R$ {{ venda.valor|floatformat:2 }}</td>
+                                    <td>R$ <span class="br-currency">{{ venda.valor|floatformat:2 }}</span></td>
                                     <td>{{ venda.cliente }}</td>
                                     <td>{{ venda.tipo_servico }}</td>
                                     <td>{% if venda.tipo_servico in OPC_SERVICES %}{{ venda.executivo.nome }}{% else %}{{ venda.vendedor.nome }}{% endif %}</td>
@@ -172,7 +163,7 @@
                             </tbody>
                         </table>
                     </div>
-                    <div class="text-end"><strong>Total em Vendas:</strong> R$ {{ data.total_vendas|floatformat:2 }}</div>
+                    <div class="text-end"><strong>Total em Vendas:</strong> R$ <span class="br-currency">{{ data.total_vendas|floatformat:2 }}</span></div>
                 </div>
             </div>
             {% endfor %}
@@ -187,28 +178,28 @@
                         <div class="col-md-6">
                             <h5>Receitas</h5>
                             <ul class="list-group">
-                                <li class="list-group-item d-flex justify-content-between"><span>Vendas Brutas:</span><span>R$ {{ total_vendas_brutas|floatformat:2 }}</span></li>
-                                <li class="list-group-item d-flex justify-content-between"><span>Outras Entradas:</span><span>R$ {{ fluxo.total_entrada|floatformat:2 }}</span></li>
+                                <li class="list-group-item d-flex justify-content-between"><span>Vendas Brutas:</span><span>R$ <span class="br-currency">{{ total_vendas_brutas|floatformat:2 }}</span></span></li>
+                                <li class="list-group-item d-flex justify-content-between"><span>Outras Entradas:</span><span>R$ <span class="br-currency">{{ fluxo.total_entrada|floatformat:2 }}</span></span></li>
                             </ul>
                         </div>
                         <div class="col-md-6">
                             <h5>Despesas</h5>
                             <ul class="list-group">
-                                <li class="list-group-item d-flex justify-content-between"><span>Saídas de Caixa:</span><span>R$ {{ fluxo.total_saida|floatformat:2 }}</span></li>
-                                <li class="list-group-item d-flex justify-content-between"><span>Salários Fixos:</span><span id="totalSalariosFixos">R$ {{ total_salarios_fixos|floatformat:2 }}</span></li>
-                                <li class="list-group-item d-flex justify-content-between"><span>Comissões:</span><span>R$ {{ total_comissoes|floatformat:2 }}</span></li>
+                                <li class="list-group-item d-flex justify-content-between"><span>Saídas de Caixa:</span><span>R$ <span class="br-currency">{{ fluxo.total_saida|floatformat:2 }}</span></span></li>
+                                <li class="list-group-item d-flex justify-content-between"><span>Salários Fixos:</span><span id="totalSalariosFixos">R$ <span class="br-currency">{{ total_salarios_fixos|floatformat:2 }}</span></span></li>
+                                <li class="list-group-item d-flex justify-content-between"><span>Comissões:</span><span>R$ <span class="br-currency">{{ total_comissoes|floatformat:2 }}</span></span></li>
                             </ul>
                         </div>
                     </div>
                     <!-- Sub-Líquido antes de salários -->
                     <div id="subliquidoSection" class="text-center mt-4">
                         <h4 class="mb-0 section-header">Sub-Líquido (antes de salários)</h4>
-                        <p class="display-5" id="subliquidoDisplay">R$ {{ subliquido|floatformat:2 }}</p>
+                        <p class="display-5" id="subliquidoDisplay">R$ <span class="br-currency">{{ subliquido|floatformat:2 }}</span></p>
                     </div>
                     <!-- Líquido Real Final -->
                     <div class="text-center mt-4">
                         <h4 class="mb-0">Líquido Real Final</h4>
-                        <p class="display-4" id="liquidoRealDisplay">R$ {{ liquido_real|floatformat:2 }}</p>
+                        <p class="display-4" id="liquidoRealDisplay">R$ <span class="br-currency">{{ liquido_real|floatformat:2 }}</span></p>
                     </div>
                 </div>
             </div>
@@ -216,30 +207,44 @@
 
         <a href="{% url 'listagemFluxoMensal' %}" class="btn btn-secondary mb-3"><i class="fas fa-arrow-left"></i> Voltar</a>
     </div>
-    <!-- Scripts Dinâmicos -->
+
+    <!-- Formatação pt-BR via JS -->
     <script>
-        document.addEventListener('DOMContentLoaded', function() {
-            // Sub-Líquido: preto e negrito
-            ['subliquido','subliquidoDisplay'].forEach(function(id) {
-                var el = document.getElementById(id);
-                if(el) { el.classList.remove('text-white'); el.classList.add('text-dark','fw-bold'); }
+        document.addEventListener('DOMContentLoaded', () => {
+            document.querySelectorAll('.br-currency').forEach(el => {
+                let raw = el.textContent.trim();
+                let num = parseFloat(raw.replace(',', '.'));
+                if (!isNaN(num)) {
+                    el.textContent = new Intl.NumberFormat('pt-BR', {
+                        minimumFractionDigits: 2,
+                        maximumFractionDigits: 2
+                    }).format(num);
+                }
             });
-            // Salários fixos: 3 dígitos branco, 4 dígitos verde, negativo vermelho
-            var sf = document.getElementById('totalSalariosFixos');
+
+            // manter lógica de cores
+            ['subliquido','subliquidoDisplay'].forEach(id => {
+                let el = document.getElementById(id);
+                if(el) el.classList.add('text-dark','fw-bold');
+            });
+
+            let sf = document.getElementById('totalSalariosFixos');
             if(sf) {
-                var num = parseFloat(sf.textContent.replace('R$','').replace(/\./g,'').replace(',','.'));
-                var dig = Math.abs(Math.trunc(num)).toString().length;
+                let txt = sf.textContent.replace(/\s|R\$|\u00A0/g, '').replace(/\./g,'').replace(',','.');
+                let num = parseFloat(txt);
+                let dig = Math.abs(Math.trunc(num)).toString().length;
                 sf.classList.remove('text-white','text-success','text-danger');
-                if(num < 0) sf.classList.add('text-danger');
-                else if(dig === 3) sf.classList.add('text-white');
-                else if(dig === 4) sf.classList.add('text-success');
+                if (num < 0) sf.classList.add('text-danger');
+                else if (dig === 3) sf.classList.add('text-white');
+                else if (dig === 4) sf.classList.add('text-success');
             }
-            // Líquido Real: positivo verde, negativo vermelho
-            var lr = document.getElementById('liquidoRealDisplay');
+
+            let lr = document.getElementById('liquidoRealDisplay');
             if(lr) {
-                var val = parseFloat(lr.textContent.replace('R$','').replace(/\./g,'').replace(',','.'));
+                let txt = lr.textContent.replace(/\s|R\$|\u00A0/g, '').replace(/\./g,'').replace(',','.');
+                let val = parseFloat(txt);
                 lr.classList.remove('text-success','text-danger');
-                lr.classList.add(val < 0 ? 'text-danger':'text-success');
+                lr.classList.add(val < 0 ? 'text-danger' : 'text-success');
             }
         });
     </script>

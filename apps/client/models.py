@@ -36,7 +36,7 @@ class Cliente(models.Model):
     )
 
     sexo = models.CharField(
-        max_length=50,
+        max_length=100,
         choices=[("M", "Masculino"), ("F", "Feminino"), ("O", "Outro")],
         blank=True,
         null=True,

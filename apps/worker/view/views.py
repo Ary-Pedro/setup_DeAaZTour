@@ -82,21 +82,19 @@ def salvar_csvFluxoConcluido(request, fluxo_id):
     total_saida = 0.0
 
     for conta in contas:
+        entrada = conta.entrada if conta.entrada is not None else 0.0
+        saida = conta.saida if conta.saida is not None else 0.0
+
         writer.writerow(
             [
-                (
-                    conta.created_at.strftime("%d/%m/%Y")
-                    if conta.created_at
-                    else "Sem Data"
-                ),
+                conta.created_at.strftime("%d/%m/%Y") if conta.created_at else "Sem Data",
                 conta.observacao if conta.observacao else "Sem observação",
-                f"{conta.entrada:.2f}".replace(".", ","),
-                f"{conta.saida:.2f}".replace(".", ","),
+                f"{entrada:.2f}".replace(".", ","),
+                f"{saida:.2f}".replace(".", ","),
             ]
         )
-        total_entrada += conta.entrada
-        total_saida += conta.saida
-
+        total_entrada += entrada
+        total_saida += saida
     saldo_total = total_entrada - total_saida
 
     writer.writerow([])
@@ -233,7 +231,31 @@ class ListarFluxosMensais(LoginRequiredMixin, ListView):
     paginate_by = 12
     context_object_name = "fluxos"
     ordering = ["-mes_referencia"]  # <-- ordem decrescente
+   
+    def get_queryset(self):
+        # 1) Pega todos os registros
+        qs = super().get_queryset()
 
+        # 2) Identifica quais devem ser excluídos:
+        #    - liste aqui TODOS os campos numéricos do seu modelo
+        campos = ['saldo_total', 'total_entrada', 'total_saida']  # ajuste para seus campos
+        vazios_pks = []
+        for obj in qs:
+            todos_vazios = True
+            for fld in campos:
+                val = getattr(obj, fld)
+                if val not in (None, 0):
+                    todos_vazios = False
+                    break
+            if todos_vazios:
+                vazios_pks.append(obj.pk)
+
+        # 3) Apaga de fato esses registros “completamente vazios”
+        if vazios_pks:
+            FluxoMensal.objects.filter(pk__in=vazios_pks).delete()
+
+        # 4) Retorna o queryset sem os apagados
+        return super().get_queryset().exclude(pk__in=vazios_pks)
 
 class DetalhesFluxoMensalCompleto(LoginRequiredMixin, DetailView):
     model = FluxoMensal
